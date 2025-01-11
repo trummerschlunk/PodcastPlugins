@@ -1,0 +1,40 @@
+declare name "dynamicSmoothing";
+declare version "0.1";
+declare author "Dario Sanfilippo";
+declare license "MIT";
+declare copyright "2024, Dario Sanfilippo";
+
+// Idea by Andrew Simper, Cytomic:  https://cytomic.com/files/dsp/DynamicSmoothing.pdf
+// Implementation by Dario Sanfilippo
+
+import("stdfaust.lib");
+
+PI = ma.PI;
+SR = ma.SR;
+NY = SR / 2.0;
+T = 1.0 / SR;
+PIT = PI * T;
+
+SVF(Q, CF, x) = f ~ si.bus(2) : ! , ! , si.bus(3)
+    with {
+        g = tan(CF * PIT);
+        R2 = 1.0 / Q;
+        gPlusR2 = g + R2;
+        f(s0, s1) = u0 , u1 , BP , HP , LP
+            with {
+                HP = (x - s0 * gPlusR2 - s1) / (1.0 + g * gPlusR2);
+                v0 = HP * g;
+                BP = s0 + v0;
+                v1 = BP * g;
+                LP = s1 + v1;
+                u0 = v0 + BP;
+                u1 = v1 + LP;
+            };
+    };
+dynamicSmoothing(sensitivity, baseCF, x) = f ~ _ : ! , ! , _
+    with {
+        f(s) = SVF(.5, CF, x)
+            with {
+                CF = min(NY * .25, baseCF + sensitivity * abs(s) * NY);
+            };
+    };
