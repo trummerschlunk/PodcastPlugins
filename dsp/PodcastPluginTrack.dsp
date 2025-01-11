@@ -5,7 +5,6 @@ declare version "0.1";
 declare author "Klaus Scheuermann";
 declare license "GPLv3";
 
-// double precision -double needed!
 
 //----------------------- Initial Values -----------------------
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
