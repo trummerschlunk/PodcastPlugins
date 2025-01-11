@@ -69,7 +69,7 @@ limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leve
 threshLim = -1; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
 rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
 meter_brickwall = _; //_<: _,( vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[2]gr[unit:dB]",-20,0)) : attach;
-mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2]mb morph",0.5,0,1,0.01);
+mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
 limiter_thresh = -1 : ba.db2linear; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 //meter_mb(b,c) = _; //_<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8]gr %b[unit:dB]", -6, 6)));
 
@@ -87,7 +87,7 @@ ebu = library("ebur128.lib");
 ex = library("expanders.lib");
 import("stdfaust.lib");
 
-process = _,_ : (pregain(Nch) : prefilter_bp : ballancer_bp : leveler : mbcomp_bp : limiter_lookahead : lufs_out_meter );
+process = _,_ : input_vu : (pregain(Nch) : prefilter_bp : ballancer_bp : leveler : mbcomp_bp : limiter_lookahead : output_vu : lufs_out_meter );
 
 //----------------------- Utility Functions -----------------------
 // Stereo bypass with smooth fading
@@ -100,6 +100,12 @@ bp2(sw,pr) = _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
 pregain(n) = par(i,n,gain) with {
     gain = _ * (preGainSlider : ba.db2linear : si.smoo);
 };
+
+//------------------------ Meter VU Input
+input_vu = par(i,Nch, (_ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_vu_channel_%i]InVU %i",-60,0))));
+
+//------------------------ Meter VU Output
+output_vu = par(i,Nch, (_ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_vu_channel_%i]InVU %i",-60,0))));
 
 //----------------------- Pre-Filter Section -----------------------
 prefilter_bp = bp2(prefilter_checkbox, (prefilter,prefilter));
