@@ -16,6 +16,13 @@ init_leveler_maxcut = 30;
 init_leveler_brake_threshold = -22;
 init_leveler_speed = 80;
 
+//------------------------ GUI Elements for DPF
+// [symbol:spectral_ballancer_gain_band_%2i]     spectral ballancer 20 gain meters -12/+12
+// [symbol:leveler_gain]                         leveler gain meter -50/+50
+// [symbol:leveler_target]                       leveler target slider -50/-2
+// [symbol:multiband_compressor_gain_band_%b]    multiband compressor 5 gain meters -12/+12
+//
+
  //----------------------- GUI Elements -----------------------
 //preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][unit:dB]PreGain", 0, -20, 20, 0.1);
 //spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]spectrum morph",0.5,0,1,0.01);
@@ -27,7 +34,7 @@ init_leveler_speed = 80;
 //spectrum2(n) = par(i, n, vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/v:Target Curves/h:[4]spectrum2/%2i",(init_spectrum2:ba.selector(i,BANDS)),-50,0,1));
 //spectrum_meter(i) = par(i,BANDS, (_ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/v:Target Curves/h:[6]spectrum morph/[1][unit:dB]%2i",-50,0))));
 //meter_sb(i) = _ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:[2]loudness normalized spectrum/[1][unit:dB]band%2i",-40,0));
-gainmeter_sb(i) = _ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:[3]resulting gain/[1][symbol:spectral_ballancer_gain_band_%2i]gr %2i",-20,20));
+gainmeter_sb(i) = _ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:[3]resulting gain/[1][symbol:spectral_ballancer_gain_band_%2i]gr %2i",-12,12));
 //meter_expander_sb = vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[3][integer]expander",0,1);
 leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB][symbol:leveler_gain]gain",-50,50);
 //bp = checkbox("v:Podcast Plugins/h:[0]Modules/[3]leveler"):si.smoo;
@@ -42,7 +49,7 @@ leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/
 //meter_brickwall = _<: _,( vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[2]gr[unit:dB]",-20,0)) : attach;
 //mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2]mb morph",0.5,0,1,0.01);
 //limiter_thresh = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
-meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -6, 6)));
+meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
 
 
 //----------------------- Almost no GUI Elements -----------------------
