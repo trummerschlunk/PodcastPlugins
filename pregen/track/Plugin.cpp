@@ -1284,7 +1284,7 @@ class mydsp : public dsp {
 		m->declare("basics.lib/peakholder:copyright", "Copyright (C) 2022 Dario Sanfilippo <sanfilippo.dario@gmail.com>");
 		m->declare("basics.lib/peakholder:license", "MIT-style STK-4.3 license");
 		m->declare("basics.lib/version", "0.8");
-		m->declare("compile_options", "-a /tmp/tmpz5dpsy9w.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
+		m->declare("compile_options", "-a /tmp/tmprwr1ur9s.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
 		m->declare("compressors.lib/limiter_lad_N:author", "Dario Sanfilippo");
 		m->declare("compressors.lib/limiter_lad_N:copyright", "Copyright (C) 2020 Dario Sanfilippo       <sanfilippo.dario@gmail.com>");
 		m->declare("compressors.lib/limiter_lad_N:license", "GPLv3 license");
