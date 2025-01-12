@@ -18,19 +18,19 @@ init_leveler_speed = 80;
 
 //------------------------ GUI Symbols for DPF ----------------
 // METERS:
-// [symbol:input_vu_channel_%i]                  input vu meters -60/0
-// [symbol:spectral_ballancer_gain_band_%2i]     spectral ballancer 20 gain meters -12/+12
-// [symbol:leveler_gain]                         leveler gain meter -50/+50
-// [symbol:multiband_compressor_gain_band_%b]    multiband compressor 5 gain meters -12/+12
-// [symbol:output_vu_channel_%i]                 output vu meters -60/0
-// [symbol:lufs_out_meter]                       lufs out meter -120/0
-// [symbol:limiter_gain]                         limiter gain meter -20/0
+// [symbol:input_vu_channel_%i]                  2 input vu meters -60/0
+// [symbol:spectral_ballancer_gain_band_%2i]     20 spectral ballancer  gain meters -12/+12
+// [symbol:leveler_gain]                         1 leveler gain meter -50/+50
+// [symbol:multiband_compressor_gain_band_%b]    5 multiband compressor gain meters -12/+12
+// [symbol:output_vu_channel_%i]                 2 output vu meters -60/0
+// [symbol:lufs_out_meter]                       1 lufs out meter -120/0
+// [symbol:limiter_gain]                         1 limiter gain meter -20/0
 
 // SLIDERS, BUTTONS:
-// [symbol:input_gain]                           pre-gain slider -20/-20
-// [symbol:spectral_ballancer_timbre]            spectral ballancer timbre slider 0/1
+// [symbol:input_gain]                           1 pre-gain slider -20/-20, centered at 0
 // [symbol:leveler_target]                       leveler target slider -50/-2
-// [symbol:multiband_compressor_style]           multiband compressor style slider 0/1
+// [symbol:spectral_ballancer_timbre]            1 spectral ballancer timbre slider 0/1, centered at 0.5
+// [symbol:multiband_compressor_style]           multiband compressor style slider 0/1, centered at 0.5
 
  //----------------------- GUI Elements -----------------------
 //preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][unit:dB]PreGain", 0, -20, 20, 0.1);
