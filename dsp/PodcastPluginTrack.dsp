@@ -16,12 +16,21 @@ init_leveler_maxcut = 30;
 init_leveler_brake_threshold = -22;
 init_leveler_speed = 80;
 
-//------------------------ GUI Elements for DPF
+//------------------------ GUI Symbols for DPF ----------------
+// METERS:
+// [symbol:input_vu_channel_%i]                  input vu meters -60/0
 // [symbol:spectral_ballancer_gain_band_%2i]     spectral ballancer 20 gain meters -12/+12
 // [symbol:leveler_gain]                         leveler gain meter -50/+50
-// [symbol:leveler_target]                       leveler target slider -50/-2
 // [symbol:multiband_compressor_gain_band_%b]    multiband compressor 5 gain meters -12/+12
-//
+// [symbol:output_vu_channel_%i]                 output vu meters -60/0
+// [symbol:lufs_out_meter]                       lufs out meter -120/0
+// [symbol:limiter_gain]                         limiter gain meter -20/0
+
+// SLIDERS, BUTTONS:
+// [symbol:input_gain]                           pre-gain slider -20/-20
+// [symbol:spectral_ballancer_timbre]            spectral ballancer timbre slider 0/1
+// [symbol:leveler_target]                       leveler target slider -50/-2
+// [symbol:multiband_compressor_style]           multiband compressor style slider 0/1
 
  //----------------------- GUI Elements -----------------------
 //preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][unit:dB]PreGain", 0, -20, 20, 0.1);
@@ -46,7 +55,6 @@ leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/
 //limit_neg = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 //threshLim = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
 //rel = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
-//meter_brickwall = _<: _,( vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[2]gr[unit:dB]",-20,0)) : attach;
 //mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2]mb morph",0.5,0,1,0.01);
 //limiter_thresh = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
@@ -75,7 +83,6 @@ limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MB
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 threshLim = -1; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
 rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
-meter_brickwall = _; //_<: _,( vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[2]gr[unit:dB]",-20,0)) : attach;
 mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
 limiter_thresh = -1 : ba.db2linear; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 //meter_mb(b,c) = _; //_<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8]gr %b[unit:dB]", -6, 6)));
@@ -485,5 +492,22 @@ peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
 
 // LIMITER with LOOKAHEAD
 
-limiter_lookahead = co.limiter_lad_stereo(0.01,limiter_thresh,0.008,0.01,0.1);
-// missing meter symbol:limiter_gain_reduction
+limiter_lookahead = limiter_lad_stereo(0.01,limiter_thresh,0.008,0.01,0.1);
+
+limiter_lad_stereo(LD) = limiter_lad_N(2, LD);
+
+limiter_lad_N(N, LD, ceiling, attack, hold, release) = 
+      si.bus(N) <: par(i, N, @(LD * ma.SR)), 
+                   (scaling <: si.bus(N)) : ro.interleave(N, 2) : par(i, N, *)
+      with {
+           scaling = ceiling / max(amp_profile, ma.EPSILON) : min(1) : limiter_meter;
+           amp_profile = par(i, N, abs) : maxN(N) : ba.peakholder(hold * ma.SR) :
+               att_smooth(attack) : rel_smooth(release);
+           att_smooth(time, in) = si.smooth(ba.tau2pole(time), in);
+           rel_smooth(time, in) = an.peak_envelope(time, in);
+           maxN(1) = _;
+           maxN(2) = max;
+           maxN(N) = max(maxN(N - 1));
+           limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR",-60,0));
+      };
+
