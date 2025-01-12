@@ -16,6 +16,6 @@ This plugin is inserted on the audio master bus of the DAW. It will shape the so
 ![Plugin GUI](./gui/PodcastPlugin_Master_Mockup.png) *mockup of Podcast Plugin Master*
 
 # Development
-The DSP is written in [Faust](https://faust.grame.fr) by [Klaus Scheuermann](https://4ohm.de)
+The DSP is written in [Faust](https://faust.grame.fr) by [Klaus Scheuermann](https://4ohm.de).
 
 The plugins are made by [ƒalkTX](https://github.com/falkTX) using [DPF](https://github.com/DISTRHO/DPF).
