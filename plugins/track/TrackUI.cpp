@@ -1,4 +1,4 @@
-// Copyright 2022-2024 Filipe Coelho <falktx@falktx.com>
+// Copyright 2025 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "DistrhoUI.hpp"

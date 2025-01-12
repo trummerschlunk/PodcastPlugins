@@ -24,31 +24,20 @@
     lv2:symbol "dpf_stereo" .
 {% endif %}
 
-<{{lv2uri}}#mode>
-    a lv2:Parameter ;
-    rdfs:label "Mode" ;
-    rdfs:comment "Simple vs Advanced mode switch" ;
-    rdfs:range atom:String .
-
 <{{lv2uri}}>
     a lv2:UtilityPlugin, lv2:Plugin, doap:Project ;
 
-    lv2:extensionData opts:interface ,
-                      <http://lv2plug.in/ns/ext/state#interface> ,
-                      <http://lv2plug.in/ns/ext/worker#interface> ;
+    lv2:extensionData opts:interface ;
 
     lv2:optionalFeature lv2:hardRTCapable ,
                         bufsize:boundedBlockLength ;
 
     lv2:requiredFeature opts:options ,
-                        <http://lv2plug.in/ns/ext/urid#map> ,
-                        <http://lv2plug.in/ns/ext/worker#schedule> ;
+                        <http://lv2plug.in/ns/ext/urid#map> ;
 
     opts:supportedOption bufsize:nominalBlockLength ,
                          bufsize:maxBlockLength ,
                          <http://lv2plug.in/ns/ext/parameters#sampleRate> ;
-
-    patch:readable <{{lv2uri}}#mode> ;
 
     {% if uitype is defined %}
     ui:ui <{{lv2uri}}#DPF_UI> ;
@@ -88,33 +77,11 @@
     ] ;
     {% endfor %}
 
-    lv2:port [
-        a lv2:InputPort, atom:AtomPort ;
-        lv2:index {{inputs+outputs}} ;
-        lv2:name "Events Input" ;
-        lv2:symbol "lv2_events_in" ;
-        atom:bufferType atom:Sequence ;
-        atom:supports atom:String ;
-        atom:supports patch:Message ;
-        lv2:designation lv2:control ;
-    ] ;
-
-    lv2:port [
-        a lv2:OutputPort, atom:AtomPort ;
-        lv2:index {{inputs+outputs+1}} ;
-        lv2:name "Events Output" ;
-        lv2:symbol "lv2_events_out" ;
-        atom:bufferType atom:Sequence ;
-        atom:supports atom:String ;
-        atom:supports patch:Message ;
-        lv2:designation lv2:control ;
-    ] ;
-
     {% for p in active %}
     lv2:port [
         a lv2:InputPort, lv2:ControlPort ;
-        lv2:index {{inputs+outputs+loop.index0+2}} ;
-    {% if loop.index0 == 0 %}
+        lv2:index {{inputs+outputs+loop.index0}} ;
+    {% if loop.index0 == 99999999999 %}
         lv2:name "Enabled" ;
         lv2:symbol "lv2_enabled" ;
         lv2:default 1 ;
@@ -187,23 +154,6 @@
         {% endif %}
     ] ;
     {% endfor %}
-
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index {{inputs+outputs+active|length+passive|length+2}} ; ;
-        lv2:name "Histogram Buffer Size" ;
-        lv2:symbol "histogram_buffer_size" ;
-        lv2:shortName "HistBufSize" ;
-        lv2:minimum 4096 ;
-        lv2:maximum 16384 ;
-        unit:unit [
-            a unit:Unit ;
-            rdfs:label  "frames" ;
-            unit:symbol "frames" ;
-            unit:render "%d frames" ;
-        ] ;
-        lv2:portProperty lv2:integer ;
-    ] ;
 
     doap:name {{cstr(name)}} ;
 
