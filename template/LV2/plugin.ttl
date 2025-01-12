@@ -126,7 +126,7 @@
     {% for p in passive %}
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index {{inputs+outputs+active|length+loop.index0+2}} ;
+        lv2:index {{inputs+outputs+active|length+loop.index0}} ;
         lv2:name {{cstr(p.label)}} ;
         lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0))))}} ;
         lv2:minimum {{p.min}} ;
