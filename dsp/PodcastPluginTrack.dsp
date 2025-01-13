@@ -26,11 +26,12 @@ init_leveler_speed = 80;
 // [symbol:lufs_out_meter]                       1 lufs out meter -120/0
 // [symbol:limiter_gain]                         1 limiter gain meter -20/0
 
-// SLIDERS, BUTTONS:
-// [symbol:input_gain]                           1 pre-gain slider -20/-20, centered at 0
-// [symbol:leveler_target]                       leveler target slider -50/-2
-// [symbol:spectral_ballancer_timbre]            1 spectral ballancer timbre slider 0/1, centered at 0.5
-// [symbol:multiband_compressor_style]           multiband compressor style slider 0/1, centered at 0.5
+// KNOBS, BUTTONS, SWITCHES:
+// [symbol:input_gain]                           1 pre-gain knob -20/-20, centered at 0
+// [symbol:leveler_target]                       leveler target knob -50/-2
+// [symbol:spectral_ballancer_timbre]            1 spectral ballancer timbre knob 0/1, centered at 0.5
+// [symbol:multiband_compressor_style]           multiband compressor style knob 0/1, centered at 0.5
+// [symbol:bypass_global]                        1 global bypass switch 0/1  (TODO. Not implemented yet)
 
  //----------------------- GUI Elements -----------------------
 //preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][unit:dB]PreGain", 0, -20, 20, 0.1);
