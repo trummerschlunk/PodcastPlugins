@@ -30,6 +30,7 @@ init_leveler_speed = 80;
 // [symbol:output_vu_channel_%i]                 2 output vu meters -60/0
 // [symbol:lufs_out_meter]                       1 lufs out meter -120/0
 // [symbol:limiter_gain]                         1 limiter gain meter -20/0
+// [symbol:latency_global]                       1 global latency in seconds
 
 // KNOBS, BUTTONS, SWITCHES:
 // [symbol:input_gain]                           1 pre-gain knob -20/-20, centered at 0
