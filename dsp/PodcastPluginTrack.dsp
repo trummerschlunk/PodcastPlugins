@@ -137,13 +137,7 @@ pregain(n) = par(i,n,gain) with {
     gain = _ * (preGainSlider : ba.db2linear : si.smoo);
 };
 
-//------------------------ Meter VU Input
-input_vu = par(i,Nch, (_ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_vu_channel_%i]InVU %i",-60,0))));
-
-//------------------------ Meter VU Output
-output_vu = par(i,Nch, (_ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_vu_channel_%i]InVU %i",-60,0))));
-
-// peak meters
+// ----------------------- peak meters -----------------------
 peakmeter_in = in_meter_l,in_meter_r with {
 envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
 in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -70, 0));
