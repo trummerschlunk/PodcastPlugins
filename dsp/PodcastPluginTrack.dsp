@@ -10,8 +10,6 @@ ebu = library("ebur128.lib");
 ex = library("expanders.lib");
 import("stdfaust.lib");
 
-// Plugin Latency is 110 milliseconds. Or Sample Rate dependent: 0.11 * SR
-
 
 //----------------------- Initial Values -----------------------
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
@@ -72,7 +70,7 @@ meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
 spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2][symbol:spectral_ballancer_timbre]timbre",0.5,0,1,0.01);
 sb_strength = 1; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1]strength", 1,0,1,0.1);
-delay = 100 / 1000 * ma.SR; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]delay", 100,0,1000,1) / 1000 * ma.SR;
+delay = Latency_spectral_ballancer * ma.SR; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]delay", 100,0,1000,1) / 1000 * ma.SR;
 ballancer_checkbox = checkbox("v:Podcast Plugins/h:[0]Modules/[2]ballancer");
 prefilter_checkbox = checkbox("v:Podcast Plugins/h:[0]Modules/[1]prefilter");
 spectrum1(n) = init_spectrum1; //par(i, n, vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/v:Target Curves/h:[6]spectrum1/%2i",(init_spectrum1:ba.selector(i,BANDS)),-50,0,1));
@@ -103,6 +101,10 @@ maxSR = 192000; // maximum sample rate
 
 Nch = 2; //number of channels
 Nba = 5; //number of bands of the multiband compressor
+
+Latency_limiter = 0.01; // in ms
+Latency_spectral_ballancer = 0.1; // in ms
+Latency_global = Latency_spectral_ballancer + Latency_limiter <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[symbol:latency_global]latency_global",0,1));
 
 //----------------------- MAIN Section -----------------------
 
@@ -497,7 +499,7 @@ peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
 
 // LIMITER with LOOKAHEAD
 
-limiter_lookahead = limiter_lad_stereo(0.01,limiter_thresh,0.008,0.01,0.1);
+limiter_lookahead = limiter_lad_stereo(Latency_global - Latency_spectral_ballancer,limiter_thresh,0.008,0.01,0.1);
 
 limiter_lad_stereo(LD) = limiter_lad_N(2, LD);
 
