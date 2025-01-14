@@ -10,6 +10,8 @@ ebu = library("ebur128.lib");
 ex = library("expanders.lib");
 import("stdfaust.lib");
 
+// Plugin Latency is 110 milliseconds. Or Sample Rate dependent: 0.11 * SR
+
 
 //----------------------- Initial Values -----------------------
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
