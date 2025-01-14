@@ -33,6 +33,8 @@ init_limiter_postgain = 0;
 init_brickwall_ceiling = -1;
 init_brickwall_release = 75;
 
+Latency_limiter = 0.01 <: attach(_,vbargraph("[symbol:latency_global]latency",0,1));
+
 
 target = vslider("v:master_me/h:easy/[3]Target[unit:dB][symbol:target][integer]", init_leveler_target,-50,-2,1);
 
@@ -52,7 +54,7 @@ process =
          : ( sc_compressor
              //: mscomp_bp
              : limiter_rms_bp
-             : brickwall_no_latency_bp
+             : limiter_lookahead
            )~(si.bus(2))
        )~(si.bus(2))
        ))
@@ -271,26 +273,33 @@ limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb
   limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:master_me/t:expert/h:[7]limiter/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
 };
 
-// LIMITER NO LATENCY
-brickwall_no_latency_bp = bp2(checkbox("v:master_me/t:expert/h:[8]brickwall/[1][symbol:brickwall_bypass]brickwall bypass"),brickwall_no_latency);
-brickwall_no_latency =
-  co.FFcompressor_N_chan(1,threshLim,att,rel,knee,0,link,meter_brickwall,2)
-with {
 
-  threshLim = vslider("v:master_me/t:expert/h:[8]brickwall/[3]brickwall ceiling[unit:dB][symbol:brickwall_ceiling]",init_brickwall_ceiling,-6,-0,0.1);
-  att = 0;
-  rel = vslider("v:master_me/t:expert/h:[8]brickwall/[4]brickwall release[unit:ms][symbol:brickwall_release]",init_brickwall_release,5,100,1) *0.001;
-  knee = 0;
-  link = 1;
-  meter_brickwall =
-    _<: _,( ba.linear2db:vbargraph("v:master_me/t:expert/h:[8]brickwall/lim[unit:dB][symbol:brickwall_limit]",-20,0)) : attach;
 
-  // The following code is in the libraries in the dev version of faust, but not yet in the latest release:
-  // TODO: use co.FFcompressor_N_chan
-  FFcompressor_N_chan(strength,thresh,att,rel,knee,prePost,link,meter,N) =
-    si.bus(N) <: (peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N),si.bus(N)) : ro.interleave(N,2) : par(i,N,(meter: ba.db2linear)*_);
 
-};
+// LIMITER with LOOKAHEAD
+limiter_thresh = -1 : ba.db2linear; 
+
+
+limiter_lookahead = limiter_lad_stereo(Latency_limiter,limiter_thresh,0.008,0.01,0.1);
+
+limiter_lad_stereo(LD) = limiter_lad_N(2, LD);
+
+limiter_lad_N(N, LD, ceiling, attack, hold, release) = 
+      si.bus(N) <: par(i, N, @(LD * ma.SR)), 
+                   (scaling <: si.bus(N)) : ro.interleave(N, 2) : par(i, N, *)
+      with {
+           scaling = ceiling / max(amp_profile, ma.EPSILON) : min(1) : limiter_meter;
+           amp_profile = par(i, N, abs) : maxN(N) : ba.peakholder(hold * ma.SR) :
+               att_smooth(attack) : rel_smooth(release);
+           att_smooth(time, in) = si.smooth(ba.tau2pole(time), in);
+           rel_smooth(time, in) = an.peak_envelope(time, in);
+           maxN(1) = _;
+           maxN(2) = max;
+           maxN(N) = max(maxN(N - 1));
+           limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR",-60,0));
+      };
+
+
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++
 

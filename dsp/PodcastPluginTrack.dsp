@@ -23,11 +23,13 @@ init_leveler_speed = 80;
 
 //------------------------ GUI Symbols for DPF ----------------
 // METERS:
-// [symbol:input_vu_channel_%i]                  2 input vu meters -60/0
+// [symbol:input_peak_channel_0]                   left input peak meter -60/0
+// [symbol:input_peak_channel_1]                   right input peak meter -60/0
 // [symbol:spectral_ballancer_gain_band_%2i]     20 spectral ballancer  gain meters -12/+12
 // [symbol:leveler_gain]                         1 leveler gain meter -50/+50
 // [symbol:multiband_compressor_gain_band_%b]    5 multiband compressor gain meters -12/+12
-// [symbol:output_vu_channel_%i]                 2 output vu meters -60/0
+// [symbol:output_peak_channel_0]                  left output peak meter -60/0
+// [symbol:output_peak_channel_1]                  right output peak meter -60/0
 // [symbol:lufs_out_meter]                       1 lufs out meter -120/0
 // [symbol:limiter_gain]                         1 limiter gain meter -20/0
 // [symbol:latency_global]                       1 global latency in seconds
@@ -109,7 +111,19 @@ Latency_global = Latency_spectral_ballancer + Latency_limiter <: attach(_, vbarg
 
 //----------------------- MAIN Section -----------------------
 
-process = _,_ : input_vu : bp2(bypass_global, (pregain(Nch) : prefilter_bp : ballancer_bp : leveler : mbcomp_bp : limiter_lookahead : output_vu : lufs_out_meter ));
+process = _,_ 
+        //: input_vu 
+        : peakmeter_in
+        : bp2(bypass_global, 
+                (pregain(Nch) 
+                : prefilter_bp 
+                : ballancer_bp 
+                : leveler 
+                : mbcomp_bp 
+                : limiter_lookahead))
+          //: output_vu
+          : peakmeter_out
+          : lufs_out_meter;
 
 //----------------------- Utility Functions -----------------------
 // Stereo bypass with smooth fading
@@ -128,6 +142,18 @@ input_vu = par(i,Nch, (_ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast P
 
 //------------------------ Meter VU Output
 output_vu = par(i,Nch, (_ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_vu_channel_%i]InVU %i",-60,0))));
+
+// peak meters
+peakmeter_in = in_meter_l,in_meter_r with {
+envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -70, 0));
+in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -70, 0));
+           };
+peakmeter_out = out_meter_l,out_meter_r with {
+  envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+  out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_0]Out 0", -70, 0));
+  out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", -70, 0));
+};
 
 //----------------------- Pre-Filter Section -----------------------
 prefilter_bp = bp2(prefilter_checkbox, (prefilter,prefilter));
