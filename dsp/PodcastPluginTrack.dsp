@@ -5,6 +5,11 @@ declare version "0.1";
 declare author "Klaus Scheuermann";
 declare license "GPLv3";
 
+ds = library("dynamicsmoothing.lib");
+ebu = library("ebur128.lib");
+ex = library("expanders.lib");
+import("stdfaust.lib");
+
 
 //----------------------- Initial Values -----------------------
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
@@ -87,7 +92,7 @@ rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]
 mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
 limiter_thresh = -1 : ba.db2linear; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 //meter_mb(b,c) = _; //_<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8]gr %b[unit:dB]", -6, 6)));
-
+bypass_global = checkbox("v:Podcast Plugins/h:[0]Modules/[0][symbol:bypass_global]bypass global");
 
 
 //----------------------- Global Parameters -----------------------
@@ -97,12 +102,9 @@ maxSR = 192000; // maximum sample rate
 Nch = 2; //number of channels
 Nba = 5; //number of bands of the multiband compressor
 
-ds = library("dynamicsmoothing.lib");
-ebu = library("ebur128.lib");
-ex = library("expanders.lib");
-import("stdfaust.lib");
+//----------------------- MAIN Section -----------------------
 
-process = _,_ : input_vu : (pregain(Nch) : prefilter_bp : ballancer_bp : leveler : mbcomp_bp : limiter_lookahead : output_vu : lufs_out_meter );
+process = _,_ : input_vu : bp2(bypass_global, (pregain(Nch) : prefilter_bp : ballancer_bp : leveler : mbcomp_bp : limiter_lookahead : output_vu : lufs_out_meter ));
 
 //----------------------- Utility Functions -----------------------
 // Stereo bypass with smooth fading
