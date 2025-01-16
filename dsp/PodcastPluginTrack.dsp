@@ -7,7 +7,7 @@ declare license "GPLv3";
 
 ds = library("dynamicsmoothing.lib");
 ebu = library("ebur128.lib");
-ex = library("expanders.lib");
+
 import("stdfaust.lib");
 
 
