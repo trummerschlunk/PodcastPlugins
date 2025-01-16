@@ -70,6 +70,8 @@ gen: $(PLUGIN_GENERATED_FILES)
 # podcast-plugins target, for actual building the plugin after its source code has been generated
 
 podcast-plugins: $(PLUGIN_GENERATED_FILES) dgl
+	# TODO fix pregen
+	# $(MAKE) -C plugins/master
 	$(MAKE) -C plugins/track
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -82,9 +84,19 @@ install: podcast-plugins
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -d $(DESTDIR)$(PREFIX)/lib/clap
 	install -d $(DESTDIR)$(PREFIX)/lib/ladspa
+	install -d $(DESTDIR)$(PREFIX)/lib/lv2/pod-master.lv2
 	install -d $(DESTDIR)$(PREFIX)/lib/lv2/pod-track.lv2
 	install -d $(DESTDIR)$(PREFIX)/lib/vst
+	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
 	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pod-track.vst3/$(VST3_BINARY_DIR)
+
+	# TODO fix pregen
+# 	install -m 755 bin/pod-master                           $(DESTDIR)$(PREFIX)/bin/
+# 	install -m 644 bin/pod-master.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
+# 	install -m 644 bin/pod-master-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
+# 	install -m 644 bin/pod-master.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pod-master.lv2/
+# 	install -m 644 bin/pod-master-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
+# 	install -m 644 bin/pod-master.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
 
 	install -m 755 bin/pod-track                           $(DESTDIR)$(PREFIX)/bin/
 	install -m 644 bin/pod-track.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
@@ -126,12 +138,14 @@ FAUSTPP_RUN_TRACK = \
 # FAUSTPP_OPTS = -X-vec -X-lv -X1 -X-vs -X8
 
 pregen:
-	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/track/DistrhoPluginInfo.h
-	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/track/Plugin.cpp
-	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/manifest.ttl    -o pregen/pod-track.lv2/manifest.ttl
-	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/plugin.ttl      -o pregen/pod-track.lv2/plugin.ttl
-	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/ui.ttl          -o pregen/pod-track.lv2/ui.ttl
+	mkdir -p pregen/master pregen/pod-master.lv2
+	$(FAUSTPP_RUN_MASTER) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/master/DistrhoPluginInfo.h
+	$(FAUSTPP_RUN_MASTER) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/master/Plugin.cpp
+	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/manifest.ttl    -o pregen/pod-master.lv2/manifest.ttl
+	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/plugin.ttl      -o pregen/pod-master.lv2/plugin.ttl
+	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/ui.ttl          -o pregen/pod-master.lv2/ui.ttl
 
+	mkdir -p pregen/track pregen/pod-track.lv2
 	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/track/DistrhoPluginInfo.h
 	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/track/Plugin.cpp
 	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/manifest.ttl    -o pregen/pod-track.lv2/manifest.ttl
