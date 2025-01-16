@@ -112,7 +112,6 @@ Latency_global = Latency_spectral_ballancer + Latency_limiter <: attach(_, vbarg
 //----------------------- MAIN Section -----------------------
 
 process = _,_ 
-        //: input_vu 
         : peakmeter_in
         : bp2(bypass_global, 
                 (pregain(Nch) 
@@ -120,10 +119,10 @@ process = _,_
                 : ballancer_bp 
                 : leveler 
                 : mbcomp_bp 
-                : limiter_lookahead))
-          //: output_vu
+                : limiter_lookahead))        
           : peakmeter_out
-          : lufs_out_meter;
+          : lufs_out_meter
+          ;
 
 //----------------------- Utility Functions -----------------------
 // Stereo bypass with smooth fading
