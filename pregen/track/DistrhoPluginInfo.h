@@ -29,16 +29,18 @@
 
 enum Parameters {
     // inputs
-    kParameter__1,
+    kParameter_bypass_global,
     kParameter__2,
     kParameter__3,
     kParameter__4,
+    kParameter__5,
     kParameter_spectral_ballancer_timbre,
     kParameter_input_gain,
     kParameter_leveler_target,
-    kParameter__8,
+    kParameter__9,
     
     // outputs
+    kParameter_latency_global,
     kParameter_spectral_ballancer_gain_band__0,
     kParameter_spectral_ballancer_gain_band__1,
     kParameter_spectral_ballancer_gain_band__2,
@@ -59,17 +61,18 @@ enum Parameters {
     kParameter_spectral_ballancer_gain_band_17,
     kParameter_spectral_ballancer_gain_band_18,
     kParameter_spectral_ballancer_gain_band_19,
-    kParameter_input_vu_channel_0,
-    kParameter_input_vu_channel_1,
+    kParameter_input_peak_channel_0,
+    kParameter_input_peak_channel_1,
     kParameter_leveler_gain,
     kParameter_multiband_compressor_gain_band_1,
     kParameter_multiband_compressor_gain_band_2,
     kParameter_multiband_compressor_gain_band_3,
     kParameter_multiband_compressor_gain_band_4,
     kParameter_multiband_compressor_gain_band_5,
+    kParameter_limiter_gain,
     kParameter_lufs_out_meter,
-    kParameter_output_vu_channel_0,
-    kParameter_output_vu_channel_1,
+    kParameter_output_peak_channel_0,
+    kParameter_output_peak_channel_1,
     
     // terminator
     kParameterCount
@@ -83,8 +86,9 @@ enum States {
     kStateCount
 };
 
-static constexpr const char* kParameterNames[39] = {
+static constexpr const char* kParameterNames[42] = {
     // inputs
+    "bypass global",
     "prefilter",
     "ballancer",
     "leveler",
@@ -95,6 +99,7 @@ static constexpr const char* kParameterNames[39] = {
     "mb morph",
     
     // ouputs
+    "latency_global",
     "gr  0",
     "gr  1",
     "gr  2",
@@ -115,22 +120,24 @@ static constexpr const char* kParameterNames[39] = {
     "gr 17",
     "gr 18",
     "gr 19",
-    "InVU 0",
-    "InVU 1",
+    "In 0",
+    "In 1",
     "gain",
     "gr 1",
     "gr 2",
     "gr 3",
     "gr 4",
     "gr 5",
+    "LimiterGR",
     "lufs",
-    "InVU 0",
-    "InVU 1",
+    "Out 0",
+    "Out 1",
     
 };
 
-static constexpr const struct { float def, min, max; } kParameterRanges[39] = {
+static constexpr const struct { float def, min, max; } kParameterRanges[42] = {
     // inputs
+    { 0, 0, 1 },
     { 0, 0, 1 },
     { 0, 0, 1 },
     { 0, 0, 1 },
@@ -141,52 +148,56 @@ static constexpr const struct { float def, min, max; } kParameterRanges[39] = {
     { 0.5, 0.0, 1.0 },
     
     // ouputs
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -20.0, 20.0 },
-    { 0, -60.0, 0.0 },
-    { 0, -60.0, 0.0 },
+    { 0, 0.0, 1.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -70.0, 0.0 },
+    { 0, -70.0, 0.0 },
     { 0, -50.0, 50.0 },
-    { 0, -6.0, 6.0 },
-    { 0, -6.0, 6.0 },
-    { 0, -6.0, 6.0 },
-    { 0, -6.0, 6.0 },
-    { 0, -6.0, 6.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -12.0, 12.0 },
+    { 0, -60.0, 0.0 },
     { 0, -120.0, 0.0 },
-    { 0, -60.0, 0.0 },
-    { 0, -60.0, 0.0 },
+    { 0, -70.0, 0.0 },
+    { 0, -70.0, 0.0 },
     
 };
 
-static constexpr const char* kParameterSymbols[39] = {
+static constexpr const char* kParameterSymbols[42] = {
     // inputs
-    "lv2_port_4",
+    "bypass_global",
     "lv2_port_5",
     "lv2_port_6",
     "lv2_port_7",
+    "lv2_port_8",
     "spectral_ballancer_timbre",
     "input_gain",
     "leveler_target",
-    "lv2_port_11",
+    "lv2_port_12",
     
     // ouputs
+    "latency_global",
     "spectral_ballancer_gain_band__0",
     "spectral_ballancer_gain_band__1",
     "spectral_ballancer_gain_band__2",
@@ -207,22 +218,24 @@ static constexpr const char* kParameterSymbols[39] = {
     "spectral_ballancer_gain_band_17",
     "spectral_ballancer_gain_band_18",
     "spectral_ballancer_gain_band_19",
-    "input_vu_channel_0",
-    "input_vu_channel_1",
+    "input_peak_channel_0",
+    "input_peak_channel_1",
     "leveler_gain",
     "multiband_compressor_gain_band_1",
     "multiband_compressor_gain_band_2",
     "multiband_compressor_gain_band_3",
     "multiband_compressor_gain_band_4",
     "multiband_compressor_gain_band_5",
+    "limiter_gain",
     "lufs_out_meter",
-    "output_vu_channel_0",
-    "output_vu_channel_1",
+    "output_peak_channel_0",
+    "output_peak_channel_1",
     
 };
 
-static constexpr const char* kParameterUnits[39] = {
+static constexpr const char* kParameterUnits[42] = {
     // inputs
+    "",
     "",
     "",
     "",
@@ -255,12 +268,14 @@ static constexpr const char* kParameterUnits[39] = {
     "",
     "",
     "",
+    "",
     "dB",
     "dB",
     "dB",
     "dB",
     "dB",
     "dB",
+    "",
     "dB",
     "",
     "",

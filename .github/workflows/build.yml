@@ -363,8 +363,7 @@ jobs:
           make NOOPT=true WITH_LTO=true -j $(sysctl -n hw.logicalcpu)
       - name: Package macOS plugin
         run: |
-          # env WELCOME_TXT=$(pwd)/plugin/macos-installer-welcome.txt
-          ./dpf/utils/package-osx-bundles.sh
+          env WELCOME_TXT=$(pwd)/plugins/macos-installer-welcome.txt ./dpf/utils/package-osx-bundles.sh
       - name: Set sha8
         id: slug
         run: echo "::set-output name=sha8::$(echo ${{ github.sha }} | cut -c1-8)"

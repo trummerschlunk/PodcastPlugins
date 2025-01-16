@@ -1,8 +1,8 @@
 #!/usr/bin/make -f
 
-NAME = pod-track
-FILES_DSP = TrackPlugin.cpp
-FILES_UI  = TrackUI.cpp
+NAME = pod-master
+FILES_DSP = MasterPlugin.cpp
+FILES_UI  = MasterUI.cpp
 FILES_UI += ../../dpf-widgets/opengl/DearImGui.cpp
 FILES_UI += ../../dpf-widgets/opengl/Quantum.cpp
 
@@ -23,7 +23,7 @@ BUILD_CXX_FLAGS += -DIMGUI_DISABLE_DEMO_WINDOWS
 BUILD_CXX_FLAGS += -I..
 BUILD_CXX_FLAGS += -I../../build
 BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
-BUILD_CXX_FLAGS += -I../../pregen/track
+BUILD_CXX_FLAGS += -I../../pregen/master
 BUILD_CXX_FLAGS += -funroll-loops
 ifeq ($(GCC),true)
 BUILD_CXX_FLAGS += -fprefetch-loop-arrays

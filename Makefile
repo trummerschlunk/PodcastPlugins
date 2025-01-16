@@ -62,6 +62,7 @@ PLUGIN_GENERATED_FILES += bin/pod-track.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/ui.ttl
 PLUGIN_GENERATED_FILES += build/BuildInfo1.hpp
 PLUGIN_GENERATED_FILES += build/BuildInfo2.hpp
+PLUGIN_GENERATED_FILES += build/Logo.hpp
 
 gen: $(PLUGIN_GENERATED_FILES)
 
@@ -110,6 +111,11 @@ FAUSTPP_RUN = \
 	-Dversion_minor=$(VERSION_MINOR) \
 	-Dversion_micro=$(VERSION_MICRO)
 
+FAUSTPP_RUN_MASTER = \
+	$(FAUSTPP_RUN) \
+	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Master" \
+	dsp/PodcastPluginMaster.dsp
+
 FAUSTPP_RUN_TRACK = \
 	$(FAUSTPP_RUN) \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Track" \
@@ -120,6 +126,12 @@ FAUSTPP_RUN_TRACK = \
 # FAUSTPP_OPTS = -X-vec -X-lv -X1 -X-vs -X8
 
 pregen:
+	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/track/DistrhoPluginInfo.h
+	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/track/Plugin.cpp
+	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/manifest.ttl    -o pregen/pod-track.lv2/manifest.ttl
+	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/plugin.ttl      -o pregen/pod-track.lv2/plugin.ttl
+	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/ui.ttl          -o pregen/pod-track.lv2/ui.ttl
+
 	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/track/DistrhoPluginInfo.h
 	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/track/Plugin.cpp
 	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/manifest.ttl    -o pregen/pod-track.lv2/manifest.ttl
@@ -172,6 +184,11 @@ else
 	echo '"v$(VERSION)"' >> $@
 endif
 	echo ';' >> $@
+
+# convert logo into raw data for C++ code
+build/Logo.hpp: img/logo/signet_master_me_white.png img/logo/signet_master_me_white@2x.png
+	mkdir -p build
+	./dpf/utils/res2c.py Logo img/logo/ build/
 
 # ---------------------------------------------------------------------------------------------------------------------
 # tarball target, generating release source-code tarballs ready for packaging
