@@ -56,7 +56,11 @@ endif
 # list of plugin source code files to generate, converted from faust dsp files
 
 PLUGIN_TEMPLATE_FILES   = $(subst template/,,$(wildcard template/*.*))
-PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),pregen/track/$(f))
+PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),pregen/master/$(f))
+PLUGIN_GENERATED_FILES += $(foreach f,$(PLUGIN_TEMPLATE_FILES),pregen/track/$(f))
+PLUGIN_GENERATED_FILES += bin/pod-master.lv2/manifest.ttl
+PLUGIN_GENERATED_FILES += bin/pod-master.lv2/plugin.ttl
+PLUGIN_GENERATED_FILES += bin/pod-master.lv2/ui.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/ui.ttl
@@ -70,8 +74,7 @@ gen: $(PLUGIN_GENERATED_FILES)
 # podcast-plugins target, for actual building the plugin after its source code has been generated
 
 podcast-plugins: $(PLUGIN_GENERATED_FILES) dgl
-	# TODO fix pregen
-	# $(MAKE) -C plugins/master
+	$(MAKE) -C plugins/master
 	$(MAKE) -C plugins/track
 
 # ---------------------------------------------------------------------------------------------------------------------
@@ -90,13 +93,12 @@ install: podcast-plugins
 	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
 	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pod-track.vst3/$(VST3_BINARY_DIR)
 
-	# TODO fix pregen
-# 	install -m 755 bin/pod-master                           $(DESTDIR)$(PREFIX)/bin/
-# 	install -m 644 bin/pod-master.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
-# 	install -m 644 bin/pod-master-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
-# 	install -m 644 bin/pod-master.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pod-master.lv2/
-# 	install -m 644 bin/pod-master-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
-# 	install -m 644 bin/pod-master.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
+	install -m 755 bin/pod-master                           $(DESTDIR)$(PREFIX)/bin/
+	install -m 644 bin/pod-master.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
+	install -m 644 bin/pod-master-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
+	install -m 644 bin/pod-master.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pod-master.lv2/
+	install -m 644 bin/pod-master-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
+	install -m 644 bin/pod-master.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
 
 	install -m 755 bin/pod-track                           $(DESTDIR)$(PREFIX)/bin/
 	install -m 644 bin/pod-track.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
@@ -111,10 +113,8 @@ install: podcast-plugins
 FAUSTPP_RUN = \
 	$(FAUSTPP_EXEC) \
 	$(FAUSTPP_ARGS) \
-	-Dbinary_name="pod-track" \
 	-Dbrand="Klaus Scheuermann" \
 	-Dhomepage="https://4ohm.de/" \
-	-Dlabel="pod-track" \
 	-Dlicense="GPLv3+" \
 	-Dlicenseurl="http://spdx.org/licenses/GPL-3.0-or-later.html" \
 	-Dlibext=\@libext\@ \
@@ -125,11 +125,15 @@ FAUSTPP_RUN = \
 
 FAUSTPP_RUN_MASTER = \
 	$(FAUSTPP_RUN) \
+	-Dbinary_name="pod-master" \
+	-Dlabel="pod-master" \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Master" \
 	dsp/PodcastPluginMaster.dsp
 
 FAUSTPP_RUN_TRACK = \
 	$(FAUSTPP_RUN) \
+	-Dbinary_name="pod-track" \
+	-Dlabel="pod-track" \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Track" \
 	dsp/PodcastPluginTrack.dsp
 
@@ -164,6 +168,10 @@ UITYPE = Windows
 else
 UITYPE = X11
 endif
+
+bin/pod-master.lv2/%: pregen/pod-master.lv2/%
+	mkdir -p bin/pod-master.lv2
+	sed -e "s/@libext@/$(LIB_EXT)/g" -e "s/@uitype@/$(UITYPE)/g" $< > $@
 
 bin/pod-track.lv2/%: pregen/pod-track.lv2/%
 	mkdir -p bin/pod-track.lv2

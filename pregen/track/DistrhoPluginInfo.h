@@ -31,13 +31,10 @@ enum Parameters {
     // inputs
     kParameter_bypass_global,
     kParameter__2,
-    kParameter__3,
-    kParameter__4,
-    kParameter__5,
     kParameter_spectral_ballancer_timbre,
     kParameter_input_gain,
     kParameter_leveler_target,
-    kParameter__9,
+    kParameter_multiband_compressor_style,
     
     // outputs
     kParameter_latency_global,
@@ -86,12 +83,9 @@ enum States {
     kStateCount
 };
 
-static constexpr const char* kParameterNames[42] = {
+static constexpr const char* kParameterNames[39] = {
     // inputs
     "bypass global",
-    "prefilter",
-    "ballancer",
-    "leveler",
     "comp",
     "timbre",
     "PreGain",
@@ -135,11 +129,8 @@ static constexpr const char* kParameterNames[42] = {
     
 };
 
-static constexpr const struct { float def, min, max; } kParameterRanges[42] = {
+static constexpr const struct { float def, min, max; } kParameterRanges[39] = {
     // inputs
-    { 0, 0, 1 },
-    { 0, 0, 1 },
-    { 0, 0, 1 },
     { 0, 0, 1 },
     { 0, 0, 1 },
     { 0.5, 0.0, 1.0 },
@@ -184,17 +175,14 @@ static constexpr const struct { float def, min, max; } kParameterRanges[42] = {
     
 };
 
-static constexpr const char* kParameterSymbols[42] = {
+static constexpr const char* kParameterSymbols[39] = {
     // inputs
     "bypass_global",
     "lv2_port_5",
-    "lv2_port_6",
-    "lv2_port_7",
-    "lv2_port_8",
     "spectral_ballancer_timbre",
     "input_gain",
     "leveler_target",
-    "lv2_port_12",
+    "multiband_compressor_style",
     
     // ouputs
     "latency_global",
@@ -233,11 +221,8 @@ static constexpr const char* kParameterSymbols[42] = {
     
 };
 
-static constexpr const char* kParameterUnits[42] = {
+static constexpr const char* kParameterUnits[39] = {
     // inputs
-    "",
-    "",
-    "",
     "",
     "",
     "",
