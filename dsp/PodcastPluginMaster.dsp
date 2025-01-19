@@ -8,7 +8,7 @@ declare license "GPLv3";
 // double precision -double needed!
 
 ebu = library("ebur128.lib");
-ex = library("expanders.lib");
+//ex = library("expanders.lib");
 import("stdfaust.lib");
 
 // init values
@@ -174,7 +174,7 @@ with {
 
   leveler_speed_brake(sc) = (expander(sc) <: attach(_, (1-_) : meter_leveler_brake)) : _ * leveler_speed;
 
-  expander(x) = (ex.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
+  expander(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
        : ba.db2linear
        :max(0)
        :min(1));
