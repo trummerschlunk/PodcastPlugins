@@ -439,7 +439,7 @@ B_band_Compressor_N_chan(B,N) =
                 ((strength_array1:ba.selector(i,Nba)), (strength_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            thresh_array1 = 2,8,6,4,2 : par(i,Nba,(_+target)); 
+            thresh_array1 = 0,6,4,2,0 : par(i,Nba,(_+target)); 
             thresh_array2 = -1,4,2,0,-2 : par(i,Nba,(_+target));
                 
             thresh_array = par(i,Nba, (
@@ -453,7 +453,7 @@ B_band_Compressor_N_chan(B,N) =
                 ((att_array1:ba.selector(i,Nba)), (att_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            rel_array1 = 50,50,50,50,50     : par(i,Nba,_*0.001);
+            rel_array1 = 80,70,60,50,40     : par(i,Nba,_*0.001);
             rel_array2 = 30,30,20,10,10     : par(i,Nba,_*0.001);
                 
             rel_array = par(i,Nba, (
@@ -478,42 +478,42 @@ B_band_Compressor_N_chan(B,N) =
             crossoverFreqs = LogArray(B-1,fl,fh);
 
             // parameter arrays for the multiband expander
-            expander_thresh_array1 = -30,-30,-40,-40,-60 : par(i,Nba,(_+target));
-            expander_thresh_array2 = -30,-30,-40,-40,-60 : par(i,Nba,(_+target));
+            expander_thresh_array1 = -40,-40,-40,-40,-40 : par(i,Nba,(_+target));
+            expander_thresh_array2 = -40,-38,-35,-35,-35 : par(i,Nba,(_+target));
 
             expander_thresh_array = par(i,Nba, (
                 ((expander_thresh_array1:ba.selector(i,Nba)), (expander_thresh_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            expander_strength_array1 = 10,20,30,40,50;
-            expander_strength_array2 = 10,20,30,40,50;
+            expander_strength_array1 = 10,10,10,10,10;
+            expander_strength_array2 = 20,20,30,35,40;
 
             expander_strength_array = par(i,Nba, (
                 ((expander_strength_array1:ba.selector(i,Nba)), (expander_strength_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            expander_range_array1 = -1,-1,-1,-1,-1;
-            expander_range_array2 = -10,-10,-10,-10,-10;
+            expander_range_array1 = -3,-3,-3,-3,-3;
+            expander_range_array2 = -30,-30,-30,-30,-30;
 
             expander_range_array = par(i,Nba, (
                 ((expander_range_array1:ba.selector(i,Nba)), (expander_range_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            expander_att_array1 = 0.01,0.01,0.005,0.002,0.001;
+            expander_att_array1 = 0.005,0.005,0.002,0.002,0.001;
             expander_att_array2 = 0.01,0.01,0.005,0.002,0.001;
 
             expander_att_array = par(i,Nba, (
                 ((expander_att_array1:ba.selector(i,Nba)), (expander_att_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            expander_rel_array1 = 0.5,0.4,0.2,0.1,0.05;
+            expander_rel_array1 = 1,0.8,0.6,0.4,0.3;
             expander_rel_array2 = 0.5,0.4,0.2,0.1,0.05;
 
             expander_rel_array = par(i,Nba, (
                 ((expander_rel_array1:ba.selector(i,Nba)), (expander_rel_array2:ba.selector(i,Nba))) :
                 si.interpolate(mbcomp_morph)));
 
-            expander_knee_array1 = 6,6,6,6,6;
+            expander_knee_array1 = 12,12,12,12,12;
             expander_knee_array2 = 6,6,6,6,6;
 
             expander_knee_array = par(i,Nba, (
