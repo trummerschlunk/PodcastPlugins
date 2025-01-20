@@ -381,7 +381,7 @@ B_band_Compressor_N_chan(B,N) =
                 maxHold = 2048;
             };
         
-            gain_calc = si.bus(Nba*2) <: gain_calc_comp, gain_calc_exp : ro.interleave(10,2) : par (i,Nba*2,+) : par(b, Nba, par(c, Nch, meter_mb(b+1, c+1)));
+            gain_calc = si.bus(Nba*2) <: gain_calc_comp, gain_calc_exp : ro.interleave(10,2) : par (i,Nba*2,min) : par(b, Nba, par(c, Nch, meter_mb(b+1, c+1)));
 
             
         
