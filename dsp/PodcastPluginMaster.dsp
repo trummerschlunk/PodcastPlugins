@@ -40,23 +40,25 @@ target = vslider("v:master_me/h:easy/[3]Target[unit:dB][symbol:target][integer]"
 
 
 // main
-process =
-  bp2(checkbox("[symbol:global_bypass]global bypass"),(
-       in_gain
-       : peakmeter_in
-       : lufs_meter_in
-       : dc_blocker_bp
+process = 
+        in_gain
+        : peakmeter_in
+        : lufs_meter_in
+        : bp2(checkbox("[symbol:global_bypass]global bypass"),(
+            dc_blocker_bp
+       
 
-       : eq_bp
+       
 
-       : (
-         leveler_sc(target)
-         : ( sc_compressor
-             //: mscomp_bp
-             : limiter_rms_bp
-             : limiter_lookahead
-           )~(si.bus(2))
-       )~(si.bus(2))
+            : (
+                leveler_sc(target)
+                : ( sc_compressor
+                    //: mscomp_bp
+                    : tilt_eq_bp
+                    : limiter_rms_bp
+                    : limiter_lookahead
+                )~(si.bus(2))
+            )~(si.bus(2))
        ))
 
   : lufs_meter_out
@@ -109,37 +111,20 @@ peakmeter_out = out_meter_l,out_meter_r with {
 
 
 // EQ with bypass
-eq_bp = bp2(checkbox("v:master_me/t:expert/h:[3]eq/[1][symbol:eq_bypass]eq bypass"),eq);
-eq = hp_eq : tilt_eq : side_eq_b with{
-  // HIGHPASS
-  hp_eq = par(i,2,fi.highpass(1,freq)) with {
-  freq = vslider("v:master_me/t:expert/h:[3]eq/h:[1]highpass/[1]eq highpass freq [unit:Hz] [scale:log] [symbol:eq_highpass_freq]", 5, 5, 1000,1);
-};
+tilt_eq_bp = bp2(checkbox("v:master_me/t:expert/h:[3]eq/[1][symbol:eq_bypass]eq bypass"),tilt_eq);
+
 
   // TILT EQ STEREO
   tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
     N = 1;
     gain = vslider("v:master_me/t:expert/h:[3]eq/h:[2]tilt eq/[1]eq tilt gain [unit:dB] [symbol:eq_tilt_gain]",0,-6,6,0.5):si.smoo;
-    freq = 630; //vslider("v:master_me/t:expert/h:[3]eq/h:[2]tilt eq/[2]eq tilt freq [unit:Hz] [scale:log] [symbol:eq_tilt_freq]", 630, 200, 2000,1);
+    freq = 630; 
   };
 
 
 
-  // SIDE EQ
-  side_eq_b =  ms_enc : _,band_shelf(freq_low,freq_high,eq_side_gain) : ms_dec with{
 
-    //band_shelf(freq1 ,freq2 ,gain) = fi.low_shelf(0-gain,freq1): fi.low_shelf(gain,freq2);
-    band_shelf(freq1 ,freq2 ,gain) = fi.svf.ls(freq1,0.7,0-gain): fi.svf.ls(freq2,0.7,gain);
 
-    freq_low = eq_side_freq - eq_side_freq*eq_side_width : max(50);
-    freq_high = eq_side_freq + eq_side_freq*eq_side_width : min(8000);
-
-    eq_side_gain = vslider("v:master_me/t:expert/h:[3]eq/h:[3]side eq/[1]eq side gain [unit:dB] [symbol:eq_side_gain]",0,0,12,0.5):si.smoo;
-    eq_side_freq = vslider("v:master_me/t:expert/h:[3]eq/h:[3]side eq/[2]eq side freq [unit:Hz] [scale:log] [symbol:eq_side_freq]", 600,200,5000,1);
-    eq_side_width = vslider("v:master_me/t:expert/h:[3]eq/h:[3]side eq/[3]eq side bandwidth [symbol:eq_side_bandwidth]", 1,0.5,4,0.5);
-
-  };
-};
 
 
 
@@ -196,7 +181,7 @@ sc_compressor(fl,fr,l,r) =
   (fl,fr,l,r)
   : feedforward_feedback
   : (ms_enc,ms_enc):
-  (((RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
+  (((co.RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
    : ro.interleave(N,2) : par(i,N,(meter(i) : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
   : ms_dec
   : ((l,_,r,_):par(i, 2, it.interpolate_linear(dw)))
@@ -223,26 +208,7 @@ with {
 
 
   // dev version of faust has this in the libs, TODO, use co.RMS_compression_gain_N_chan_db
-  RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,1) =
-    RMS_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost);
-
-  RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
-    par(i,N,RMS_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost))
-    <: (si.bus(N),(ba.parallelMin(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
-
-  RMS_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost) =
-    RMS(rel) : ba.bypass1(prePost,si.onePoleSwitching(att,0)) : ba.linear2db : gain_computer(strength,thresh,knee) : ba.bypass1((prePost!=1),si.onePoleSwitching(0,att))
-  with {
-    gain_computer(strength,thresh,knee,level) =
-      select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2))),
-              0,
-              ((level-thresh+(knee/2)) : pow(2)/(2*max(ma.EPSILON,knee))),
-              (level-thresh))
-      : max(0)*-strength;
-    RMS(time) = ba.slidingRMS(s) with {
-      s = ba.sec2samp(time):int:max(1);
-    };
-  };
+  
   //post_gain
   post_gain =
     _+
@@ -320,24 +286,3 @@ lk2_short = lk2_var(0.4);
 lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:master_me/h:easy/[2][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
 lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:master_me/h:easy/[7][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
 
-/* ******* 8< *******/
-// TODO: use co.peak_compression_gain_N_chan_db when it arrives in the current faust version
-peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost) =
-  abs : ba.bypass1(prePost,si.onePoleSwitching(att,rel)) : ba.linear2db : gain_computer(strength,thresh,knee) : ba.bypass1((prePost !=1),si.onePoleSwitching(rel,att))
-with {
-  gain_computer(strength,thresh,knee,level) =
-    select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2))),
-            0,
-            ((level-thresh+(knee/2)) : pow(2)/(2*max(ma.EPSILON,knee))),
-            (level-thresh))
-    : max(0)*-strength;
-};
-
-peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,1) =
-  peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost);
-
-peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N) =
-  par(i, N, peak_compression_gain_mono_db(strength,thresh,att,rel,knee,prePost))
-  <: (si.bus(N),(ba.parallelMin(N) <: si.bus(N))) : ro.interleave(N,2) : par(i,N,(it.interpolate_linear(link)));
-
-/* ******* >8 *******/
