@@ -7,9 +7,7 @@ declare license "GPLv3";
 
 // double precision -double needed!
 
-ebu = library("ebur128.lib");
 ds = library("dynamicsmoothing.lib");
-//ex = library("expanders.lib");
 import("stdfaust.lib");
 
 // init values
@@ -38,28 +36,29 @@ init_brickwall_release = 75;
 
 bp = 0;
 
-Latency_limiter = 0.01 <: attach(_,vbargraph("[symbol:latency_global]latency",0,1));
+Latency_limiter = 0.01 <: attach(_,hbargraph("v:Podcast Plugins/h:[1]Global/[symbol:latency_global]latency",0,1));
 
 
-target = vslider("v:master_me/h:easy/[3]Target[unit:dB][symbol:target][integer]", init_leveler_target,-50,-2,1);
+target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-50,-2,1);
 leveler_speed = init_leveler_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
 leveler_brake_thresh = target + init_leveler_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;
 meter_leveler_brake = _; //_*100 : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[6][unit:%][integer]brake",0,100);
 limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[7][unit:dB]max boost", init_leveler_maxboost, 0, 60, 1);
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB][symbol:leveler_gain]gain",-50,50);
+preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
 
 
 
 // main
 process = 
-        in_gain
+        pregain(Nch)
         : peakmeter_in
-        : lufs_meter_in
-        : bp2(checkbox("[symbol:global_bypass]global bypass"),(
+        : lufs_in_meter
+        : bp2(checkbox("v:Podcast Plugins/h:[1]Global/[symbol:global_bypass]global bypass"),(
             dc_blocker(Nch)
-            : leveler
             : tilt_eq_bp
+            : leveler
             //: sc_compressor
             //: mscomp_bp
             : limiter_rms_bp
@@ -77,13 +76,18 @@ process =
             */
        ))
 
-  : lufs_meter_out
+  : lufs_out_meter
   : peakmeter_out
 ;
 
 // stereo bypass with si.smoo fading
 bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
     sm = sw : si.smoo;
+};
+
+// PREGAIN
+pregain(n) = par(i,n,gain) with {
+    gain = _ * (preGainSlider : ba.db2linear : si.smoo);
 };
 
 // DC FILTER
@@ -98,11 +102,6 @@ with {
 
 
 
-// input gain
-in_gain = par(i,2,(_*g)) with{
-               g = vslider("v:master_me/t:expert/h:[1]pre-processing/[1][symbol:in_gain][unit:dB]input gain",0,-100,24,1) : ba.db2linear :si.smoo;
-             };
-
 // stereo to m/s encoder
 ms_enc = _*0.5,_*0.5 <: +, -;
 
@@ -111,29 +110,31 @@ ms_dec = _,_ <: +, -;
 
 // peak meters
 peakmeter_in = in_meter_l,in_meter_r with {
-envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
-in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:master_me/h:easy/[0][symbol:peakmeter_in_l]in L[unit:dB]", -70, 0));
-in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:master_me/h:easy/[1][symbol:peakmeter_in_r]in R[unit:dB]", -70, 0));
-           };
+    envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+    in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -70, 0));
+    in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -70, 0));
+};
 peakmeter_out = out_meter_l,out_meter_r with {
-  envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
-  out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:master_me/h:easy/[8][symbol:peakmeter_out_l]out L[unit:dB]", -70, 0));
-  out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:master_me/h:easy/[9][symbol:peakmeter_out_r]out R[unit:dB]", -70, 0));
+    envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+    out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_0]Out 0", -70, 0));
+    out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", -70, 0));
 };
 
+lufs_in_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:lufs_in_meter][unit:dB]lufs IN",-120,0))) : _,_;
+lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:lufs_out_meter][unit:dB]lufs OUT",-120,0))) : _,_;
 
 
 
 
 
 // EQ with bypass
-tilt_eq_bp = bp2(checkbox("v:master_me/t:expert/h:[3]eq/[1][symbol:eq_bypass]eq bypass"),tilt_eq);
+tilt_eq_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[1][symbol:eq_bypass]eq bypass"),tilt_eq);
 
 
 // TILT EQ STEREO
 tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
     N = 1;
-    gain = vslider("v:master_me/t:expert/h:[3]eq/h:[2]tilt eq/[1]eq tilt gain [unit:dB] [symbol:eq_tilt_gain]",0,-6,6,0.5):si.smoo;
+    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]eq tilt gain [unit:dB] [symbol:eq_tilt_gain]",0,-6,6,0.5):si.smoo;
     freq = 630; 
 };
 
@@ -181,10 +182,8 @@ lk2_fixed(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691)
   envelope(period, x) = x * x :  sump(rint(period * ma.SR));
   zi = envelope(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
 
-  kfilter = ebu.ebur128;
+  kfilter = fi.itu_r_bs_1770_4_kfilter;
 };
-
-lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:lufs_out_meter][unit:dB]lufs",-120,0))) : _,_;
 
 lk2_time =
   // 0.4;

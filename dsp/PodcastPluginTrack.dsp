@@ -210,7 +210,7 @@ lk_fixed_sb(Tg)= (kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with
 measure = lk_fixed_sb(0.8);
 
 // EXPANDER
-expander_sb(x) = (peak_expansion_gain_mono_db(maxHold,strength,thresh,range,att,hold,gate_rel,knee,prePost,x)
+expander_sb(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,thresh,range,att,hold,gate_rel,knee,prePost,x)
                  : ba.db2linear
                  :max(0)
                  :min(1))
@@ -226,22 +226,7 @@ expander_sb(x) = (peak_expansion_gain_mono_db(maxHold,strength,thresh,range,att,
                     prePost = 1;
 };
 
-peak_expansion_gain_mono_db(maxHold,strength,thresh,range,attack,hold,release,knee,prePost) =
-  level(hold,maxHold):ba.bypass1(prePost,si.lag_ud(attack,release)) :ba.linear2db : gain_computer(strength,thresh,range,knee) : ba.bypass1((prePost !=1),si.lag_ud(att,rel))
-with {
-  gain_computer(strength,thresh,range,knee,level) =
-    ( select3((level>(thresh-(knee/2)))+(level>(thresh+(knee/2)))
-             , (level-thresh)
-             , ((level-thresh-(knee/2)):pow(2) /(min(ma.EPSILON,knee*-2)))
-             , 0
-             )  *abs(strength):max(range)
-                               * (-1+(2*(strength>0)))
-    );
-  att = select2((strength>0),release,attack);
-  rel = select2((strength>0),attack,release);
-  level(hold,maxHold,x) =
-    x:abs:ba.slidingMax(hold*ma.SR,maxHold);
-};
+
 
 // LEVELER
 
@@ -321,7 +306,7 @@ with {
 
   leveler_speed_brake(sc) = expander(sc) * leveler_speed;
 
-  expander(x) = (peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
+  expander(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
                  : ba.db2linear
                  :max(0)
                  :min(1))
