@@ -283,22 +283,22 @@ with {
 
 
 // LIMITER
-limiter_rms_bp = bp2(checkbox("v:master_me/t:expert/h:[7]limiter/[0]limiter bypass[symbol:limiter_bypass]"),limiter_rms);
+limiter_rms_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[7]limiter bypass[symbol:limiter_bypass]"),limiter_rms);
 limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb,limiter_meter,2) : post_gain with{
-  strength = vslider("v:master_me/t:expert/h:[7]limiter/[1][unit:%][integer][symbol:limiter_strength]limiter strength", 80, 0, 100, 1) *0.01;
-  thresh = target + vslider("v:master_me/t:expert/h:[7]limiter/[2][symbol:limiter_threshold][unit:dB]limiter tar-thresh",6,-12,12,1);
-  att = vslider("v:master_me/t:expert/h:[7]limiter/[3][unit:ms][symbol:limiter_attack]limiter attack",1,0,100,1)*0.001;
-  rel = vslider("v:master_me/t:expert/h:[7]limiter/[4][unit:ms][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
-  knee = vslider("v:master_me/t:expert/h:[7]limiter/[5][symbol:limiter_knee][unit:dB]limiter knee",8,0,12,1);
+  strength = vslider("v:Podcast Plugins/h:[7]limiter RMS/[1][unit:%][integer][symbol:limiter_strength]limiter strength", 80, 0, 100, 1) *0.01;
+  thresh = target + vslider("v:Podcast Plugins/h:[7]limiter RMS/[2][symbol:limiter_threshold][unit:dB]limiter tar-thresh",6,-12,12,1);
+  att = vslider("v:Podcast Plugins/h:[7]limiter RMS/[3][unit:ms][symbol:limiter_attack]limiter attack",1,0,100,1)*0.001;
+  rel = vslider("v:Podcast Plugins/h:[7]limiter RMS/[4][unit:ms][symbol:limiter_release]limiter release",40,1,400,1)*0.001;
+  knee = vslider("v:Podcast Plugins/h:[7]limiter RMS/[5][symbol:limiter_knee][unit:dB]limiter knee",8,0,12,1);
 
-  fffb = vslider ("v:master_me/t:expert/h:[7]limiter/[6][unit:%][integer][symbol:limiter_fffb]limiter ff-fb",50,0,100,1)*0.01;
+  fffb = vslider ("v:Podcast Plugins/h:[7]limiter RMS/[6][unit:%][integer][symbol:limiter_fffb]limiter ff-fb",50,0,100,1)*0.01;
   // post_gain
   post_gain = par(i,Nch,_ * limiter_postgain) with {
 
   };
 
-  limiter_postgain = vslider("v:master_me/t:expert/h:[7]limiter/[8][unit:dB][symbol:limiter_makeup]limiter makeup", init_limiter_postgain,-10,+10,0.5) : ba.db2linear:si.smoo;
-  limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:master_me/t:expert/h:[7]limiter/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
+  limiter_postgain = vslider("v:Podcast Plugins/h:[7]limiter RMS/[8][unit:dB][symbol:limiter_makeup]limiter makeup", init_limiter_postgain,-10,+10,0.5) : ba.db2linear:si.smoo;
+  limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:Podcast Plugins/h:[7]limiter RMS/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
 };
 
 
