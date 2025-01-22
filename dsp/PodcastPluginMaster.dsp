@@ -13,6 +13,7 @@ import("stdfaust.lib");
 // init values
 
 Nch = 2; //number of channels
+Nba = 5; // number of bands in the mbcomp
 maxSR = 192000; // maximum sample rate
 
 
@@ -22,8 +23,8 @@ maxSR = 192000; // maximum sample rate
 init_leveler_target = -18;
 init_leveler_maxboost = 20;
 init_leveler_maxcut = 20;
-init_leveler_brake_threshold = -22;
-init_leveler_speed = 80;
+init_leveler_brake_threshold = -18;
+init_leveler_speed = 10;
 
 init_kneecomp_thresh = -6;
 init_kneecomp_postgain = 0;
@@ -31,8 +32,8 @@ init_kneecomp_postgain = 0;
 init_limiter_lad_ceil = -2;
 init_limiter_postgain = 0;
 
-init_brickwall_ceiling = -1;
-init_brickwall_release = 75;
+init_mb_outGain = 0;
+
 
 bp = 0;
 
@@ -45,8 +46,10 @@ leveler_brake_thresh = target + init_leveler_brake_threshold +32; //target + vsl
 meter_leveler_brake = _; //_*100 : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[6][unit:%][integer]brake",0,100);
 limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[7][unit:dB]max boost", init_leveler_maxboost, 0, 60, 1);
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB][symbol:leveler_gain]gain",-50,50);
+leveler_meter_gain(n) = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB][symbol:leveler_gain%n]gain %n",-50,50);
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
+meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
+mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
 
 
 
@@ -58,11 +61,11 @@ process =
         : bp2(checkbox("v:Podcast Plugins/h:[1]Global/[symbol:global_bypass]global bypass"),(
             dc_blocker(Nch)
             : tilt_eq_bp
-            : leveler
+            : leveler(0)
             //: sc_compressor
-            //: mscomp_bp
-            : limiter_rms_bp
-            : leveler
+            : mbcomp_bp
+            //: limiter_rms_bp
+            : leveler(1)
             : limiter_lookahead
             /*: (
                 leveler_sc(target)
@@ -148,9 +151,9 @@ tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, ga
 
 // LEVELER (NEW with dynamic smoothing)
 
-leveler(l,r) =
+leveler(n,l,r) =
 
-  ( ((l,r):leveler_sc(target)~(_,_)
+  ( ((l,r):leveler_sc(n,target)~(_,_)
                               :(
        (_*(1-bp))
       ,(_*(1-bp))
@@ -185,13 +188,8 @@ lk2_fixed(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691)
   kfilter = fi.itu_r_bs_1770_4_kfilter;
 };
 
-lk2_time =
-  // 0.4;
-  hslider("lk2 time", 0.01, 0.001, 3, 0.001);
-// it.interpolate_linear(leveler_speed :pow(hslider("lk2 power", 2, 0.1, 10, 0.1))
-//                      ,0.4 // hslider("lk2 time", 0.4, 0.001, 3, 0.001)
-//                      , 0.04):max(0);
-leveler_sc(target,fl,fr,l,r) =
+
+leveler_sc(n,target,fl,fr,l,r) =
   calc(lk2_fixed(0.01,fl,fr))
   // (calc(lk2_var(lk2_time,fl,fr))*(1-bp)+bp)
   <: (_*l,_*r)
@@ -206,7 +204,7 @@ with {
     ,  basefreq * expander(abs(fl)+abs(fr))
     )
     :  limit(limit_neg,limit_pos)
-    : leveler_meter_gain;
+    : leveler_meter_gain(n);
 
   limit(lo,hi) = min(hi) : max(lo);
 
@@ -219,18 +217,11 @@ with {
                 <: attach(_, (1-_) : meter_leveler_brake) with{
                     maxHold = hold*maxSR;
                     strength = 1;
-                    // hslider("gate strength", 1, 0.1, 10, 0.1);
                     range = 0-(ma.MAX);
-                    gate_att =
-                        0;
-                    // hslider("gate att", 0.0, 0.0, 1, 0.001);
+                    gate_att = 0;
                     hold = 0.0001;
-                    gate_rel =
-                        0.1;
-                    // hslider("gate rel", 0.1, 0.0, 1, 0.001);
-                    knee =
-                        ma.EPSILON;
-                    // hslider("gate knee", 0, 0, 90, 1);
+                    gate_rel = 0.1;
+                    knee = ma.EPSILON;
                     prePost = 1;
                 };
 
@@ -239,47 +230,197 @@ with {
 
 // SIDE CHAIN COMPRESSOR
 
-sc_compressor(fl,fr,l,r) =
-  (fl,fr,l,r)
-  : feedforward_feedback
-  : (ms_enc,ms_enc):
-  (((co.RMS_compression_gain_N_chan_db(strength,thresh,att,rel,knee,0,link,N)),si.bus(N) )
-   : ro.interleave(N,2) : par(i,N,(meter(i) : post_gain : ba.db2linear*(1-bypass)+bypass)*_))
-  : ms_dec
-  : ((l,_,r,_):par(i, 2, it.interpolate_linear(dw)))
-
-with {
-  N = 2;
-  B = si.bus(2);
-  bypass = checkbox("v:master_me/t:expert/h:[5]kneecomp/[0][symbol:kneecomp_bypass]kneecomp bypass"):si.smoo;
-  strength = vslider("v:master_me/t:expert/h:[5]kneecomp/[1][unit:%][integer][symbol:kneecomp_strength]kneecomp strength", 20, 0, 100, 1) * 0.01;
-  thresh = target + vslider("v:master_me/t:expert/h:[5]kneecomp/[2][symbol:kneecomp_threshold][unit:dB]kneecomp tar-thresh",init_kneecomp_thresh,-12,6,1);
-  att = vslider("v:master_me/t:expert/h:[5]kneecomp/[3][symbol:kneecomp_attack][unit:ms]kneecomp attack",20,1,100,1)*0.001;
-  rel = vslider("v:master_me/t:expert/h:[5]kneecomp/[4][symbol:kneecomp_release][unit:ms]kneecomp release",200,1,1000,1)*0.001;
-  knee = vslider("v:master_me/t:expert/h:[5]kneecomp/[5][unit:dB][symbol:kneecomp_knee]kneecomp knee",6,0,30,1);
-  link = vslider("v:master_me/t:expert/h:[5]kneecomp/[6][unit:%][integer][symbol:kneecomp_link]kneecomp link", 60, 0, 100, 1) *0.01;
-  fffb = vslider ("v:master_me/t:expert/h:[5]kneecomp/[7][unit:%][integer][symbol:kneecomp_fffb]kneecomp ff-fb",50,0,100,1) *0.01;
-  dw = vslider ("v:master_me/t:expert/h:[5]kneecomp/[9][unit:%][integer][symbol:kneecomp_drywet]kneecomp dry/wet",100,0,100,1) * 0.01:si.smoo;
-
-  meter(i) =
-    _<: attach(_, (max(-6):min(0):vbargraph(
-                     "v:master_me/t:expert/h:[5]kneecomp/[symbol:kneecomp_meter_%i][unit:dB]kneecomp meter %i", -6, 0)
-                  ));
-
-  feedforward_feedback = B,(B<:B,B) : par(i,2,_*fffb), par(i,2,_* (1-fffb)),B : (_,_,_,_:>_,_),_,_;
 
 
-  // dev version of faust has this in the libs, TODO, use co.RMS_compression_gain_N_chan_db
+
+//----------------------- Multiband Compressor & Expander Section -----------------------
+
+// bypass
+mbcomp_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[4]mb_comp"),
+                B_band_Compressor_N_chan(Nba,Nch)
+               ) ;
+
+// compressor & expander
+B_band_Compressor_N_chan(B,N) =
+    si.bus (N) <: si.bus (2 * N)
+    : ( (crossover:gain_calc), si.bus(N) )
+    : apply_gain
   
-  //post_gain
-  post_gain =
-    _+
-    (vslider("v:master_me/t:expert/h:[5]kneecomp/[8][unit:dB][symbol:kneecomp_makeup]kneecomp makeup", init_kneecomp_postgain,-10,+10,0.5) :si.smoo);
+        with {
+            
+            crossover =
+                par(i, N, an.analyzer (6, crossoverFreqs)
+                        : ro.cross (B)
+                );
+
+            apply_gain =
+                (ro.interleave(N, B+1))
+                : par(i, N, ro.cross(B),_)
+                : par(i, N, shelfcascade ((crossoverFreqs)))
+            ;
+
+            compressor(N,prePost,strength,thresh,att,rel,knee,link) = co.peak_compression_gain_N_chan_db (strength,thresh,att,rel,knee,prePost,link,N);
+
+            expander(N,strength,thresh,range,att,rel,knee) = co.peak_expansion_gain_N_chan_db(strength,thresh,range,att,hold,rel,knee,prePost,link,maxHold,N) with {
+                hold = 0.01;
+                prePost = 1;
+                link = 1;
+                maxHold = 2048;
+            };
+        
+            gain_calc = si.bus(Nba*2) <: gain_calc_comp, gain_calc_exp : ro.interleave(10,2) : par (i,Nba*2,min) : par(b, Nba, par(c, Nch, meter_mb(b+1, c+1)));
+
+            
+        
+
+
+            gain_calc_exp = 
+                    (expander_strength_array, expander_thresh_array, expander_range_array, expander_att_array, expander_rel_array, expander_knee_array, si.bus(N*B))
+                    : ro.interleave(B,6+N)
+                    : par(i, B, expander(N)) // : si.bus (N * Nr_bands)
+                ;
+
+
+        
+
+            gain_calc_comp = (strength_array, thresh_array, att_array, rel_array, knee_array, link_array, si.bus(N*B))
+                    : ro.interleave(B,6+N)
+                    : par(i, B, compressor(N,prePost))
+                    : par(i, B, (   (_+(gain_array : ba.selector(i,B)))  , (_+(gain_array : ba.selector(i,B)))))    
+                ;
+
+
+                outputGain = par(i, N, _*mscomp_outGain);
+
+        
+
+            /* higher order low, band and hi shelf filter primitives */
+            ls3(f,g) = fi.svf.ls (f, .5, g3) : fi.svf.ls (f, .707, g3) : fi.svf.ls (f, 2, g3) with {g3 = g/3;};
+            bs3(f1,f2,g) = ls3(f1,-g) : ls3(f2,g);
+            hs3(f,g) = fi.svf.hs (f, .5, g3) : fi.svf.hs (f, .707, g3) : fi.svf.hs (f, 2, g3) with {g3 = g/3;};
+
+            /* Cascade of shelving filters to apply gain per band.
+            *
+            * `lf` : list of frequencies
+            * followed by (count(lf) +1) gain parameters
+            */
+            shelfcascade(lf) = fbus(lf), ls3(first(lf)) : sc(lf)
+            with {
+                sc((f1, f2, lf)) = fbus((f2,lf)), bs3(f1,f2) : sc((f2,lf)); // recursive pattern
+                sc((f1, f2))     = _, bs3(f1,f2) : hs3(f2);                // halting pattern
+                fbus(l)          = par(i, outputs(l), _);                  // a bus of the size of a list
+                first((x,xs))    = x;                                      // first element of a list
+            };
+
+            /* Cross over frequency range */
+            fl = 100;
+            fh = 7000;
+
+
+            // parameter arrays for the multiband compressor
+
+            strength_array1 = 0.2,0.2,0.2,0.3,0.4;
+            strength_array2 = 0.5,0.6,0.7,0.8,0.9;
+
+            strength_array = par(i,Nba, (
+                ((strength_array1:ba.selector(i,Nba)), (strength_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            thresh_array1 = 0,6,4,2,0 : par(i,Nba,(_+target)); 
+            thresh_array2 = -9,-8,-10,-14,-16 : par(i,Nba,(_+target));
+                
+            thresh_array = par(i,Nba, (
+                ((thresh_array1:ba.selector(i,Nba)), (thresh_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            att_array1 = 15,12,10,8,5       : par(i,Nba,_*0.001);
+            att_array2 = 10,8,6,4,2         : par(i,Nba,_*0.001);
+                
+            att_array = par(i,Nba, (
+                ((att_array1:ba.selector(i,Nba)), (att_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            rel_array1 = 80,70,60,50,40     : par(i,Nba,_*0.001);
+            rel_array2 = 30,30,20,10,10     : par(i,Nba,_*0.001);
+                
+            rel_array = par(i,Nba, (
+                ((rel_array1:ba.selector(i,Nba)), (rel_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            knee_array1 = 6,6,7,8,9;
+            knee_array2 = 12,12,12,12,12;
+                
+            knee_array = par(i,Nba, (
+                ((knee_array1:ba.selector(i,Nba)), (knee_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            gain_array1 = 0,0,0,0,0;
+            gain_array2 = 2,2,2,2,2;
+                
+            gain_array = par(i,Nba, (
+                ((gain_array1:ba.selector(i,Nba)), (gain_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            link_array = (1,1,1,1,1);
+            crossoverFreqs = LogArray(B-1,fl,fh);
+
+            // parameter arrays for the multiband expander
+            expander_thresh_array1 = -40,-40,-40,-40,-40 : par(i,Nba,(_+target));
+            expander_thresh_array2 = -40,-40,-40,-40,-40 : par(i,Nba,(_+target));
+
+            expander_thresh_array = par(i,Nba, (
+                ((expander_thresh_array1:ba.selector(i,Nba)), (expander_thresh_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            expander_strength_array1 = 10,10,10,10,10;
+            expander_strength_array2 = 20,20,30,35,40;
+
+            expander_strength_array = par(i,Nba, (
+                ((expander_strength_array1:ba.selector(i,Nba)), (expander_strength_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            expander_range_array1 = -3,-3,-3,-3,-3;
+            expander_range_array2 = -30,-30,-30,-30,-30;
+
+            expander_range_array = par(i,Nba, (
+                ((expander_range_array1:ba.selector(i,Nba)), (expander_range_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            expander_att_array1 = 0.005,0.005,0.002,0.002,0.001;
+            expander_att_array2 = 0.01,0.01,0.005,0.002,0.001;
+
+            expander_att_array = par(i,Nba, (
+                ((expander_att_array1:ba.selector(i,Nba)), (expander_att_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            expander_rel_array1 = 1,0.8,0.6,0.4,0.3;
+            expander_rel_array2 = 0.5,0.4,0.2,0.1,0.05;
+
+            expander_rel_array = par(i,Nba, (
+                ((expander_rel_array1:ba.selector(i,Nba)), (expander_rel_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
+
+            expander_knee_array1 = 12,12,12,12,12;
+            expander_knee_array2 = 6,6,6,6,6;
+
+            expander_knee_array = par(i,Nba, (
+                ((expander_knee_array1:ba.selector(i,Nba)), (expander_knee_array2:ba.selector(i,Nba))) :
+                si.interpolate(mbcomp_morph)));
 
 
 
+            // make a linear array of values, from bottom to top
+            LinArray(N,bottom,top) = par(i,N,   ((top-bottom)*(i/(N-1)))+bottom);
+            // make a log array of values, from bottom to top
+            LogArray(N,bottom,top) = par(i,N,   pow((pow((t/b),1/(N-1))),i)*b)
+            with {
+            b = bottom:max(ma.EPSILON);
+            t = top:max(ma.EPSILON);
+            };
+
+
+            prePost = 1;
 };
-
 
 
 // LIMITER
@@ -298,7 +439,7 @@ limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb
   };
 
   limiter_postgain = vslider("v:Podcast Plugins/h:[7]limiter RMS/[8][unit:dB][symbol:limiter_makeup]limiter makeup", init_limiter_postgain,-10,+10,0.5) : ba.db2linear:si.smoo;
-  limiter_meter = _ <: attach(ba.linear2db : vbargraph("v:Podcast Plugins/h:[7]limiter RMS/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
+  limiter_meter = _ <: attach( vbargraph("v:Podcast Plugins/h:[7]limiter RMS/[9][unit:dB][symbol:limiter_gain_reduction]limiter gain reduction",-12,0));
 };
 
 
