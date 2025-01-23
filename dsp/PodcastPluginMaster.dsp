@@ -16,9 +16,28 @@ Nch = 2; //number of channels
 Nba = 5; // number of bands in the mbcomp
 maxSR = 192000; // maximum sample rate
 
+/* SYMBOLS
+
+Sliders, Knobs, Switches
+[symbol:input_gain]                             input gain knob, centered, +20/-20 dB
+[symbol:timbre]                                 timbre knob 0/1, centered at 0.5
+[symbol:style]                                  style knob 0/1, centered at 0.5
+[symbol:leveler_target]                         leveler target knob -50/-2 (LUFS)
 
 
+Meters
+[symbol:input_peak_channel_0]                   left input peak meter -60/0
+[symbol:input_peak_channel_1]                   right input peak meter -60/0
+// [symbol:leveler_gain]                           leveler gain meter -50/+50
+[symbol:multiband_compressor_gain_band_%b]      5 multiband compressor gain meters -12/+12
+[symbol:output_peak_channel_0]                  left output peak meter -60/0
+[symbol:output_peak_channel_1]                  right output peak meter -60/0
+[symbol:lufs_out_meter]                         lufs out meter -120/0
+[symbol:limiter_gain]                           limiter gain meter -20/0
+[symbol:latency_global]                         global latency in seconds
 
+
+*/
 
 init_leveler_target = -18;
 init_leveler_maxboost = 20;
