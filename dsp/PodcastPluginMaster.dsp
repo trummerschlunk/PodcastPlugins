@@ -24,7 +24,7 @@ init_leveler_target = -18;
 init_leveler_maxboost = 20;
 init_leveler_maxcut = 20;
 init_leveler_brake_threshold = -18;
-init_leveler_speed = 10;
+init_leveler_speed = 20;
 
 init_kneecomp_thresh = -6;
 init_kneecomp_postgain = 0;
@@ -35,7 +35,7 @@ init_limiter_postgain = 0;
 init_mb_outGain = 0;
 
 
-bp = 0;
+bp = checkbox("v:Podcast Plugins/h:[1]Global/[4][symbol:bypass_leveler]bypass leveler");
 
 Latency_limiter = 0.01 <: attach(_,hbargraph("v:Podcast Plugins/h:[1]Global/[symbol:latency_global]latency",0,1));
 
@@ -58,7 +58,7 @@ process =
         pregain(Nch)
         : peakmeter_in
         : lufs_in_meter
-        : bp2(checkbox("v:Podcast Plugins/h:[1]Global/[symbol:global_bypass]global bypass"),(
+        : bp2(checkbox("v:Podcast Plugins/h:[1]Global/[symbol:bypass_global]bypass global"),(
             dc_blocker(Nch)
             : tilt_eq_bp
             : leveler(0)
@@ -131,13 +131,13 @@ lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plug
 
 
 // EQ with bypass
-tilt_eq_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[1][symbol:eq_bypass]eq bypass"),tilt_eq);
+tilt_eq_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[1][symbol:bypass_timbre]bypass timbre"),tilt_eq);
 
 
 // TILT EQ STEREO
 tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
     N = 1;
-    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]eq tilt gain [unit:dB] [symbol:eq_tilt_gain]",0,-6,6,0.5):si.smoo;
+    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]timbre [unit:dB] [symbol:timbre]",0,-6,6,0.5):si.smoo;
     freq = 630; 
 };
 
@@ -228,15 +228,12 @@ with {
   
 };
 
-// SIDE CHAIN COMPRESSOR
-
-
 
 
 //----------------------- Multiband Compressor & Expander Section -----------------------
 
 // bypass
-mbcomp_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[4]mb_comp"),
+mbcomp_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[4][symbol:bypass_style]bypass style"),
                 B_band_Compressor_N_chan(Nba,Nch)
                ) ;
 

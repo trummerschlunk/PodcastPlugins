@@ -37,9 +37,11 @@ init_leveler_speed = 80;
 // KNOBS, BUTTONS, SWITCHES:
 // [symbol:input_gain]                           1 pre-gain knob -20/-20, centered at 0
 // [symbol:leveler_target]                       leveler target knob -50/-2
-// [symbol:spectral_ballancer_timbre]            1 spectral ballancer timbre knob 0/1, centered at 0.5
-// [symbol:multiband_compressor_style]           multiband compressor style knob 0/1, centered at 0.5
-// [symbol:bypass_global]                        1 global bypass switch 0/1  (TODO. Not implemented yet)
+// [symbol:timbre]                               1 spectral ballancer timbre knob 0/1, centered at 0.5
+// [symbol:style]                                style knob 0/1, centered at 0.5
+// [symbol:bypass_global]                        1 global bypass switch 0/1 
+// [symbol:bypass_leveler]                       bypass leveler
+// [symbol:bypass_style]                         bypass style
 
  //----------------------- GUI Elements -----------------------
 //preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][unit:dB]PreGain", 0, -20, 20, 0.1);
@@ -71,10 +73,10 @@ meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[
 
 //----------------------- Almost no GUI Elements -----------------------
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
-spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2][symbol:spectral_ballancer_timbre]timbre",0.5,0,1,0.01);
+spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2][symbol:timbre]timbre",0.5,0,1,0.01);
 sb_strength = 1; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1]strength", 1,0,1,0.1);
 delay = Latency_spectral_ballancer * ma.SR; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]delay", 100,0,1000,1) / 1000 * ma.SR;
-ballancer_checkbox = 0; //checkbox("v:Podcast Plugins/h:[0]Modules/[2]ballancer");
+ballancer_checkbox = checkbox("v:Podcast Plugins/h:[0]Modules/[2][symbol:bypass_timbre]bypass timbre");
 prefilter_checkbox = 0; //checkbox("v:Podcast Plugins/h:[0]Modules/[1]prefilter");
 spectrum1(n) = init_spectrum1; //par(i, n, vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/v:Target Curves/h:[6]spectrum1/%2i",(init_spectrum1:ba.selector(i,BANDS)),-50,0,1));
 spectrum2(n) = init_spectrum2;//par(i, n, vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/v:Target Curves/h:[4]spectrum2/%2i",(init_spectrum2:ba.selector(i,BANDS)),-50,0,1));
@@ -83,7 +85,7 @@ meter_sb(i) = _; //_ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Bal
 //gainmeter_sb(i) = _; //_ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:[3]resulting gain/[1]gr %2i",-20,20));
 meter_expander_sb = _; //vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[3][integer]expander",0,1);
 //leveler_meter_gain = _; //vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB]gain",-50,50);
-bp = 0; //checkbox("v:Podcast Plugins/h:[0]Modules/[3]leveler"):si.smoo;
+bp = checkbox("v:Podcast Plugins/h:[0]Modules/[3][symbol:bypass_leveler]bypass_leveler"):si.smoo;
 target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-50,-2,1);
 leveler_speed = init_leveler_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
 leveler_brake_thresh = target + init_leveler_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;
@@ -92,10 +94,10 @@ limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MB
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 threshLim = -1; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
 rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
-mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
+mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]style",0.5,0,1,0.01);
 limiter_thresh = -1 : ba.db2linear; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 //meter_mb(b,c) = _; //_<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8]gr %b[unit:dB]", -6, 6)));
-bypass_global = checkbox("v:Podcast Plugins/h:[0]Modules/[0][symbol:bypass_global]bypass global");
+bypass_global = checkbox("v:Podcast Plugins/h:[0]Modules/[9][symbol:bypass_global]bypass global");
 
 
 //----------------------- Global Parameters -----------------------
@@ -334,7 +336,7 @@ with {
 //----------------------- Multiband Compressor & Expander Section -----------------------
 
 // bypass
-mbcomp_bp = bp2(checkbox("v:Podcast Plugins/h:[0]Modules/[4]comp"),
+mbcomp_bp = bp2(checkbox("v:Podcast Plugins/h:[0]Modules/[4][symbol:bypass_style]bypass style"),
                 B_band_Compressor_N_chan(Nba,Nch)
                ) ;
 
