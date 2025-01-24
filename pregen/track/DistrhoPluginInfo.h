@@ -29,12 +29,14 @@
 
 enum Parameters {
     // inputs
+    kParameter_bypass_timbre,
+    kParameter_bypass_leveler,
+    kParameter_bypass_style,
     kParameter_bypass_global,
-    kParameter__2,
-    kParameter_spectral_ballancer_timbre,
+    kParameter_timbre,
     kParameter_input_gain,
     kParameter_leveler_target,
-    kParameter_multiband_compressor_style,
+    kParameter_style,
     
     // outputs
     kParameter_latency_global,
@@ -83,14 +85,16 @@ enum States {
     kStateCount
 };
 
-static constexpr const char* kParameterNames[39] = {
+static constexpr const char* kParameterNames[41] = {
     // inputs
+    "bypass timbre",
+    "bypass_leveler",
+    "bypass style",
     "bypass global",
-    "comp",
     "timbre",
     "PreGain",
     "target",
-    "mb morph",
+    "style",
     
     // ouputs
     "latency_global",
@@ -129,8 +133,10 @@ static constexpr const char* kParameterNames[39] = {
     
 };
 
-static constexpr const struct { float def, min, max; } kParameterRanges[39] = {
+static constexpr const struct { float def, min, max; } kParameterRanges[41] = {
     // inputs
+    { 0, 0, 1 },
+    { 0, 0, 1 },
     { 0, 0, 1 },
     { 0, 0, 1 },
     { 0.5, 0.0, 1.0 },
@@ -175,14 +181,16 @@ static constexpr const struct { float def, min, max; } kParameterRanges[39] = {
     
 };
 
-static constexpr const char* kParameterSymbols[39] = {
+static constexpr const char* kParameterSymbols[41] = {
     // inputs
+    "bypass_timbre",
+    "bypass_leveler",
+    "bypass_style",
     "bypass_global",
-    "lv2_port_5",
-    "spectral_ballancer_timbre",
+    "timbre",
     "input_gain",
     "leveler_target",
-    "multiband_compressor_style",
+    "style",
     
     // ouputs
     "latency_global",
@@ -221,8 +229,10 @@ static constexpr const char* kParameterSymbols[39] = {
     
 };
 
-static constexpr const char* kParameterUnits[39] = {
+static constexpr const char* kParameterUnits[41] = {
     // inputs
+    "",
+    "",
     "",
     "",
     "",

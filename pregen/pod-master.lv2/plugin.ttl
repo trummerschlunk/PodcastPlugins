@@ -99,8 +99,8 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 4 ;
     
-        lv2:name "global bypass" ;
-        lv2:symbol "global_bypass" ;
+        lv2:name "bypass timbre" ;
+        lv2:symbol "bypass_timbre" ;
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 1 ;
@@ -123,19 +123,19 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 5 ;
     
-        lv2:name "Target" ;
-        lv2:symbol "target" ;
-        lv2:default -18.0 ;
-        lv2:minimum -50.0 ;
-        lv2:maximum -2.0 ;
+        lv2:name "bypass leveler" ;
+        lv2:symbol "bypass_leveler" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
         
+        
+        lv2:portProperty lv2:toggled ;
         
         
         lv2:portProperty lv2:integer ;
         
         
-        
-        unit:unit unit:db ;
         
         
         
@@ -147,17 +147,19 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 6 ;
     
-        lv2:name "input gain" ;
-        lv2:symbol "in_gain" ;
-        lv2:default 0.0 ;
-        lv2:minimum -100.0 ;
-        lv2:maximum 24.0 ;
+        lv2:name "bypass style" ;
+        lv2:symbol "bypass_style" ;
+        lv2:default 0 ;
+        lv2:minimum 0 ;
+        lv2:maximum 1 ;
         
         
+        lv2:portProperty lv2:toggled ;
         
         
+        lv2:portProperty lv2:integer ;
         
-        unit:unit unit:db ;
+        
         
         
         
@@ -169,8 +171,8 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 7 ;
     
-        lv2:name "dc blocker" ;
-        lv2:symbol "dc_blocker" ;
+        lv2:name "bypass global" ;
+        lv2:symbol "bypass_global" ;
         lv2:default 0 ;
         lv2:minimum 0 ;
         lv2:maximum 1 ;
@@ -193,19 +195,17 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 8 ;
     
-        lv2:name "eq bypass" ;
-        lv2:symbol "eq_bypass" ;
-        lv2:default 0 ;
-        lv2:minimum 0 ;
-        lv2:maximum 1 ;
+        lv2:name "PreGain" ;
+        lv2:symbol "input_gain" ;
+        lv2:default 0.0 ;
+        lv2:minimum -20.0 ;
+        lv2:maximum 20.0 ;
         
         
-        lv2:portProperty lv2:toggled ;
         
         
-        lv2:portProperty lv2:integer ;
         
-        
+        unit:unit unit:db ;
         
         
         
@@ -217,20 +217,18 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 9 ;
     
-        lv2:name "eq highpass freq" ;
-        lv2:symbol "eq_highpass_freq" ;
-        lv2:default 5.0 ;
-        lv2:minimum 5.0 ;
-        lv2:maximum 1000.0 ;
+        lv2:name "target" ;
+        lv2:symbol "leveler_target" ;
+        lv2:default -18.0 ;
+        lv2:minimum -50.0 ;
+        lv2:maximum -2.0 ;
         
         
         
         
-        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
         
+        unit:unit unit:db ;
         
-        
-        unit:unit unit:hz ;
         
         
         
@@ -241,17 +239,15 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 10 ;
     
-        lv2:name "eq tilt gain" ;
-        lv2:symbol "eq_tilt_gain" ;
-        lv2:default 0.0 ;
-        lv2:minimum -6.0 ;
-        lv2:maximum 6.0 ;
+        lv2:name "mb morph" ;
+        lv2:symbol "multiband_compressor_style" ;
+        lv2:default 0.5 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 1.0 ;
         
         
         
         
-        
-        unit:unit unit:db ;
         
         
         
@@ -263,581 +259,11 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 11 ;
     
-        lv2:name "eq side gain" ;
-        lv2:symbol "eq_side_gain" ;
+        lv2:name "timbre" ;
+        lv2:symbol "timbre" ;
         lv2:default 0.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 12.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 12 ;
-    
-        lv2:name "eq side freq" ;
-        lv2:symbol "eq_side_freq" ;
-        lv2:default 600.0 ;
-        lv2:minimum 200.0 ;
-        lv2:maximum 5000.0 ;
-        
-        
-        
-        
-        lv2:portProperty <http://lv2plug.in/ns/ext/port-props#logarithmic> ;
-        
-        
-        
-        unit:unit unit:hz ;
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 13 ;
-    
-        lv2:name "eq side bandwidth" ;
-        lv2:symbol "eq_side_bandwidth" ;
-        lv2:default 1.0 ;
-        lv2:minimum 0.5 ;
-        lv2:maximum 4.0 ;
-        
-        
-        
-        
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 14 ;
-    
-        lv2:name "leveler bypass" ;
-        lv2:symbol "leveler_bypass" ;
-        lv2:default 0 ;
-        lv2:minimum 0 ;
-        lv2:maximum 1 ;
-        
-        
-        lv2:portProperty lv2:toggled ;
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 15 ;
-    
-        lv2:name "leveler speed" ;
-        lv2:symbol "leveler_speed" ;
-        lv2:default 20.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 16 ;
-    
-        lv2:name "leveler brake threshold" ;
-        lv2:symbol "leveler_brake_threshold" ;
-        lv2:default -14.0 ;
-        lv2:minimum -90.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 17 ;
-    
-        lv2:name "leveler max +" ;
-        lv2:symbol "leveler_max_plus" ;
-        lv2:default 20.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 60.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 18 ;
-    
-        lv2:name "leveler max -" ;
-        lv2:symbol "leveler_max_minus" ;
-        lv2:default 20.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 60.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 19 ;
-    
-        lv2:name "kneecomp bypass" ;
-        lv2:symbol "kneecomp_bypass" ;
-        lv2:default 0 ;
-        lv2:minimum 0 ;
-        lv2:maximum 1 ;
-        
-        
-        lv2:portProperty lv2:toggled ;
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 20 ;
-    
-        lv2:name "kneecomp strength" ;
-        lv2:symbol "kneecomp_strength" ;
-        lv2:default 20.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 21 ;
-    
-        lv2:name "kneecomp tar-thresh" ;
-        lv2:symbol "kneecomp_threshold" ;
-        lv2:default -6.0 ;
-        lv2:minimum -12.0 ;
+        lv2:minimum -6.0 ;
         lv2:maximum 6.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 22 ;
-    
-        lv2:name "kneecomp attack" ;
-        lv2:symbol "kneecomp_attack" ;
-        lv2:default 20.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        
-        
-        
-        
-        unit:unit unit:ms ;
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 23 ;
-    
-        lv2:name "kneecomp release" ;
-        lv2:symbol "kneecomp_release" ;
-        lv2:default 200.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 1000.0 ;
-        
-        
-        
-        
-        
-        
-        
-        unit:unit unit:ms ;
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 24 ;
-    
-        lv2:name "kneecomp knee" ;
-        lv2:symbol "kneecomp_knee" ;
-        lv2:default 6.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 30.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 25 ;
-    
-        lv2:name "kneecomp link" ;
-        lv2:symbol "kneecomp_link" ;
-        lv2:default 60.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 26 ;
-    
-        lv2:name "kneecomp ff-fb" ;
-        lv2:symbol "kneecomp_fffb" ;
-        lv2:default 50.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 27 ;
-    
-        lv2:name "kneecomp makeup" ;
-        lv2:symbol "kneecomp_makeup" ;
-        lv2:default 0.0 ;
-        lv2:minimum -10.0 ;
-        lv2:maximum 10.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 28 ;
-    
-        lv2:name "kneecomp dry/wet" ;
-        lv2:symbol "kneecomp_drywet" ;
-        lv2:default 100.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 29 ;
-    
-        lv2:name "limiter bypass" ;
-        lv2:symbol "limiter_bypass" ;
-        lv2:default 0 ;
-        lv2:minimum 0 ;
-        lv2:maximum 1 ;
-        
-        
-        lv2:portProperty lv2:toggled ;
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 30 ;
-    
-        lv2:name "limiter strength" ;
-        lv2:symbol "limiter_strength" ;
-        lv2:default 80.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 31 ;
-    
-        lv2:name "limiter tar-thresh" ;
-        lv2:symbol "limiter_threshold" ;
-        lv2:default 6.0 ;
-        lv2:minimum -12.0 ;
-        lv2:maximum 12.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 32 ;
-    
-        lv2:name "limiter attack" ;
-        lv2:symbol "limiter_attack" ;
-        lv2:default 1.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        
-        
-        
-        
-        unit:unit unit:ms ;
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 33 ;
-    
-        lv2:name "limiter release" ;
-        lv2:symbol "limiter_release" ;
-        lv2:default 40.0 ;
-        lv2:minimum 1.0 ;
-        lv2:maximum 400.0 ;
-        
-        
-        
-        
-        
-        
-        
-        unit:unit unit:ms ;
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 34 ;
-    
-        lv2:name "limiter knee" ;
-        lv2:symbol "limiter_knee" ;
-        lv2:default 8.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 12.0 ;
-        
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 35 ;
-    
-        lv2:name "limiter ff-fb" ;
-        lv2:symbol "limiter_fffb" ;
-        lv2:default 50.0 ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 36 ;
-    
-        lv2:name "limiter makeup" ;
-        lv2:symbol "limiter_makeup" ;
-        lv2:default 0.0 ;
-        lv2:minimum -10.0 ;
-        lv2:maximum 10.0 ;
         
         
         
@@ -855,23 +281,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 37 ;
-        lv2:name "LimiterGR" ;
-        lv2:symbol "limiter_gain" ;
-        lv2:minimum -60.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 38 ;
+        lv2:index 12 ;
         lv2:name "latency" ;
         lv2:symbol "latency_global" ;
         lv2:minimum 0.0 ;
@@ -887,10 +297,42 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 39 ;
-        lv2:name "in L" ;
-        lv2:symbol "peakmeter_in_l" ;
+        lv2:index 13 ;
+        lv2:name "In 0" ;
+        lv2:symbol "input_peak_channel_0" ;
         lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 14 ;
+        lv2:name "In 1" ;
+        lv2:symbol "input_peak_channel_1" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 15 ;
+        lv2:name "lufs IN" ;
+        lv2:symbol "lufs_in_meter" ;
+        lv2:minimum -120.0 ;
         lv2:maximum 0.0 ;
         
         
@@ -905,45 +347,9 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 40 ;
-        lv2:name "in R" ;
-        lv2:symbol "peakmeter_in_r" ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 41 ;
-        lv2:name "in lufs-s" ;
-        lv2:symbol "lufs_in" ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 42 ;
-        lv2:name "leveler gain" ;
-        lv2:symbol "leveler_gain" ;
+        lv2:index 16 ;
+        lv2:name "gain 1" ;
+        lv2:symbol "leveler_gain1" ;
         lv2:minimum -50.0 ;
         lv2:maximum 50.0 ;
         
@@ -959,126 +365,172 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 43 ;
-        lv2:name "out lufs-s" ;
-        lv2:symbol "lufs_out" ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 44 ;
-        lv2:name "out L" ;
-        lv2:symbol "peakmeter_out_l" ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 45 ;
-        lv2:name "out R" ;
-        lv2:symbol "peakmeter_out_r" ;
-        lv2:minimum -70.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 46 ;
-        lv2:name "leveler brake" ;
-        lv2:symbol "leveler_brake" ;
-        lv2:minimum 0.0 ;
-        lv2:maximum 100.0 ;
-        
-        
-        lv2:portProperty lv2:integer ;
-        
-        
-        
-        
-        
-        
-        unit:unit unit:pc ;
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 47 ;
-        lv2:name "kneecomp meter 0" ;
-        lv2:symbol "kneecomp_meter_0" ;
-        lv2:minimum -6.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 48 ;
-        lv2:name "kneecomp meter 1" ;
-        lv2:symbol "kneecomp_meter_1" ;
-        lv2:minimum -6.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 49 ;
-        lv2:name "limiter gain reduction" ;
-        lv2:symbol "limiter_gain_reduction" ;
+        lv2:index 17 ;
+        lv2:name "gr 1" ;
+        lv2:symbol "multiband_compressor_gain_band_1" ;
         lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 18 ;
+        lv2:name "gr 2" ;
+        lv2:symbol "multiband_compressor_gain_band_2" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 19 ;
+        lv2:name "gr 3" ;
+        lv2:symbol "multiband_compressor_gain_band_3" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:name "gr 4" ;
+        lv2:symbol "multiband_compressor_gain_band_4" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 21 ;
+        lv2:name "gr 5" ;
+        lv2:symbol "multiband_compressor_gain_band_5" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 22 ;
+        lv2:name "gain 2" ;
+        lv2:symbol "leveler_gain2" ;
+        lv2:minimum -50.0 ;
+        lv2:maximum 50.0 ;
+        
+        
+        
+        
+        unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 23 ;
+        lv2:name "LimiterGR" ;
+        lv2:symbol "limiter_gain" ;
+        lv2:minimum -60.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 24 ;
+        lv2:name "lufs OUT" ;
+        lv2:symbol "lufs_out_meter" ;
+        lv2:minimum -120.0 ;
         lv2:maximum 0.0 ;
         
         
         
         
         unit:unit unit:db ;
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 25 ;
+        lv2:name "Out 0" ;
+        lv2:symbol "output_peak_channel_0" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 26 ;
+        lv2:name "Out 1" ;
+        lv2:symbol "output_peak_channel_1" ;
+        lv2:minimum -70.0 ;
+        lv2:maximum 0.0 ;
+        
+        
+        
         
         
         
