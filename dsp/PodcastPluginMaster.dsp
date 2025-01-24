@@ -1,7 +1,7 @@
 // -*-Faust-*-
 
-declare name "master_me";
-declare version "1.0";
+declare name "PodcastPlugin Master";
+declare version "0.1";
 declare author "Klaus Scheuermann";
 declare license "GPLv3";
 
