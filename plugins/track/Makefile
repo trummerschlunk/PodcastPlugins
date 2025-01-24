@@ -8,7 +8,7 @@ FILES_UI += ../../dpf-widgets/opengl/DearImGui.cpp
 FILES_UI += ../../dpf-widgets/opengl/Quantum.cpp
 
 DPF_TARGET_DIR = ../../bin
-DPF_BUILD_DIR = ../../build
+DPF_BUILD_DIR = ../../build/track
 DPF_PATH = ../../dpf
 
 # tweak DPF build
