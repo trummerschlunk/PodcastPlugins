@@ -4,12 +4,12 @@
 // and the Faust post-processor (https://github.com/jpcima/faustpp).
 //
 // Source: PodcastPluginMaster.dsp
-// Name: master_me
+// Name: PodcastPlugin Master
 // Description: 
 // Author: Klaus Scheuermann
 // Copyright: 
 // License: GPLv3+
-// Version: 1.0
+// Version: 0.1
 //------------------------------------------------------------------------------
 
 
@@ -818,7 +818,7 @@ class mydsp : public dsp {
 		m->declare("basics.lib/peakholder:copyright", "Copyright (C) 2022 Dario Sanfilippo <sanfilippo.dario@gmail.com>");
 		m->declare("basics.lib/peakholder:license", "MIT-style STK-4.3 license");
 		m->declare("basics.lib/version", "0.9");
-		m->declare("compile_options", "-a /tmp/tmp8tb5xkzg.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
+		m->declare("compile_options", "-a /tmp/tmpj2ix5nsb.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
 		m->declare("compressors.lib/name", "Faust Compressor Effect Library");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:author", "Bart Brouns");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:license", "GPLv3");
@@ -897,7 +897,7 @@ class mydsp : public dsp {
 		m->declare("maths.lib/license", "LGPL with exception");
 		m->declare("maths.lib/name", "Faust Math Library");
 		m->declare("maths.lib/version", "2.5");
-		m->declare("name", "master_me");
+		m->declare("name", "PodcastPlugin Master");
 		m->declare("platform.lib/name", "Generic Platform Library");
 		m->declare("platform.lib/version", "0.3");
 		m->declare("routes.lib/name", "Faust Signal Routing Library");
@@ -906,7 +906,7 @@ class mydsp : public dsp {
 		m->declare("signals.lib/onePoleSwitching:author", "Jonatan Liljedahl, revised by Dario Sanfilippo");
 		m->declare("signals.lib/onePoleSwitching:licence", "STK-4.3");
 		m->declare("signals.lib/version", "0.3");
-		m->declare("version", "1.0");
+		m->declare("version", "0.1");
 	}
 
 	FAUSTPP_VIRTUAL int getNumInputs() {

@@ -538,7 +538,7 @@
     ] ;
     
 
-    doap:name "master_me" ;
+    doap:name "PodcastPlugin Master" ;
 
     
     doap:developer [
