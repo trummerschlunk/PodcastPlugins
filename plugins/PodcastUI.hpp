@@ -1,15 +1,72 @@
-// Copyright 2025 Filipe Coelho <falktx@falktx.com>
+// Copyright 2022-2025 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "DistrhoUI.hpp"
 
 #include "Quantum.hpp"
 #include "extra/ScopedPointer.hpp"
+#include "ui-widgets/InspectorWindow.hpp"
 
 #include "BuildInfo1.hpp"
 #include "BuildInfo2.hpp"
+#include "Logo.hpp"
 
 START_NAMESPACE_DISTRHO
+
+// --------------------------------------------------------------------------------------------------------------------
+// custom widget for drawing plugin name (so it appears on top of other widgets if needed)
+
+class MasterMeNameWidget : public NanoSubWidget
+{
+    QuantumTheme& theme;
+    QuantumThemeCallback* const callback;
+    NanoImage image, image2x;
+    ScopedPointer<InspectorWindow> inspectorWindow;
+
+public:
+    explicit MasterMeNameWidget(NanoTopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
+        : NanoSubWidget(parent),
+          theme(t),
+          callback(cb)
+    {
+        setName("Name");
+
+        image = createImageFromMemory(Logo::signet_master_me_whiteData, Logo::signet_master_me_whiteDataSize, 0);
+        image2x = createImageFromMemory(Logo::signet_master_me_white_2xData, Logo::signet_master_me_white_2xDataSize, 0);
+    }
+
+    void adjustSize()
+    {
+        const double scaleFactor = getTopLevelWidget()->getScaleFactor();
+        const Size<uint> imgSize = image.getSize();
+
+        setSize(imgSize.getWidth() * scaleFactor, imgSize.getHeight() * scaleFactor);
+    }
+
+protected:
+    void onNanoDisplay() override
+    {
+        const double scaleFactor = getTopLevelWidget()->getScaleFactor();
+
+        beginPath();
+        rect(0, 0, getWidth(), getHeight());
+        fillPaint(imagePattern(0, 0, getWidth(), getHeight(), 0, scaleFactor >= 1.5 ? image2x : image, 1));
+        fill();
+    }
+
+    bool onMouse(const MouseEvent& ev) override
+    {
+        if (ev.button == 1 && ev.press && contains(ev.pos))
+        {
+            if (inspectorWindow == nullptr)
+                inspectorWindow = new InspectorWindow(getTopLevelWidget(), theme, callback);
+
+            inspectorWindow->isOpen = true;
+        }
+
+        return false;
+    }
+};
 
 // --------------------------------------------------------------------------------------------------------------------
 
@@ -18,9 +75,13 @@ class PodcastUI : public UI,
 {
     QuantumTheme theme;
 
+    // plugin name
+    MasterMeNameWidget name;
+
 public:
     PodcastUI()
-        : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true)
+        : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true),
+          name(this, this, theme)
     {
         loadSharedResources();
 
@@ -38,10 +99,29 @@ public:
             theme.windowPadding *= scaleFactor;
             theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
         }
+
+        // initial resize and reposition
+        resizeWidgets(getWidth(), getHeight());
     }
 
     ~PodcastUI() override
     {
+    }
+
+    void repositionWidgets()
+    {
+        const QuantumMetrics metrics(theme);
+
+        name.setAbsolutePos(getWidth() - name.getWidth(), 0);
+    }
+
+    void resizeWidgets(const uint width, const uint height)
+    {
+        const QuantumMetrics metrics(theme);
+
+        name.adjustSize();
+
+        repositionWidgets();
     }
 
 protected:
@@ -89,6 +169,12 @@ protected:
             getWindow().focus();
 
         return UI::onMouse(ev);
+    }
+
+    void onResize(const ResizeEvent& ev) override
+    {
+        UI::onResize(ev);
+        resizeWidgets(ev.size.getWidth(), ev.size.getHeight());
     }
 
     /* ----------------------------------------------------------------------------------------------------------------

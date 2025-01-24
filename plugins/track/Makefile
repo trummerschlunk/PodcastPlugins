@@ -3,6 +3,7 @@
 NAME = pod-track
 FILES_DSP = TrackPlugin.cpp
 FILES_UI  = TrackUI.cpp
+FILES_UI += ../../build/Logo.cpp
 FILES_UI += ../../dpf-widgets/opengl/DearImGui.cpp
 FILES_UI += ../../dpf-widgets/opengl/Quantum.cpp
 
