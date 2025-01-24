@@ -28,7 +28,8 @@ Sliders, Knobs, Switches
 Meters
 [symbol:input_peak_channel_0]                   left input peak meter -60/0
 [symbol:input_peak_channel_1]                   right input peak meter -60/0
-// [symbol:leveler_gain]                           leveler gain meter -50/+50
+[symbol:leveler1_gain]                          leveler1 gain meter -50/+50
+[symbol:leveler2_gain]                          leveler1 gain meter -50/+50
 [symbol:multiband_compressor_gain_band_%b]      5 multiband compressor gain meters -12/+12
 [symbol:output_peak_channel_0]                  left output peak meter -60/0
 [symbol:output_peak_channel_1]                  right output peak meter -60/0
@@ -42,8 +43,11 @@ Meters
 init_leveler_target = -18;
 init_leveler_maxboost = 20;
 init_leveler_maxcut = 20;
-init_leveler_brake_threshold = -18;
-init_leveler_speed = 20;
+init_leveler1_brake_threshold = -18;
+init_leveler2_brake_threshold = -18;
+init_leveler1_speed = 20;
+init_leveler2_speed = 10;
+
 
 init_kneecomp_thresh = -6;
 init_kneecomp_postgain = 0;
@@ -59,13 +63,18 @@ bp = checkbox("v:Podcast Plugins/h:[1]Global/[4][symbol:bypass_leveler]bypass le
 Latency_limiter = 0.01 <: attach(_,hbargraph("v:Podcast Plugins/h:[1]Global/[symbol:latency_global]latency",0,1));
 
 
-target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-50,-2,1);
-leveler_speed = init_leveler_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
-leveler_brake_thresh = target + init_leveler_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;
+target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler1/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-50,-2,1);
+leveler1_speed = init_leveler1_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
+leveler2_speed = init_leveler1_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
+leveler1_brake_thresh = target + init_leveler1_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;
+leveler2_brake_thresh = target + init_leveler2_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;
+
 meter_leveler_brake = _; //_*100 : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[6][unit:%][integer]brake",0,100);
 limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[7][unit:dB]max boost", init_leveler_maxboost, 0, 60, 1);
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
-leveler_meter_gain(n) = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB][symbol:leveler_gain%n]gain %n",-50,50);
+leveler1_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler1/[1][unit:dB][symbol:leveler_gain1]gain 1",-50,50);
+leveler2_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Leveler2/[1][unit:dB][symbol:leveler_gain2]gain 2",-50,50);
+
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
 meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
 mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
@@ -80,11 +89,11 @@ process =
         : bp2(checkbox("v:Podcast Plugins/h:[1]Global/[symbol:bypass_global]bypass global"),(
             dc_blocker(Nch)
             : tilt_eq_bp
-            : leveler(0)
+            : leveler1
             //: sc_compressor
             : mbcomp_bp
             //: limiter_rms_bp
-            : leveler(1)
+            : leveler2
             : limiter_lookahead
             /*: (
                 leveler_sc(target)
@@ -170,9 +179,9 @@ tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, ga
 
 // LEVELER (NEW with dynamic smoothing)
 
-leveler(n,l,r) =
+leveler1(l,r) =
 
-  ( ((l,r):leveler_sc(n,target)~(_,_)
+  ( ((l,r):leveler1_sc(target)~(_,_)
                               :(
        (_*(1-bp))
       ,(_*(1-bp))
@@ -180,8 +189,18 @@ leveler(n,l,r) =
   , (l*bp,r*bp)
   ):>(_,_);
 
-basefreq =
-  it.interpolate_linear(leveler_speed
+leveler2(l,r) =
+
+  ( ((l,r):leveler2_sc(target)~(_,_)
+                              :(
+       (_*(1-bp))
+      ,(_*(1-bp))
+     ))
+  , (l*bp,r*bp)
+  ):>(_,_);
+
+basefreq1 =
+  it.interpolate_linear(leveler1_speed
                         :pow(
                           2 // hslider("base freq power", 2, 0.1, 10, 0.1)
                         )
@@ -189,8 +208,26 @@ basefreq =
                        , 0.2 // hslider("base freq fast", 0.2, 0.1, 0.3, 0.001)
                        );
 
-sensitivity =
-  it.interpolate_linear(leveler_speed
+sensitivity1 =
+  it.interpolate_linear(leveler1_speed
+                        :pow(
+                          0.5 // hslider("sens power", 0.5, 0.1, 10, 0.1)
+                        )
+                       , 0.00000025
+                       , 0.0000025 // hslider("sens fast", 0.0000025, 0.0000025, 0.000005, 0.0000001)
+                       );
+
+basefreq2 =
+  it.interpolate_linear(leveler2_speed
+                        :pow(
+                          2 // hslider("base freq power", 2, 0.1, 10, 0.1)
+                        )
+                       , 0.01
+                       , 0.2 // hslider("base freq fast", 0.2, 0.1, 0.3, 0.001)
+                       );
+
+sensitivity2 =
+  it.interpolate_linear(leveler2_speed
                         :pow(
                           0.5 // hslider("sens power", 0.5, 0.1, 10, 0.1)
                         )
@@ -203,33 +240,29 @@ lk2_fixed(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691)
   sump(n) = ba.slidingSump(n, Tg*maxSR)/max(n,ma.EPSILON);
   envelope(period, x) = x * x :  sump(rint(period * ma.SR));
   zi = envelope(Tg); // mean square: average power = energy/Tg = integral of squared signal / Tg
-
   kfilter = fi.itu_r_bs_1770_4_kfilter;
 };
 
 
-leveler_sc(n,target,fl,fr,l,r) =
+leveler1_sc(target,fl,fr,l,r) =
   calc(lk2_fixed(0.01,fl,fr))
-  // (calc(lk2_var(lk2_time,fl,fr))*(1-bp)+bp)
   <: (_*l,_*r)
-with {
-  // lp1p(cf) = si.smooth(ba.tau2pole(1/(2*ma.PI*cf)));
+                with {
   calc(lufs) = FB(lufs)~_: ba.db2linear;
   FB(lufs,prev_gain) =
     (target - lufs)
     +(prev_gain )
     : ds.dynamicSmoothing(
-      sensitivity * expander(abs(fl)+abs(fr))
-    ,  basefreq * expander(abs(fl)+abs(fr))
+      sensitivity1 * expander(abs(fl)+abs(fr))
+    ,  basefreq1 * expander(abs(fl)+abs(fr))
     )
     :  limit(limit_neg,limit_pos)
-    : leveler_meter_gain(n);
+    : leveler1_meter_gain;
 
   limit(lo,hi) = min(hi) : max(lo);
 
-  leveler_speed_brake(sc) = expander(sc) * leveler_speed;
 
-  expander(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,leveler_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
+  expander(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,leveler1_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
                  : ba.db2linear
                  :max(0)
                  :min(1))
@@ -243,8 +276,40 @@ with {
                     knee = ma.EPSILON;
                     prePost = 1;
                 };
+};
 
-  
+leveler2_sc(target,fl,fr,l,r) =
+  calc(lk2_fixed(0.01,fl,fr))
+  <: (_*l,_*r)
+                with {
+  calc(lufs) = FB(lufs)~_: ba.db2linear;
+  FB(lufs,prev_gain) =
+    (target - lufs)
+    +(prev_gain )
+    : ds.dynamicSmoothing(
+      sensitivity2 * expander(abs(fl)+abs(fr))
+    ,  basefreq2 * expander(abs(fl)+abs(fr))
+    )
+    :  limit(limit_neg,limit_pos)
+    : leveler2_meter_gain;
+
+  limit(lo,hi) = min(hi) : max(lo);
+
+
+  expander(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,leveler2_brake_thresh,range,gate_att,hold,gate_rel,knee,prePost,x)
+                 : ba.db2linear
+                 :max(0)
+                 :min(1))
+                <: attach(_, (1-_) : meter_leveler_brake) with{
+                    maxHold = hold*maxSR;
+                    strength = 1;
+                    range = 0-(ma.MAX);
+                    gate_att = 0;
+                    hold = 0.0001;
+                    gate_rel = 0.1;
+                    knee = ma.EPSILON;
+                    prePost = 1;
+                };
 };
 
 
