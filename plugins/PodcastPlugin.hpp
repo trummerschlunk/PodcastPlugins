@@ -22,6 +22,7 @@ public:
     PodcastPlugin()
         : FaustGeneratedPlugin(kExtraParameterCount, kExtraProgramCount, kExtraStateCount)
     {
+        setLatency(getParameterValue(kParameter_latency_global) * (getSampleRate() * 0.001));
     }
 
 protected:
@@ -57,6 +58,13 @@ protected:
         }
 
         dsp->compute(frames, const_cast<float**>(inputs), outputs);
+    }
+
+    void sampleRateChanged(const double newSampleRate) override
+    {
+        FaustGeneratedPlugin::sampleRateChanged(newSampleRate);
+
+        setLatency(getParameterValue(kParameter_latency_global) * (newSampleRate * 0.001));
     }
 
     // ----------------------------------------------------------------------------------------------------------------
