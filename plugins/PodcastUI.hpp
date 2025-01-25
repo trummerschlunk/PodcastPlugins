@@ -74,13 +74,15 @@ struct InputMeterGroup : QuantumFrame
    #else
     QuantumStereoLevelMeter meter;
    #endif
+    QuantumKnob gainKnob;
 
     explicit InputMeterGroup(NanoTopLevelWidget* const parent,
                              KnobEventHandler::Callback* const cb,
                              const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
-          meter(this, t)
+          meter(this, t),
+          gainKnob(this, t)
     {
         setName("Inputs");
 
@@ -95,35 +97,118 @@ struct InputMeterGroup : QuantumFrame
         meter.setValues(kParameterRanges[kParameter_input_peak_channel_0].min,
                         kParameterRanges[kParameter_input_peak_channel_1].min);
        #endif
+
+        gainKnob.setCallback(cb);
+        gainKnob.setId(kParameter_input_gain);
+        gainKnob.setName("Gain");
+        gainKnob.setDefault(kParameterRanges[kParameter_input_gain].def);
+        gainKnob.setRange(kParameterRanges[kParameter_input_gain].min,
+                          kParameterRanges[kParameter_input_gain].max);
+        gainKnob.setValue(kParameterRanges[kParameter_input_gain].def, false);
     }
 
     void adjustSize(const QuantumMetrics& metrics, const uint height)
     {
        #ifdef PODCAST_MASTER
-        const uint usableWidth = metrics.stereoLevelMeterWithLufs.getWidth();
-       #else
-        const uint usableWidth = metrics.stereoLevelMeter.getWidth();
-       #endif
+        const uint meterWidth = metrics.stereoLevelMeterWithLufs.getWidth();
+        const uint usableWidth = meterWidth;
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
-        meter.setSize(usableWidth, usableHeight);
-        setSize(meter.getWidth() + theme.borderSize * 2 + theme.padding * 2, height);
+       #else
+        const uint meterWidth = metrics.stereoLevelMeter.getWidth();
+        const uint usableWidth = meterWidth + theme.fontSize * 2;
+        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 4 - theme.fontSize;
+       #endif
+        const uint knobWidth = metrics.stereoLevelMeter.getWidth() + theme.fontSize;
+
+        meter.setSize(meterWidth, usableHeight - knobWidth);
+        gainKnob.setSize(knobWidth, knobWidth);
+
+        setSize(usableWidth + theme.borderSize * 2 + theme.padding * 2, height);
     }
 
     void setAbsolutePos(const int x, const int y)
     {
         QuantumFrame::setAbsolutePos(x, y);
-        meter.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
+       #ifdef PODCAST_MASTER
+        const int left = x + theme.borderSize + theme.padding;
+       #else
+        const int left = x + theme.borderSize + theme.padding + theme.fontSize;
+       #endif
+        meter.setAbsolutePos(left, y + theme.borderSize + theme.padding);
+        gainKnob.setAbsolutePos(left
+                               #ifdef PODCAST_MASTER
+                               + theme.fontSize,
+                               #else
+                                - theme.fontSize / 2,
+                               #endif
+                                meter.getAbsoluteY() + meter.getHeight()
+                               #ifndef PODCAST_MASTER
+                               + theme.fontSize + theme.padding * 2
+                               #endif
+                                );
     }
+
+#ifndef PODCAST_MASTER
+    void onNanoDisplay() override
+    {
+        QuantumFrame::onNanoDisplay();
+
+        const int strokeSize = theme.widgetLineSize * 2;
+        const int sectionWidth = theme.fontSize - theme.padding;
+
+        const float verticalReservedHeight = theme.textHeight;
+        const float usableMeterHeight = meter.getHeight() - verticalReservedHeight;
+        constexpr const float db7 = 1.f - normalizedLevelMeterValue(-7);
+        constexpr const float db15 = 1.f - normalizedLevelMeterValue(-15);
+
+        const float yOffset = theme.borderSize + verticalReservedHeight + usableMeterHeight * db7 /*- strokeSize*/;
+        const float ySize = usableMeterHeight * db15 - usableMeterHeight * db7;
+
+        fillColor(Color(0, 255, 0));
+
+        save();
+        translate(theme.borderSize + theme.padding, yOffset);
+        beginPath();
+        moveTo(0, 0);
+        lineTo(sectionWidth, 0);
+        lineTo(sectionWidth, strokeSize);
+        lineTo(strokeSize, strokeSize);
+        lineTo(strokeSize, ySize - strokeSize);
+        lineTo(sectionWidth, ySize - strokeSize);
+        lineTo(sectionWidth, ySize);
+        lineTo(0, ySize);
+        lineTo(0, 0);
+        restore();
+        fill();
+
+        save();
+        translate(getWidth() - sectionWidth - theme.borderSize - theme.padding, yOffset);
+        beginPath();
+        moveTo(0, 0);
+        lineTo(sectionWidth, 0);
+        lineTo(sectionWidth, ySize);
+        lineTo(0, ySize);
+        lineTo(0, ySize - strokeSize);
+        lineTo(sectionWidth - strokeSize, ySize - strokeSize);
+        lineTo(sectionWidth - strokeSize, strokeSize);
+        lineTo(0, strokeSize);
+        lineTo(0, 0);
+        restore();
+        fill();
+    }
+#endif
 };
 
 // --------------------------------------------------------------------------------------------------------------------
-// custom layout for input or output leveler (single widget)
+// custom layout for input leveler
 
-struct LevelerGroup : QuantumFrame
+struct InputLevelerGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
     QuantumGainReductionMeter leveler;
+    QuantumSwitch enableSwitch;
+    QuantumKnob targetKnob;
 
    #ifdef PODCAST_MASTER
     static constexpr const char* kInputLevelerName = "Leveler 1";
@@ -132,12 +217,15 @@ struct LevelerGroup : QuantumFrame
     static constexpr const char* kInputLevelerName = "Leveler";
    #endif
 
-    explicit LevelerGroup(NanoTopLevelWidget* const parent,
-                          KnobEventHandler::Callback* const cb,
-                          const QuantumTheme& t)
+    explicit InputLevelerGroup(NanoTopLevelWidget* const parent,
+                               ButtonEventHandler::Callback* const bcb,
+                               KnobEventHandler::Callback* const kcb,
+                               const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
-          leveler(this, t)
+          leveler(this, t),
+          enableSwitch(this, t),
+          targetKnob(this, t)
     {
         setName(kInputLevelerName);
 
@@ -150,11 +238,61 @@ struct LevelerGroup : QuantumFrame
         //                  kParameterRanges[kParameter_leveler_gain].max);
         // leveler.setUnitLabel(kParameterUnits[kParameter_leveler_gain]);
         leveler.setValue(kParameterRanges[kParameter_leveler_gain].def);
+
+        enableSwitch.setCallback(bcb);
+        enableSwitch.setCheckable(true);
+        enableSwitch.setChecked(!kParameterRanges[kParameter_bypass_leveler].def, false);
+        enableSwitch.setId(kParameter_bypass_leveler);
+        enableSwitch.setLabel("On");
+        enableSwitch.setName("Enable Button");
+
+        targetKnob.setCallback(kcb);
+        targetKnob.setId(kParameter_leveler_target);
+        targetKnob.setName("Target");
+        targetKnob.setDefault(kParameterRanges[kParameter_leveler_target].def);
+        targetKnob.setRange(kParameterRanges[kParameter_leveler_target].min,
+                            kParameterRanges[kParameter_leveler_target].max);
+        // TODO?
+        // targetKnob.setStep(1.f);
+        targetKnob.setValue(kParameterRanges[kParameter_leveler_target].def, false);
     }
 
-   #ifdef PODCAST_MASTER
-    explicit LevelerGroup(NanoTopLevelWidget* const parent,
-                          const QuantumTheme& t)
+    void adjustSize(const QuantumMetrics& metrics, const uint height)
+    {
+        const uint levelerWidth = metrics.gainReductionMeter.getWidth();
+        const uint usableWidth = levelerWidth + theme.fontSize;
+        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
+
+        enableSwitch.adjustSize();
+        enableSwitch.setWidth(usableWidth);
+        targetKnob.setSize(usableWidth, usableWidth);
+        leveler.setSize(levelerWidth,
+                        usableHeight - usableWidth - enableSwitch.getHeight() - theme.padding * 2);
+        setSize(usableWidth + theme.borderSize * 2 + theme.padding * 2, height);
+    }
+
+    void setAbsolutePos(const int x, const int y)
+    {
+        QuantumFrame::setAbsolutePos(x, y);
+
+        const int xfinal = x + theme.borderSize + theme.padding;
+        leveler.setAbsolutePos(xfinal + theme.fontSize / 2, y + theme.borderSize + theme.padding);
+        enableSwitch.setAbsolutePos(xfinal, leveler.getAbsoluteY() + leveler.getHeight() + theme.padding);
+        targetKnob.setAbsolutePos(xfinal, enableSwitch.getAbsoluteY() + enableSwitch.getHeight() + theme.padding);
+    }
+};
+
+// --------------------------------------------------------------------------------------------------------------------
+// custom layout for output leveler (single widget)
+
+#ifdef PODCAST_MASTER
+struct OutputLevelerGroup : QuantumFrame
+{
+    const QuantumTheme& theme;
+
+    QuantumGainReductionMeter leveler;
+
+    explicit OutputLevelerGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           leveler(this, t)
@@ -171,7 +309,6 @@ struct LevelerGroup : QuantumFrame
         // leveler.setUnitLabel(kParameterUnits[kParameter_leveler_gain2]);
         leveler.setValue(kParameterRanges[kParameter_leveler_gain2].def);
     }
-   #endif
 
     void adjustSize(const QuantumMetrics& metrics, const uint height)
     {
@@ -186,6 +323,7 @@ struct LevelerGroup : QuantumFrame
         leveler.setAbsolutePos(x + theme.borderSize + theme.padding, y + theme.borderSize + theme.padding);
     }
 };
+#endif
 
 // --------------------------------------------------------------------------------------------------------------------
 // custom layout for output levels (single widget)
@@ -252,8 +390,8 @@ struct TopCenteredGroup : NanoSubWidget
        #ifndef __MOD_DEVICES__
         globalEnableSwitch.setCallback(bcb);
         globalEnableSwitch.setCheckable(true);
-        // globalEnableSwitch.setChecked(kParameterRanges[kParameter_global_bypass].def, false);
-        // globalEnableSwitch.setId(kParameter_global_bypass);
+        globalEnableSwitch.setChecked(!kParameterRanges[kParameter_bypass_global].def, false);
+        globalEnableSwitch.setId(kParameter_bypass_global);
         globalEnableSwitch.setLabel("Enable");
         globalEnableSwitch.setName("Global Enable Button");
 
@@ -288,7 +426,7 @@ struct TopCenteredGroup : NanoSubWidget
 // --------------------------------------------------------------------------------------------------------------------
 // custom widget for drawing build info within frame
 
-class ContentGroup : public QuantumFrame
+struct ContentGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
@@ -387,10 +525,10 @@ protected:
     // group of widgets
     TopCenteredGroup topCenteredGroup;
     InputMeterGroup inputGroup;
-    LevelerGroup inputLevelerGroup;
+    InputLevelerGroup inputLevelerGroup;
     ContentGroup contentGroup;
    #ifdef PODCAST_MASTER
-    LevelerGroup outputLevelerGroup;
+    OutputLevelerGroup outputLevelerGroup;
    #endif
     OutputMeterGroup outputGroup;
 
@@ -408,7 +546,7 @@ public:
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true),
           topCenteredGroup(this, this, theme),
           inputGroup(this, this, theme),
-          inputLevelerGroup(this, this, theme),
+          inputLevelerGroup(this, this, this, theme),
           contentGroup(this, theme),
          #ifdef PODCAST_MASTER
           outputLevelerGroup(this, theme),
@@ -519,11 +657,39 @@ protected:
     {
         switch (index)
         {
+        // inputs
+        case kParameter_bypass_timbre:
+            // TODO
+            break;
+        case kParameter_bypass_leveler:
+            inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
+            break;
+        case kParameter_bypass_style:
+            // TODO
+            break;
+        case kParameter_bypass_global:
+           #ifndef __MOD_DEVICES__
+            topCenteredGroup.globalEnableSwitch.setChecked(value < 0.5f, false);
+           #endif
+            break;
+        case kParameter_input_gain:
+        case kParameter_leveler_target:
+        case kParameter_timbre:
+            // TODO
+            break;
+        // outputs
         case kParameter_input_peak_channel_0:
             inputGroup.meter.setValueL(value);
             break;
         case kParameter_input_peak_channel_1:
             inputGroup.meter.setValueR(value);
+            break;
+        case kParameter_multiband_compressor_gain_band_1:
+        case kParameter_multiband_compressor_gain_band_2:
+        case kParameter_multiband_compressor_gain_band_3:
+        case kParameter_multiband_compressor_gain_band_4:
+        case kParameter_multiband_compressor_gain_band_5:
+            // TODO
             break;
         case kParameter_limiter_gain:
             // TODO
@@ -601,6 +767,45 @@ protected:
 
     void buttonClicked(SubWidget* const widget, int) override
     {
+        const uint id = widget->getId();
+
+        QuantumSwitch* const qswitch = reinterpret_cast<QuantumSwitch*>(widget);
+        DISTRHO_SAFE_ASSERT_RETURN(qswitch != nullptr,);
+
+        const bool enabled = qswitch->isChecked();
+
+        float value;
+
+        switch (id)
+        {
+        // bypass switches, inverted operation
+        case kParameter_bypass_timbre:
+        case kParameter_bypass_leveler:
+        case kParameter_bypass_style:
+        case kParameter_bypass_global:
+            value = enabled ? 0.f : 1.f;
+            break;
+        default:
+            return;
+        }
+
+        editParameter(id, true);
+        setParameterValue(id, value);
+        editParameter(id, false);
+
+        // extra handling for setting enabled color
+        switch (id)
+        {
+        case kParameter_bypass_timbre:
+            // TODO
+            break;
+        case kParameter_bypass_leveler:
+            // TODO
+            break;
+        case kParameter_bypass_style:
+            // TODO
+            break;
+        }
     }
 
     void knobDragStarted(SubWidget* const widget) override
@@ -620,6 +825,7 @@ protected:
 
     void knobDoubleClicked(SubWidget* const widget) override
     {
+        // TODO
     }
 
     void quantumThemeChanged(const bool size, const bool colors) override

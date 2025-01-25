@@ -27,18 +27,16 @@ protected:
     {
         switch (index)
         {
+        // inputs
+        case kParameter_multiband_compressor_style:
+            // TODO
+            return;
+        // outputs
         case kParameter_lufs_in_meter:
             inputGroup.meter.setValueLufs(value);
             return;
         case kParameter_leveler_gain1:
             inputLevelerGroup.leveler.setValue(value);
-            return;
-        case kParameter_multiband_compressor_gain_band_1:
-        case kParameter_multiband_compressor_gain_band_2:
-        case kParameter_multiband_compressor_gain_band_3:
-        case kParameter_multiband_compressor_gain_band_4:
-        case kParameter_multiband_compressor_gain_band_5:
-            // TODO
             return;
         case kParameter_leveler_gain2:
             outputLevelerGroup.leveler.setValue(value);

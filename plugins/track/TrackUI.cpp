@@ -27,6 +27,11 @@ protected:
     {
         switch (index)
         {
+        // inputs
+        case kParameter_style:
+            // TODO
+            return;
+        // outputs
         case kParameter_spectral_ballancer_gain_band__0:
         case kParameter_spectral_ballancer_gain_band__1:
         case kParameter_spectral_ballancer_gain_band__2:
@@ -52,13 +57,6 @@ protected:
         case kParameter_leveler_gain:
             inputLevelerGroup.leveler.setValue(value);
             break;
-        case kParameter_multiband_compressor_gain_band_1:
-        case kParameter_multiband_compressor_gain_band_2:
-        case kParameter_multiband_compressor_gain_band_3:
-        case kParameter_multiband_compressor_gain_band_4:
-        case kParameter_multiband_compressor_gain_band_5:
-            // TODO
-            return;
         }
 
         PodcastUI::parameterChanged(index, value);
