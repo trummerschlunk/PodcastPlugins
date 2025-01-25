@@ -77,7 +77,7 @@ leveler2_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter
 
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
 meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
-mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:multiband_compressor_style]mb morph",0.5,0,1,0.01);
+mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]mb morph",0.5,0,1,0.01);
 
 
 
