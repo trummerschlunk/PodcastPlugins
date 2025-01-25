@@ -375,10 +375,15 @@ B_band_Compressor_N_chan(B,N) =
 
         
 
-            /* higher order low, band and hi shelf filter primitives */
-            ls3(f,g) = fi.svf.ls (f, .5, g3) : fi.svf.ls (f, .707, g3) : fi.svf.ls (f, 2, g3) with {g3 = g/3;};
+            /* 3rd order low, band and hi shelf filter primitives */
+            // ls3(f,g) = fi.svf.ls (f, .5, g3) : fi.svf.ls (f, .707, g3) : fi.svf.ls (f, 2, g3) with {g3 = g/3;};
+            // bs3(f1,f2,g) = ls3(f1,-g) : ls3(f2,g);
+            // hs3(f,g) = fi.svf.hs (f, .5, g3) : fi.svf.hs (f, .707, g3) : fi.svf.hs (f, 2, g3) with {g3 = g/3;};
+            
+            /* 1st order low, band and hi shelf filter primitives */
+            ls3(f,g) = fi.svf.ls (f, .7, g);                                                                                                                                                               
             bs3(f1,f2,g) = ls3(f1,-g) : ls3(f2,g);
-            hs3(f,g) = fi.svf.hs (f, .5, g3) : fi.svf.hs (f, .707, g3) : fi.svf.hs (f, 2, g3) with {g3 = g/3;};
+            hs3(f,g) = fi.svf.hs (f, .7, g);
 
             /* Cascade of shelving filters to apply gain per band.
             *
