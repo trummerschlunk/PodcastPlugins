@@ -11,13 +11,7 @@ START_NAMESPACE_DISTRHO
 class TrackUI : public PodcastUI
 {
 public:
-    TrackUI()
-    {
-    }
-
-    ~TrackUI() override
-    {
-    }
+    TrackUI() {}
 
 protected:
     /* ----------------------------------------------------------------------------------------------------------------
@@ -27,11 +21,6 @@ protected:
     {
         switch (index)
         {
-        // inputs
-        case kParameter_multiband_compressor_style:
-            // TODO
-            return;
-        // outputs
         case kParameter_lufs_in_meter:
             inputGroup.meter.setValueLufs(value);
             return;

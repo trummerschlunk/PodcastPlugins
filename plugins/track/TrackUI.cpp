@@ -11,13 +11,7 @@ START_NAMESPACE_DISTRHO
 class TrackUI : public PodcastUI
 {
 public:
-    TrackUI()
-    {
-    }
-
-    ~TrackUI() override
-    {
-    }
+    TrackUI() {}
 
 protected:
     /* ----------------------------------------------------------------------------------------------------------------
@@ -27,10 +21,6 @@ protected:
     {
         switch (index)
         {
-        // inputs
-        case kParameter_style:
-            // TODO
-            return;
         // outputs
         case kParameter_spectral_ballancer_gain_band__0:
         case kParameter_spectral_ballancer_gain_band__1:
@@ -56,7 +46,7 @@ protected:
             return;
         case kParameter_leveler_gain:
             inputLevelerGroup.leveler.setValue(value);
-            break;
+            return;
         }
 
         PodcastUI::parameterChanged(index, value);
