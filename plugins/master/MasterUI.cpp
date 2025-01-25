@@ -1,6 +1,7 @@
 // Copyright 2025 Filipe Coelho <falktx@falktx.com>
 // SPDX-License-Identifier: GPL-3.0-or-later
 
+#define PODCAST_MASTER
 #include "PodcastUI.hpp"
 
 START_NAMESPACE_DISTRHO
@@ -16,6 +17,35 @@ public:
 
     ~TrackUI() override
     {
+    }
+
+protected:
+    /* ----------------------------------------------------------------------------------------------------------------
+     * DSP/Plugin Callbacks */
+
+    void parameterChanged(const uint32_t index, const float value) override
+    {
+        switch (index)
+        {
+        case kParameter_lufs_in_meter:
+            inputGroup.meter.setValueLufs(value);
+            return;
+        case kParameter_leveler_gain1:
+            inputLevelerGroup.leveler.setValue(value);
+            return;
+        case kParameter_multiband_compressor_gain_band_1:
+        case kParameter_multiband_compressor_gain_band_2:
+        case kParameter_multiband_compressor_gain_band_3:
+        case kParameter_multiband_compressor_gain_band_4:
+        case kParameter_multiband_compressor_gain_band_5:
+            // TODO
+            return;
+        case kParameter_leveler_gain2:
+            outputLevelerGroup.leveler.setValue(value);
+            return;
+        }
+
+        PodcastUI::parameterChanged(index, value);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
