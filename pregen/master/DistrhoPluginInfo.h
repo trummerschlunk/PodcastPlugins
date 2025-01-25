@@ -35,7 +35,7 @@ enum Parameters {
     kParameter_bypass_global,
     kParameter_input_gain,
     kParameter_leveler_target,
-    kParameter_multiband_compressor_style,
+    kParameter_style,
     kParameter_timbre,
     
     // outputs
@@ -135,7 +135,7 @@ static constexpr const char* kParameterSymbols[23] = {
     "bypass_global",
     "input_gain",
     "leveler_target",
-    "multiband_compressor_style",
+    "style",
     "timbre",
     
     // ouputs

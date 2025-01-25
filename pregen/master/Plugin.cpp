@@ -754,7 +754,7 @@ class mydsp : public dsp {
 		m->declare("basics.lib/peakholder:copyright", "Copyright (C) 2022 Dario Sanfilippo <sanfilippo.dario@gmail.com>");
 		m->declare("basics.lib/peakholder:license", "MIT-style STK-4.3 license");
 		m->declare("basics.lib/version", "0.9");
-		m->declare("compile_options", "-a /tmp/tmpkebfoj5j.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
+		m->declare("compile_options", "-a /tmp/tmp0lz2sqo1.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
 		m->declare("compressors.lib/name", "Faust Compressor Effect Library");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:author", "Bart Brouns");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:license", "GPLv3");
@@ -2400,7 +2400,7 @@ class mydsp : public dsp {
 		ui_interface->openHorizontalBox("Multiband Conpressor");
 		ui_interface->openHorizontalBox("Parameters");
 		ui_interface->declare(&fVslider3, "2", "");
-		ui_interface->declare(&fVslider3, "symbol", "multiband_compressor_style");
+		ui_interface->declare(&fVslider3, "symbol", "style");
 		ui_interface->addVerticalSlider("mb morph", &fVslider3, FAUSTFLOAT(0.5f), FAUSTFLOAT(0.0f), FAUSTFLOAT(1.0f), FAUSTFLOAT(0.01f));
 		ui_interface->closeBox();
 		ui_interface->openHorizontalBox("bands");
@@ -4258,7 +4258,7 @@ protected:
             param.ranges.min = kParameterRanges[5].min;
             param.ranges.max = kParameterRanges[5].max;
             break;
-        case kParameter_multiband_compressor_style:
+        case kParameter_style:
             param.hints = kParameterIsAutomatable
             
             
@@ -4522,7 +4522,7 @@ protected:
             return dsp->fVslider0;
         case kParameter_leveler_target:
             return dsp->fVslider1;
-        case kParameter_multiband_compressor_style:
+        case kParameter_style:
             return dsp->fVslider3;
         case kParameter_timbre:
             return dsp->fVslider2;
@@ -4584,7 +4584,7 @@ protected:
         case kParameter_leveler_target:
             dsp->fVslider1 = value;
             break;
-        case kParameter_multiband_compressor_style:
+        case kParameter_style:
             dsp->fVslider3 = value;
             break;
         case kParameter_timbre:

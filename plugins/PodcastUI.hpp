@@ -46,9 +46,6 @@ static_assert(kParameterRanges[kParameter_input_peak_channel_0].min ==
 static_assert(kParameterRanges[kParameter_input_peak_channel_0].max ==
               kParameterRanges[kParameter_output_peak_channel_0].max, "channel data mismatch");
 
-// static_assert(kParameterRanges[kParameter_target].min == -50.f, "lufs target -50 dB min");
-// static_assert(kParameterRanges[kParameter_target].max == -2.f, "lufs target -2 dB max");
-
 #ifdef PODCAST_MASTER
 static_assert(kParameterRanges[kParameter_leveler_gain1].min == -50.f, "leveler1 gain -50 dB min");
 static_assert(kParameterRanges[kParameter_leveler_gain1].max == +50.f, "leveler1 gain +50 dB max");
@@ -430,13 +427,87 @@ struct ContentGroup : QuantumFrame
 {
     const QuantumTheme& theme;
 
+    QuantumKnob timbreKnob;
+    QuantumKnob styleKnob;
+
+    QuantumSwitch timbreSwitch;
+    QuantumSwitch styleSwitch;
+
 public:
-    explicit ContentGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
+    explicit ContentGroup(NanoTopLevelWidget* const parent,
+                          ButtonEventHandler::Callback* const bcb,
+                          KnobEventHandler::Callback* const kcb,
+                          const QuantumTheme& t)
         : QuantumFrame(parent, t),
-          theme(t)
+          theme(t),
+          timbreKnob(this, t),
+          styleKnob(this, t),
+          timbreSwitch(this, t),
+          styleSwitch(this, t)
     {
         loadSharedResources();
         setName("Content");
+
+        timbreKnob.setCallback(kcb);
+        timbreKnob.setId(kParameter_timbre);
+        timbreKnob.setName("Timbre");
+        timbreKnob.setDefault(kParameterRanges[kParameter_timbre].def);
+        timbreKnob.setRange(kParameterRanges[kParameter_timbre].min,
+                            kParameterRanges[kParameter_timbre].max);
+        timbreKnob.setValue(kParameterRanges[kParameter_timbre].def, false);
+
+        styleKnob.setCallback(kcb);
+        styleKnob.setId(kParameter_style);
+        styleKnob.setName("Style");
+        styleKnob.setDefault(kParameterRanges[kParameter_style].def);
+        styleKnob.setRange(kParameterRanges[kParameter_style].min,
+                           kParameterRanges[kParameter_style].max);
+        styleKnob.setValue(kParameterRanges[kParameter_style].def, false);
+
+        timbreSwitch.setCallback(bcb);
+        timbreSwitch.setCheckable(true);
+        timbreSwitch.setChecked(!kParameterRanges[kParameter_bypass_timbre].def, false);
+        timbreSwitch.setId(kParameter_bypass_timbre);
+        timbreSwitch.setLabel("On");
+        timbreSwitch.setName("Timbre Enable Button");
+
+        styleSwitch.setCallback(bcb);
+        styleSwitch.setCheckable(true);
+        styleSwitch.setChecked(!kParameterRanges[kParameter_bypass_style].def, false);
+        styleSwitch.setId(kParameter_bypass_style);
+        styleSwitch.setLabel("On");
+        styleSwitch.setName("Style Enable Button");
+    }
+
+    void adjustSize(const QuantumMetrics& metrics)
+    {
+        timbreSwitch.adjustSize();
+        styleSwitch.adjustSize();
+
+        const uint knobSize = getHeight() / 4 - theme.borderSize * 2 - theme.padding * 2;
+        timbreKnob.setSize(knobSize, knobSize);
+        styleKnob.setSize(knobSize, knobSize);
+    }
+
+    void setAbsolutePos(const int x, const int y)
+    {
+        QuantumFrame::setAbsolutePos(x, y);
+
+        const uint knobSize = getHeight() / 4 - theme.borderSize * 2 - theme.padding * 2;
+        const uint midPoint = x / 2 + getWidth() / 2;
+        const int yfinal = y + getHeight() - knobSize * 1.5 - theme.borderSize - theme.padding;
+        timbreKnob.setAbsolutePos(midPoint - knobSize * 0.75, yfinal);
+        styleKnob.setAbsolutePos(midPoint + knobSize * 0.75, yfinal);
+
+        timbreSwitch.setAbsolutePos(timbreKnob.getAbsoluteX() +
+                                    timbreKnob.getWidth() / 2 -
+                                    timbreSwitch.getWidth() / 2,
+                                    timbreKnob.getAbsoluteY() + timbreKnob.getHeight());
+
+        styleSwitch.setAbsolutePos(styleKnob.getAbsoluteX() +
+                                   styleKnob.getWidth() / 2 -
+                                   styleSwitch.getWidth() / 2,
+                                   styleKnob.getAbsoluteY() + styleKnob.getHeight());
     }
 
 protected:
@@ -547,7 +618,7 @@ public:
           topCenteredGroup(this, this, theme),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),
-          contentGroup(this, theme),
+          contentGroup(this, this, this, theme),
          #ifdef PODCAST_MASTER
           outputLevelerGroup(this, theme),
          #endif
@@ -644,6 +715,7 @@ public:
                              inputLevelerGroup.getWidth() -
                              outputGroup.getWidth(),
                              contentHeight);
+        contentGroup.adjustSize(metrics);
         topCenteredGroup.adjustSize(metrics, width, height, name.getHeight() / 1.5);
 
         repositionWidgets();
@@ -659,13 +731,13 @@ protected:
         {
         // inputs
         case kParameter_bypass_timbre:
-            // TODO
+            contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
             break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
             break;
         case kParameter_bypass_style:
-            // TODO
+            contentGroup.styleSwitch.setChecked(value < 0.5f, false);
             break;
         case kParameter_bypass_global:
            #ifndef __MOD_DEVICES__
@@ -673,9 +745,16 @@ protected:
            #endif
             break;
         case kParameter_input_gain:
+            inputGroup.gainKnob.setValue(value, false);
+            break;
         case kParameter_leveler_target:
+            inputLevelerGroup.targetKnob.setValue(value, false);
+            break;
         case kParameter_timbre:
-            // TODO
+            contentGroup.timbreKnob.setValue(value, false);
+            break;
+        case kParameter_style:
+            contentGroup.styleKnob.setValue(value, false);
             break;
         // outputs
         case kParameter_input_peak_channel_0:
@@ -794,18 +873,22 @@ protected:
         editParameter(id, false);
 
         // extra handling for setting enabled color
+        // TODO
+        /*
         switch (id)
         {
         case kParameter_bypass_timbre:
-            // TODO
+            contentGroup.timbreKnob.setEnabled(enabled);
             break;
         case kParameter_bypass_leveler:
-            // TODO
+            inputLevelerGroup.leveler.setEnabled(enabled);
+            inputLevelerGroup.targetKnob.setEnabled(enabled);
             break;
         case kParameter_bypass_style:
-            // TODO
+            contentGroup.styleKnob.setEnabled(enabled);
             break;
         }
+        */
     }
 
     void knobDragStarted(SubWidget* const widget) override
