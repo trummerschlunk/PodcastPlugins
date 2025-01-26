@@ -20,8 +20,8 @@ maxSR = 192000; // maximum sample rate
 
 Sliders, Knobs, Switches
 [symbol:input_gain]                             input gain knob, centered, +20/-20 dB
-[symbol:timbre]                                 timbre knob 0/1, centered at 0.5
-[symbol:style]                                  style knob 0/1, centered at 0.5
+[symbol:timbre]                                 timbre knob -5/+5, centered at 0
+[symbol:style]                                  style knob -5/+5, centered at 0
 [symbol:leveler_target]                         leveler target knob -50/-2 (LUFS)
 
 
@@ -77,7 +77,7 @@ leveler2_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter
 
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
 meter_mb(b,c) = _<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
-mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]mb morph",0.5,0,1,0.01);
+mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]mb morph",0,-5,5,0.1) : _+5 : _/ 10;
 
 
 
@@ -165,7 +165,7 @@ tilt_eq_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[1][symbol:bypass_timbr
 // TILT EQ STEREO
 tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
     N = 1;
-    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]timbre [unit:dB] [symbol:timbre]",0,-6,6,0.5):si.smoo;
+    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]timbre [unit:dB] [symbol:timbre]",0,-5,5,0.1):si.smoo;
     freq = 630; 
 };
 
