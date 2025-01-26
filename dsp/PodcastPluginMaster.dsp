@@ -535,7 +535,10 @@ limiter_rms = co.RMS_FBFFcompressor_N_chan(strength,thresh,att,rel,knee,0,1,fffb
 limiter_thresh = -1 : ba.db2linear; 
 
 
-limiter_lookahead = limiter_lad_stereo(Latency_limiter,limiter_thresh,0.008,0.01,0.1);
+limiter_lookahead = limiter_lad_stereo(Latency_limiter,limiter_thresh, 0.01/twopi, .1, 1/twopi)
+with {
+    twopi = 2 * ma.PI;
+};
 
 limiter_lad_stereo(LD) = limiter_lad_N(2, LD);
 
@@ -553,7 +556,6 @@ limiter_lad_N(N, LD, ceiling, attack, hold, release) =
            maxN(N) = max(maxN(N - 1));
            limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR",-60,0));
       };
-
 
 
 // +++++++++++++++++++++++++ LUFS METER +++++++++++++++++++++++++

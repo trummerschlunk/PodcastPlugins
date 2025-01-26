@@ -535,7 +535,10 @@ bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
 
 // LIMITER with LOOKAHEAD
 
-limiter_lookahead = limiter_lad_stereo(Latency_global - Latency_spectral_ballancer,limiter_thresh,0.008,0.01,0.1);
+limiter_lookahead = limiter_lad_stereo(Latency_global - Latency_spectral_ballancer,limiter_thresh, 0.01/twopi, .1, 1/twopi)
+with {
+    twopi = 2 * ma.PI;
+};
 
 limiter_lad_stereo(LD) = limiter_lad_N(2, LD);
 
