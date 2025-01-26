@@ -42,7 +42,7 @@ protected:
         case kParameter_spectral_ballancer_gain_band_17:
         case kParameter_spectral_ballancer_gain_band_18:
         case kParameter_spectral_ballancer_gain_band_19:
-            // TODO
+            contentGroup.graph.update2(index - kParameter_spectral_ballancer_gain_band__0, value);
             return;
         case kParameter_leveler_gain:
             inputLevelerGroup.leveler.setValue(value);

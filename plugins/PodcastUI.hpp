@@ -5,6 +5,7 @@
 
 #include "Quantum.hpp"
 #include "extra/ScopedPointer.hpp"
+#include "ui-widgets/BlockGraph.hpp"
 #include "ui-widgets/InspectorWindow.hpp"
 
 #include "BuildInfo1.hpp"
@@ -421,11 +422,13 @@ struct TopCenteredGroup : NanoSubWidget
 };
 
 // --------------------------------------------------------------------------------------------------------------------
-// custom widget for drawing build info within frame
+// custom widget for main centered content
 
 struct ContentGroup : QuantumFrame
 {
     const QuantumTheme& theme;
+
+    BlockGraph graph;
 
     QuantumKnob timbreKnob;
     QuantumKnob styleKnob;
@@ -440,6 +443,7 @@ public:
                           const QuantumTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
+          graph(parent, t),
           timbreKnob(this, t),
           styleKnob(this, t),
           timbreSwitch(this, t),
@@ -481,6 +485,9 @@ public:
 
     void adjustSize(const QuantumMetrics& metrics)
     {
+        graph.setSize(getWidth() - theme.borderSize * 2 - theme.padding * 2,
+                      getHeight() / 2 - theme.borderSize * 2 - theme.padding * 2);
+
         timbreSwitch.adjustSize();
         styleSwitch.adjustSize();
 
@@ -496,6 +503,10 @@ public:
         const uint knobSize = getHeight() / 4 - theme.borderSize * 2 - theme.padding * 2;
         const uint midPoint = x / 2 + getWidth() / 2;
         const int yfinal = y + getHeight() - knobSize * 1.5 - theme.borderSize - theme.padding;
+
+        graph.setAbsolutePos(x + theme.borderSize + theme.padding,
+                             y + theme.borderSize + theme.padding);
+
         timbreKnob.setAbsolutePos(midPoint - knobSize * 0.75, yfinal);
         styleKnob.setAbsolutePos(midPoint + knobSize * 0.75, yfinal);
 
@@ -768,7 +779,7 @@ protected:
         case kParameter_multiband_compressor_gain_band_3:
         case kParameter_multiband_compressor_gain_band_4:
         case kParameter_multiband_compressor_gain_band_5:
-            // TODO
+            contentGroup.graph.update1(index - kParameter_multiband_compressor_gain_band_1, value);
             break;
         case kParameter_limiter_gain:
             // TODO
@@ -784,6 +795,11 @@ protected:
             outputGroup.meter.setValueR(value);
             break;
         }
+    }
+
+    void sampleRateChanged(double) override
+    {
+        contentGroup.graph.clear();
     }
 
     /* ----------------------------------------------------------------------------------------------------------------
