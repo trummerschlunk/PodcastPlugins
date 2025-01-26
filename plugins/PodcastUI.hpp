@@ -90,6 +90,7 @@ struct InputMeterGroup : QuantumFrame
        #ifdef PODCAST_MASTER
         meter.setValues(kParameterRanges[kParameter_input_peak_channel_0].min,
                         kParameterRanges[kParameter_input_peak_channel_1].min,
+                        0.f,
                         kParameterRanges[kParameter_lufs_in_meter].min);
        #else
         meter.setValues(kParameterRanges[kParameter_input_peak_channel_0].min,
@@ -347,6 +348,7 @@ struct OutputMeterGroup : QuantumFrame
                        kParameterRanges[kParameter_output_peak_channel_0].max);
         meter.setValues(kParameterRanges[kParameter_output_peak_channel_0].min,
                         kParameterRanges[kParameter_output_peak_channel_1].min,
+                        kParameterRanges[kParameter_limiter_gain].max,
                         kParameterRanges[kParameter_lufs_out_meter].min);
     }
 
@@ -789,8 +791,7 @@ protected:
             contentGroup.graph.update1(index - kParameter_multiband_compressor_gain_band_1, value);
             break;
         case kParameter_limiter_gain:
-            // TODO
-            // outputGroup.limiter.setValueR(value);
+            outputGroup.meter.setValueLimiter(value);
             break;
         case kParameter_lufs_out_meter:
             outputGroup.meter.setValueLufs(value);
