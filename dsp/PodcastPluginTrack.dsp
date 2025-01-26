@@ -108,8 +108,9 @@ Nch = 2; //number of channels
 Nba = 5; //number of bands of the multiband compressor
 
 Latency_limiter = 0.01; // in ms
-Latency_spectral_ballancer = 0.05; // in ms
+Latency_spectral_ballancer = 0.1; // in ms
 Latency_global = Latency_spectral_ballancer + Latency_limiter <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[symbol:latency_global]latency_global",0,1));
+Lufs_measurement_window = 0.8;
 
 //----------------------- MAIN Section -----------------------
 
@@ -209,7 +210,7 @@ lk_fixed_sb(Tg)= (kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) with
     kfilter = ebu.ebur128;
 };
 
-measure = lk_fixed_sb(0.8);
+measure = lk_fixed_sb(Lufs_measurement_window);
 
 // EXPANDER
 expander_sb(x) = (co.peak_expansion_gain_mono_db(maxHold,strength,thresh,range,att,hold,gate_rel,knee,prePost,x)
@@ -535,7 +536,7 @@ bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
 
 // LIMITER with LOOKAHEAD
 
-limiter_lookahead = limiter_lad_stereo(Latency_global - Latency_spectral_ballancer,limiter_thresh, 0.01/twopi, .1, 1/twopi)
+limiter_lookahead = limiter_lad_stereo(Latency_global - Latency_spectral_ballancer,limiter_thresh, Latency_limiter/twopi, .1, 1/twopi)
 with {
     twopi = 2 * ma.PI;
 };
@@ -554,6 +555,6 @@ limiter_lad_N(N, LD, ceiling, attack, hold, release) =
            maxN(1) = _;
            maxN(2) = max;
            maxN(N) = max(maxN(N - 1));
-           limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR",-60,0));
+           limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR%i",-60,0));
       };
 
