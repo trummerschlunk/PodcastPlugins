@@ -93,7 +93,7 @@ meter_leveler_brake = _; //_*100 : vbargraph("v:Podcast Plugins/h:[2]Leveler, MB
 limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[7][unit:dB]max boost", init_leveler_maxboost, 0, 60, 1);
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 threshLim = -1; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
-rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
+// rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
 mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]style",0.5,0,1,0.01);
 limiter_thresh = -1 : ba.db2linear; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 //meter_mb(b,c) = _; //_<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8]gr %b[unit:dB]", -6, 6)));
@@ -108,15 +108,15 @@ Nch = 2; //number of channels
 Nba = 5; //number of bands of the multiband compressor
 
 Latency_limiter = 0.01; // in ms
-Latency_spectral_ballancer = 0.1; // in ms
+Latency_spectral_ballancer = 0.05; // in ms
 Latency_global = Latency_spectral_ballancer + Latency_limiter <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[symbol:latency_global]latency_global",0,1));
 
 //----------------------- MAIN Section -----------------------
 
 process = _,_ 
-        : peakmeter_in
         : bp2(bypass_global, 
-                (pregain(Nch) 
+                (pregain(Nch)
+                : peakmeter_in
                 : prefilter_bp 
                 : ballancer_bp 
                 : leveler 
@@ -140,12 +140,12 @@ pregain(n) = par(i,n,gain) with {
 
 // ----------------------- peak meters -----------------------
 peakmeter_in = in_meter_l,in_meter_r with {
-envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(8.0/ma.SR);
 in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -70, 0));
 in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -70, 0));
            };
 peakmeter_out = out_meter_l,out_meter_r with {
-  envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+  envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(8.0/ma.SR);
   out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_0]Out 0", -70, 0));
   out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", -70, 0));
 };
@@ -400,7 +400,7 @@ B_band_Compressor_N_chan(B,N) =
             // hs3(f,g) = fi.svf.hs (f, .5, g3) : fi.svf.hs (f, .707, g3) : fi.svf.hs (f, 2, g3) with {g3 = g/3;};
             
             /* 1st order low, band and hi shelf filter primitives */
-            ls3(f,g) = fi.svf.ls (f, .7, g);                                                                                                                                                               
+            ls3(f,g) = fi.svf.ls (f, .7, g);
             bs3(f1,f2,g) = ls3(f1,-g) : ls3(f2,g);
             hs3(f,g) = fi.svf.hs (f, .7, g);
 

@@ -141,12 +141,12 @@ ms_dec = _,_ <: +, -;
 
 // peak meters
 peakmeter_in = in_meter_l,in_meter_r with {
-    envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+    envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(8.0/ma.SR);
     in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -70, 0));
     in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -70, 0));
 };
 peakmeter_out = out_meter_l,out_meter_r with {
-    envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(80.0/ma.SR);
+    envelop = abs : max(ba.db2linear(-70)) : ba.linear2db : min(10)  : max ~ -(8.0/ma.SR);
     out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_0]Out 0", -70, 0));
     out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", -70, 0));
 };
