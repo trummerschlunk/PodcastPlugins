@@ -72,7 +72,7 @@ struct InputMeterGroup : QuantumFrame
    #else
     QuantumStereoLevelMeter meter;
    #endif
-    QuantumKnob gainKnob;
+    QuantumSmallKnob gainKnob;
 
     explicit InputMeterGroup(NanoTopLevelWidget* const parent,
                              KnobEventHandler::Callback* const cb,
@@ -98,6 +98,7 @@ struct InputMeterGroup : QuantumFrame
 
         gainKnob.setCallback(cb);
         gainKnob.setId(kParameter_input_gain);
+        gainKnob.setLabel("Input\nGain");
         gainKnob.setName("Gain");
         gainKnob.setRange(kParameterRanges[kParameter_input_gain].min,
                           kParameterRanges[kParameter_input_gain].max);
@@ -120,8 +121,8 @@ struct InputMeterGroup : QuantumFrame
        #endif
         const uint knobWidth = metrics.stereoLevelMeter.getWidth() + theme.fontSize;
 
-        meter.setSize(meterWidth, usableHeight - knobWidth);
-        gainKnob.setSize(knobWidth, knobWidth);
+        meter.setSize(meterWidth, usableHeight - knobWidth - theme.fontSize);
+        gainKnob.setSize(knobWidth, knobWidth + theme.fontSize);
 
         setSize(usableWidth + theme.borderSize * 2 + theme.padding * 2, height);
     }
@@ -208,7 +209,7 @@ struct InputLevelerGroup : QuantumFrame
 
     QuantumGainReductionMeter leveler;
     QuantumSwitch enableSwitch;
-    QuantumKnob targetKnob;
+    QuantumSmallKnob targetKnob;
 
    #ifdef PODCAST_MASTER
     static constexpr const char* kInputLevelerName = "Leveler 1";
@@ -248,6 +249,7 @@ struct InputLevelerGroup : QuantumFrame
 
         targetKnob.setCallback(kcb);
         targetKnob.setId(kParameter_leveler_target);
+        targetKnob.setLabel("Target Loudness");
         targetKnob.setName("Target");
         targetKnob.setRange(kParameterRanges[kParameter_leveler_target].min,
                             kParameterRanges[kParameter_leveler_target].max);
@@ -265,9 +267,9 @@ struct InputLevelerGroup : QuantumFrame
 
         enableSwitch.adjustSize();
         enableSwitch.setWidth(usableWidth);
-        targetKnob.setSize(usableWidth, usableWidth);
+        targetKnob.setSize(usableWidth, usableWidth + theme.fontSize);
         leveler.setSize(levelerWidth,
-                        usableHeight - usableWidth - enableSwitch.getHeight() - theme.padding * 2);
+                        usableHeight - usableWidth - theme.fontSize - enableSwitch.getHeight() - theme.padding * 2);
         setSize(usableWidth + theme.borderSize * 2 + theme.padding * 2, height);
     }
 
@@ -462,6 +464,7 @@ public:
         timbreKnob.setDefault(kParameterRanges[kParameter_timbre].def);
         timbreKnob.setValue(kParameterRanges[kParameter_timbre].def, false);
         timbreKnob.setLabel("Timbre");
+        timbreKnob.setSideLabels("warmer", "brighter");
         timbreKnob.setRingColor(theme.levelMeterColor);
         timbreKnob.setUnitLabel(kParameterUnits[kParameter_timbre]);
 
@@ -473,6 +476,7 @@ public:
         styleKnob.setDefault(kParameterRanges[kParameter_style].def);
         styleKnob.setValue(kParameterRanges[kParameter_style].def, false);
         styleKnob.setLabel("Style");
+        styleKnob.setSideLabels("natural", "radio-ish");
         styleKnob.setRingColor(theme.levelMeterAlternativeColor);
         styleKnob.setUnitLabel(kParameterUnits[kParameter_style]);
 
@@ -499,7 +503,7 @@ public:
         timbreSwitch.adjustSize();
         styleSwitch.adjustSize();
 
-        const uint knobSize = getHeight() / 4 - theme.borderSize * 2 - theme.padding * 2;
+        const uint knobSize = getHeight() / 3 - theme.borderSize * 2 - theme.padding * 2;
         timbreKnob.setSize(knobSize, knobSize);
         styleKnob.setSize(knobSize, knobSize);
     }
@@ -508,7 +512,7 @@ public:
     {
         QuantumFrame::setAbsolutePos(x, y);
 
-        const uint knobSize = getHeight() / 4 - theme.borderSize * 2 - theme.padding * 2;
+        const uint knobSize = getHeight() / 3 - theme.borderSize * 2 - theme.padding * 2;
         const uint midPoint = x / 2 + getWidth() / 2;
         const int yfinal = y + getHeight() - knobSize * 1.5 - theme.borderSize - theme.padding;
 
@@ -521,12 +525,12 @@ public:
         timbreSwitch.setAbsolutePos(timbreKnob.getAbsoluteX() +
                                     timbreKnob.getWidth() / 2 -
                                     timbreSwitch.getWidth() / 2,
-                                    timbreKnob.getAbsoluteY() + timbreKnob.getHeight());
+                                    timbreKnob.getAbsoluteY() + timbreKnob.getHeight() + theme.padding * 2);
 
         styleSwitch.setAbsolutePos(styleKnob.getAbsoluteX() +
                                    styleKnob.getWidth() / 2 -
                                    styleSwitch.getWidth() / 2,
-                                   styleKnob.getAbsoluteY() + styleKnob.getHeight());
+                                   styleKnob.getAbsoluteY() + styleKnob.getHeight() + theme.padding * 2);
     }
 
 protected:
