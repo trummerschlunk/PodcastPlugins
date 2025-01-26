@@ -79,7 +79,7 @@ class BlockGraph : public ImGuiSubWidget
    #ifdef PODCAST_MASTER
     std::array<float, 5> buffer1;
    #else
-    std::array<float, 5> buffer1;
+    std::array<float, 20> buffer1;
     std::array<float, 20> buffer2;
    #endif
 
@@ -126,8 +126,8 @@ public:
        #ifdef PODCAST_MASTER
         buffer1[block] = value;
        #else
-        for (int i = 0; i < 5; ++i)
-            buffer1[block * 5 + i] = value;
+        for (int i = 0; i < 4; ++i)
+            buffer1[block * 4 + i] = value;
        #endif
     }
 
@@ -178,17 +178,14 @@ protected:
             constexpr const char* axisLabelsX[6] = {
                 "", "60", "225", "850", "3.2k", "12k",
             };
-            constexpr const double axisValuesX[6] = {
-                0, 1, 2, 3, 4, 5,
-            };
            #else
             constexpr const char* axisLabelsX[21] = {
                 "", "60", "80", "100", "140", "185", "240", "320", "420", "560", "740", "975", "1.3k", "1.7k", "2.3k", "3k", "4k", "5.2k", "7k", "9k", "12k",
             };
+           #endif
             constexpr const double axisValuesX[21] = {
                 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
             };
-           #endif
             constexpr const char* axisLabelsY[9] = {
                 "-12", "-9", "-6", "-3", "0", "3", "6", "9", "12",
             };
@@ -198,11 +195,11 @@ protected:
 
             ImPlot::SetupAxis(ImAxis_X1, "Freq (Hz)", axisFlags);
             ImPlot::SetupAxis(ImAxis_Y1, "Gain (dB)", axisFlags | ImPlotAxisFlags_Opposite);
-            ImPlot::SetupAxisLimits(ImAxis_X1, 0.5, ARRAY_SIZE(axisValuesX) - 0.5, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_X1, 0.5, ARRAY_SIZE(axisLabelsX) - 0.5, ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, -13, 13, ImGuiCond_Always);
             ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_Linear);
-            ImPlot::SetupAxisTicks(ImAxis_X1, axisValuesX, ARRAY_SIZE(axisValuesX), axisLabelsX);
-            ImPlot::SetupAxisTicks(ImAxis_Y1, axisValuesY, ARRAY_SIZE(axisValuesY), axisLabelsY, false, 4);
+            ImPlot::SetupAxisTicks(ImAxis_X1, axisValuesX, ARRAY_SIZE(axisLabelsX), axisLabelsX);
+            ImPlot::SetupAxisTicks(ImAxis_Y1, axisValuesY, ARRAY_SIZE(axisLabelsY), axisLabelsY, false, 4);
             ImPlot::SetupLegend(ImPlotLocation_NorthWest, legendFlags);
             ImPlot::SetupFinish();
 
