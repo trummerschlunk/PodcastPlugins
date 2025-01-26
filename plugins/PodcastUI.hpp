@@ -99,9 +99,11 @@ struct InputMeterGroup : QuantumFrame
         gainKnob.setCallback(cb);
         gainKnob.setId(kParameter_input_gain);
         gainKnob.setName("Gain");
-        gainKnob.setDefault(kParameterRanges[kParameter_input_gain].def);
         gainKnob.setRange(kParameterRanges[kParameter_input_gain].min,
                           kParameterRanges[kParameter_input_gain].max);
+        gainKnob.setDefault(kParameterRanges[kParameter_input_gain].def);
+        gainKnob.setStep(1.f);
+        gainKnob.setUnitLabel(kParameterUnits[kParameter_input_gain]);
         gainKnob.setValue(kParameterRanges[kParameter_input_gain].def, false);
     }
 
@@ -247,11 +249,11 @@ struct InputLevelerGroup : QuantumFrame
         targetKnob.setCallback(kcb);
         targetKnob.setId(kParameter_leveler_target);
         targetKnob.setName("Target");
-        targetKnob.setDefault(kParameterRanges[kParameter_leveler_target].def);
         targetKnob.setRange(kParameterRanges[kParameter_leveler_target].min,
                             kParameterRanges[kParameter_leveler_target].max);
-        // TODO?
-        // targetKnob.setStep(1.f);
+        targetKnob.setDefault(kParameterRanges[kParameter_leveler_target].def);
+        targetKnob.setStep(1.f);
+        targetKnob.setUnitLabel(kParameterUnits[kParameter_leveler_target]);
         targetKnob.setValue(kParameterRanges[kParameter_leveler_target].def, false);
     }
 
@@ -455,18 +457,24 @@ public:
         timbreKnob.setCallback(kcb);
         timbreKnob.setId(kParameter_timbre);
         timbreKnob.setName("Timbre");
-        timbreKnob.setDefault(kParameterRanges[kParameter_timbre].def);
         timbreKnob.setRange(kParameterRanges[kParameter_timbre].min,
                             kParameterRanges[kParameter_timbre].max);
+        timbreKnob.setDefault(kParameterRanges[kParameter_timbre].def);
         timbreKnob.setValue(kParameterRanges[kParameter_timbre].def, false);
+        timbreKnob.setLabel("Timbre");
+        timbreKnob.setRingColor(theme.levelMeterColor);
+        timbreKnob.setUnitLabel(kParameterUnits[kParameter_timbre]);
 
         styleKnob.setCallback(kcb);
         styleKnob.setId(kParameter_style);
         styleKnob.setName("Style");
-        styleKnob.setDefault(kParameterRanges[kParameter_style].def);
         styleKnob.setRange(kParameterRanges[kParameter_style].min,
                            kParameterRanges[kParameter_style].max);
+        styleKnob.setDefault(kParameterRanges[kParameter_style].def);
         styleKnob.setValue(kParameterRanges[kParameter_style].def, false);
+        styleKnob.setLabel("Style");
+        styleKnob.setRingColor(theme.levelMeterAlternativeColor);
+        styleKnob.setUnitLabel(kParameterUnits[kParameter_style]);
 
         timbreSwitch.setCallback(bcb);
         timbreSwitch.setCheckable(true);
@@ -625,7 +633,7 @@ protected:
 
 public:
     PodcastUI()
-        : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT, true),
+        : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
           topCenteredGroup(this, this, theme),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),

@@ -38,6 +38,19 @@ protected:
         Plugin::initAudioPort(input, index, port);
     }
 
+    void initParameter(const uint32_t index, Parameter& param) override
+    {
+        FaustGeneratedPlugin::initParameter(index, param);
+
+        switch (index)
+        {
+        case kParameter_input_gain:
+        case kParameter_leveler_target:
+            param.hints |= kParameterIsInteger;
+            break;
+        }
+    }
+
    /* -----------------------------------------------------------------------------------------------------------------
     * Audio/MIDI Processing */
 
