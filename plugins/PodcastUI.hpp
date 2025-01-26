@@ -208,7 +208,7 @@ struct InputLevelerGroup : QuantumFrame
     const QuantumTheme& theme;
 
     QuantumGainReductionMeter leveler;
-    QuantumSwitch enableSwitch;
+    QuantumRadioSwitch enableSwitch;
     QuantumSmallKnob targetKnob;
 
    #ifdef PODCAST_MASTER
@@ -244,7 +244,6 @@ struct InputLevelerGroup : QuantumFrame
         enableSwitch.setCheckable(true);
         enableSwitch.setChecked(!kParameterRanges[kParameter_bypass_leveler].def, false);
         enableSwitch.setId(kParameter_bypass_leveler);
-        enableSwitch.setLabel("On");
         enableSwitch.setName("Enable Button");
 
         targetKnob.setCallback(kcb);
@@ -266,7 +265,6 @@ struct InputLevelerGroup : QuantumFrame
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
 
         enableSwitch.adjustSize();
-        enableSwitch.setWidth(usableWidth);
         targetKnob.setSize(usableWidth, usableWidth + theme.fontSize);
         leveler.setSize(levelerWidth,
                         usableHeight - usableWidth - theme.fontSize - enableSwitch.getHeight() - theme.padding * 2);
@@ -279,7 +277,8 @@ struct InputLevelerGroup : QuantumFrame
 
         const int xfinal = x + theme.borderSize + theme.padding;
         leveler.setAbsolutePos(xfinal + theme.fontSize / 2, y + theme.borderSize + theme.padding);
-        enableSwitch.setAbsolutePos(xfinal, leveler.getAbsoluteY() + leveler.getHeight() + theme.padding);
+        enableSwitch.setAbsolutePos(x + getWidth() / 2 - enableSwitch.getWidth() / 2,
+                                    leveler.getAbsoluteY() + leveler.getHeight() + theme.padding);
         targetKnob.setAbsolutePos(xfinal, enableSwitch.getAbsoluteY() + enableSwitch.getHeight() + theme.padding);
     }
 };
@@ -373,7 +372,7 @@ struct TopCenteredGroup : NanoSubWidget
     const QuantumTheme& theme;
 
    #ifndef __MOD_DEVICES__
-    QuantumSwitch globalEnableSwitch;
+    QuantumRadioSwitch globalEnableSwitch;
     QuantumVerticalSeparatorLine separator;
    #endif
 
@@ -394,7 +393,6 @@ struct TopCenteredGroup : NanoSubWidget
         globalEnableSwitch.setCheckable(true);
         globalEnableSwitch.setChecked(!kParameterRanges[kParameter_bypass_global].def, false);
         globalEnableSwitch.setId(kParameter_bypass_global);
-        globalEnableSwitch.setLabel("Enable");
         globalEnableSwitch.setName("Global Enable Button");
 
         separator.setName("+ separator");
@@ -405,7 +403,6 @@ struct TopCenteredGroup : NanoSubWidget
     {
        #ifndef __MOD_DEVICES__
         globalEnableSwitch.adjustSize();
-        globalEnableSwitch.setHeight(widgetsHeight);
         separator.setSize(metrics.separatorVertical);
         separator.setHeight(widgetsHeight);
        #endif
@@ -415,7 +412,7 @@ struct TopCenteredGroup : NanoSubWidget
     void setAbsolutePos(int x, const int y)
     {
        #ifndef __MOD_DEVICES__
-        globalEnableSwitch.setAbsolutePos(x, y);
+        globalEnableSwitch.setAbsolutePos(x, y + (separator.getHeight() / 2 - globalEnableSwitch.getHeight() / 2));
         separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
        #endif
     }
@@ -437,8 +434,8 @@ struct ContentGroup : QuantumFrame
     QuantumKnob timbreKnob;
     QuantumKnob styleKnob;
 
-    QuantumSwitch timbreSwitch;
-    QuantumSwitch styleSwitch;
+    QuantumRadioSwitch timbreSwitch;
+    QuantumRadioSwitch styleSwitch;
 
 public:
     explicit ContentGroup(NanoTopLevelWidget* const parent,
@@ -484,14 +481,12 @@ public:
         timbreSwitch.setCheckable(true);
         timbreSwitch.setChecked(!kParameterRanges[kParameter_bypass_timbre].def, false);
         timbreSwitch.setId(kParameter_bypass_timbre);
-        timbreSwitch.setLabel("On");
         timbreSwitch.setName("Timbre Enable Button");
 
         styleSwitch.setCallback(bcb);
         styleSwitch.setCheckable(true);
         styleSwitch.setChecked(!kParameterRanges[kParameter_bypass_style].def, false);
         styleSwitch.setId(kParameter_bypass_style);
-        styleSwitch.setLabel("On");
         styleSwitch.setName("Style Enable Button");
     }
 
@@ -876,7 +871,7 @@ protected:
     {
         const uint id = widget->getId();
 
-        QuantumSwitch* const qswitch = reinterpret_cast<QuantumSwitch*>(widget);
+        QuantumRadioSwitch* const qswitch = reinterpret_cast<QuantumRadioSwitch*>(widget);
         DISTRHO_SAFE_ASSERT_RETURN(qswitch != nullptr,);
 
         const bool enabled = qswitch->isChecked();
