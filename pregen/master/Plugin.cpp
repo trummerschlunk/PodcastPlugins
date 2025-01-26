@@ -160,7 +160,6 @@ class mydsp : public dsp {
 	float fConst16;
 	float fRec18[2];
 	float fConst17;
-	float fConst18;
 	float fConst20;
 	int iConst21;
 	float fConst26;
@@ -671,14 +670,16 @@ class mydsp : public dsp {
 	float fRec9[3];
 	float fVec225[2048];
 	float fVec226[2048];
+	float fConst173;
 	int iRec6[2];
 	float fRec7[2];
 	float fRec5[2];
-	float fConst173;
+	float fConst174;
+	float fConst175;
 	float fRec4[2];
 	FAUSTFLOAT fVbargraph10;
 	FAUSTFLOAT fHbargraph0;
-	int iConst174;
+	int iConst176;
 	float fVec227[2];
 	float fRec0[2];
 	FAUSTFLOAT fVbargraph11;
@@ -754,7 +755,7 @@ class mydsp : public dsp {
 		m->declare("basics.lib/peakholder:copyright", "Copyright (C) 2022 Dario Sanfilippo <sanfilippo.dario@gmail.com>");
 		m->declare("basics.lib/peakholder:license", "MIT-style STK-4.3 license");
 		m->declare("basics.lib/version", "0.9");
-		m->declare("compile_options", "-a /tmp/tmp0lz2sqo1.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
+		m->declare("compile_options", "-a /tmp/tmpgmkyjffa.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
 		m->declare("compressors.lib/name", "Faust Compressor Effect Library");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:author", "Bart Brouns");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:license", "GPLv3");
@@ -858,10 +859,10 @@ class mydsp : public dsp {
 	FAUSTPP_VIRTUAL void instanceConstants(int sample_rate) {
 		fSampleRate = sample_rate;
 		float fConst0 = std::min<float>(1.92e+05f, std::max<float>(1.0f, float(fSampleRate)));
-		fConst1 = 8e+01f / fConst0;
+		fConst1 = 8.0f / fConst0;
 		fConst2 = 44.1f / fConst0;
 		fConst3 = 1.0f - fConst2;
-		fConst4 = std::exp(0.0f - 125.0f / fConst0);
+		fConst4 = std::exp(0.0f - 628.31854f / fConst0);
 		fConst5 = 1.0f - fConst4;
 		fConst6 = 3.1415927f / fConst0;
 		fConst7 = 0.125f * fConst0;
@@ -875,7 +876,7 @@ class mydsp : public dsp {
 		iConst15 = iConst13 + 8 * iConst12;
 		fConst16 = std::exp(0.0f - 1e+01f / fConst0);
 		fConst17 = 6.281153e-07f * fConst0;
-		fConst18 = 0.01f * fConst0;
+		float fConst18 = 0.01f * fConst0;
 		float fConst19 = std::rint(fConst18);
 		fConst20 = 1.0f / std::max<float>(fConst19, 1.1920929e-07f);
 		iConst21 = int(std::floor(0.0009765625f * fConst19)) % 2;
@@ -1030,8 +1031,10 @@ class mydsp : public dsp {
 		fConst170 = 0.0f - 2.0f / fConst165;
 		fConst171 = 0.0f - 2.0f / fConst159;
 		fConst172 = 0.0f - 2.0f / fConst153;
-		fConst173 = 1.0f - fConst16;
-		iConst174 = int(0.01f * fConst0);
+		fConst173 = 0.1f * fConst0;
+		fConst174 = std::exp(0.0f - 6.2831855f / fConst0);
+		fConst175 = 1.0f - fConst174;
+		iConst176 = int(0.01f * fConst0);
 	}
 	
 	FAUSTPP_VIRTUAL void instanceResetUserInterface() {
@@ -3518,16 +3521,16 @@ class mydsp : public dsp {
 			float fTemp486 = fSlow3 * fRec9[0] + fSlow2 * fTemp484;
 			fVec226[IOTA0 & 2047] = fTemp486;
 			float fTemp487 = std::fabs(std::max<float>(std::fabs(fTemp485), std::fabs(fTemp486)));
-			int iTemp488 = (fTemp487 >= fRec7[1]) | (float(iRec6[1]) >= fConst18);
+			int iTemp488 = (fTemp487 >= fRec7[1]) | (float(iRec6[1]) >= fConst173);
 			iRec6[0] = ((iTemp488) ? 0 : iRec6[1] + 1);
 			fRec7[0] = ((iTemp488) ? fTemp487 : fRec7[1]);
 			fRec5[0] = fConst5 * fRec7[0] + fConst4 * fRec5[1];
 			float fTemp489 = std::fabs(fRec5[0]);
-			fRec4[0] = std::max<float>(fTemp489, fConst16 * fRec4[1] + fConst173 * fTemp489);
+			fRec4[0] = std::max<float>(fTemp489, fConst174 * fRec4[1] + fConst175 * fTemp489);
 			float fTemp490 = std::min<float>(1.0f, 0.8912509f / std::max<float>(fRec4[0], 1.1920929e-07f));
 			fVbargraph10 = FAUSTFLOAT(2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::fabs(fTemp490))));
 			float fTemp491 = fTemp490 * (1.0f - fRec3[0]);
-			float fTemp492 = fTemp1 * fRec3[0] + fTemp491 * fVec225[(IOTA0 - iConst174) & 2047];
+			float fTemp492 = fTemp1 * fRec3[0] + fTemp491 * fVec225[(IOTA0 - iConst176) & 2047];
 			fVec227[0] = fTemp492;
 			fRec0[0] = std::max<float>(fRec0[1] - fConst1, std::min<float>(1e+01f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.00031622776f, std::fabs(fTemp492))))));
 			fVbargraph11 = FAUSTFLOAT(fRec0[0]);
@@ -3571,7 +3574,7 @@ class mydsp : public dsp {
 			float fTemp508 = fTemp507 + fVec244[(IOTA0 - 16384) & 32767];
 			fVec245[IOTA0 & 65535] = fTemp508;
 			fVec246[IOTA0 & 131071] = fTemp508 + fVec245[(IOTA0 - 32768) & 65535];
-			float fTemp509 = fRec3[0] * fTemp116 + fTemp491 * fVec226[(IOTA0 - iConst174) & 2047];
+			float fTemp509 = fRec3[0] * fTemp116 + fTemp491 * fVec226[(IOTA0 - iConst176) & 2047];
 			fVec247[0] = fTemp509;
 			fVec248[0] = 0.0f - fConst30 * (fConst31 * fRec199[1] - fConst33 * fVec247[1]);
 			fRec200[0] = fVec248[1] + fConst30 * (fConst34 * fTemp509 - 2.0f * (fConst35 * fRec200[1] - fConst36 * fVec247[1]));
