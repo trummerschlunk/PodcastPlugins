@@ -204,7 +204,7 @@ protected:
             ImPlot::SetupFinish();
 
            #ifdef PODCAST_MASTER
-            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 0.9);
+            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 0.9, 1.0);
            #else
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
             ImPlot::PlotBars("Spectral Ballancer Gain", buffer2.data(), 20, 0.8, 1.0);
