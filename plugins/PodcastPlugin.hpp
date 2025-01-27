@@ -22,7 +22,12 @@ public:
     PodcastPlugin()
         : FaustGeneratedPlugin(kExtraParameterCount, kExtraProgramCount, kExtraStateCount)
     {
-        setLatency(getParameterValue(kParameter_latency_global) * (getSampleRate() * 0.001));
+        // pre-roll to make sure latency value is updated
+        float* in[2] = {};
+        float* out[2] = {};
+        dsp->compute(0, in, out);
+
+        setLatency(getParameterValue(kParameter_latency_global) * getSampleRate());
     }
 
 protected:
@@ -77,7 +82,7 @@ protected:
     {
         FaustGeneratedPlugin::sampleRateChanged(newSampleRate);
 
-        setLatency(getParameterValue(kParameter_latency_global) * (newSampleRate * 0.001));
+        setLatency(getParameterValue(kParameter_latency_global) * newSampleRate);
     }
 
     // ----------------------------------------------------------------------------------------------------------------
