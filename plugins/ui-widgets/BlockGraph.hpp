@@ -79,7 +79,7 @@ class BlockGraph : public ImGuiSubWidget
    #ifdef PODCAST_MASTER
     std::array<float, 5> buffer1;
    #else
-    std::array<float, 20> buffer1;
+    std::array<float, 5> buffer1;
     std::array<float, 20> buffer2;
    #endif
 
@@ -123,12 +123,7 @@ public:
 
     void update1(const int block, const float value)
     {
-       #ifdef PODCAST_MASTER
         buffer1[block] = value;
-       #else
-        for (int i = 0; i < 4; ++i)
-            buffer1[block * 4 + i] = value;
-       #endif
     }
 
    #ifndef PODCAST_MASTER
@@ -192,7 +187,6 @@ protected:
             constexpr const double axisValuesY[9] = {
                 -12, -9, -6, -3, 0, 3, 6, 9, 12,
             };
-
             ImPlot::SetupAxis(ImAxis_X1, "Freq (Hz)", axisFlags);
             ImPlot::SetupAxis(ImAxis_Y1, "Gain (dB)", axisFlags | ImPlotAxisFlags_Opposite);
             ImPlot::SetupAxisLimits(ImAxis_X1, 0.5, ARRAY_SIZE(axisLabelsX) - 0.5, ImGuiCond_Always);
@@ -206,8 +200,9 @@ protected:
            #ifdef PODCAST_MASTER
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 0.9, 1.0);
            #else
-            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
-            ImPlot::PlotBars("Spectral Ballancer Gain", buffer2.data(), 20, 0.8, 1.0);
+            ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 5, 0, 5.5);
+            // ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
+            ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 0.8, 1.0);
            #endif
 
             ImPlot::EndPlot();
