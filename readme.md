@@ -7,7 +7,7 @@ The bundle consists of two plugins:
 ## Podcast Plugin TRACK
 This plugin is inserted on the individual audio tracks of all speakers. It wil take care of level, equalisation and dynamic processing.
 
-![Plugin GUI](./gui/PodcastPlugin_Track_Mockup.png) *mockup of Podcast Plugin Track*
+![Plugin GUI](./gui/PodcastPluginTrack_screenshot.png) *screenshot of Podcast Plugin Track*
 
 
 ## Podcast Plugin MASTER

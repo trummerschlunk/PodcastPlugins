@@ -165,7 +165,7 @@ tilt_eq_bp = bp2(checkbox("v:Podcast Plugins/h:[1]Global/[1][symbol:bypass_timbr
 // TILT EQ STEREO
 tilt_eq = par(i,2,_) : par(i,2, fi.lowshelf(N, -gain, freq) : fi.highshelf(N, gain, freq)) with{
     N = 1;
-    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]timbre [unit:dB] [symbol:timbre]",0,-5,5,0.1):si.smoo;
+    gain = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Tilt EQ/[1]timbre[symbol:timbre]",0,-5,5,0.1):si.smoo;
     freq = 630; 
 };
 
