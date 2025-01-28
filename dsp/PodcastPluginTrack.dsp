@@ -68,7 +68,7 @@ leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/
 //rel = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
 //mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2]mb morph",0.5,0,1,0.01);
 //limiter_thresh = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
-meter_mb(b,c) = _<: attach(_, (max(-12):min(12): envelop_mb : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
+meter_mb(b,c) = _<: attach(_, (max(-12):min(12): vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
 envelop_mb = si.smooth(ba.tau2pole(0.1)); //fi.lowpass(1,3);
 
 
