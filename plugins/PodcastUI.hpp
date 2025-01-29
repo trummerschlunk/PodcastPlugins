@@ -646,6 +646,7 @@ protected:
 public:
     PodcastUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
+          theme(getScaleFactor()),
           topCenteredGroup(this, this, theme),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),
@@ -664,14 +665,6 @@ public:
         {
             setGeometryConstraints(DISTRHO_UI_MINIMUM_WIDTH * scaleFactor, DISTRHO_UI_MINIMUM_HEIGHT * scaleFactor);
             setSize(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor);
-
-            theme.borderSize *= scaleFactor;
-            theme.padding *= scaleFactor;
-            theme.fontSize *= scaleFactor;
-            theme.textHeight *= scaleFactor;
-            theme.widgetLineSize *= scaleFactor;
-            theme.windowPadding *= scaleFactor;
-            theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
         }
         else
         {

@@ -214,10 +214,10 @@ protected:
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
 
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor.withAlpha(0.666f)));
-            ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 5, 0, 5.5);
+            ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 20, 0, 1.05, 0.525);
+            // ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
 
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor.withAlpha(0.666f)));
-            // ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
             ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 0.8, 1.0);
            #endif
 

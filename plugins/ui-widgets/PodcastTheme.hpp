@@ -19,4 +19,19 @@ struct PodcastTheme : QuantumTheme
     {
         widgetLineSize = 1;
     }
+
+    PodcastTheme(const double scaleFactor) noexcept
+    {
+        widgetLineSize = 1;
+
+        borderSize *= scaleFactor;
+        padding *= scaleFactor;
+        fontSize *= scaleFactor;
+        sidelabelsFontSize *= scaleFactor;
+        knobIndicatorSize *= scaleFactor;
+        textHeight *= scaleFactor;
+        widgetLineSize *= scaleFactor;
+        windowPadding *= scaleFactor;
+        textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+    }
 };
