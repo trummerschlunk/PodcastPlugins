@@ -17,7 +17,7 @@
 #pragma once
 
 #include "DearImGui.hpp"
-#include "Quantum.hpp"
+#include "PodcastTheme.hpp"
 
 #include "TopLevelWidget.hpp"
 #include "implot/implot.h"
@@ -69,12 +69,13 @@ START_NAMESPACE_DGL
 
 constexpr inline ImVec4 ImVec4Color(const Color& c)
 {
-    return ImVec4(c.red, c.blue, c.green, c.alpha);
+    return ImVec4(c.red, c.green, c.blue, c.alpha);
 }
 
 class BlockGraph : public ImGuiSubWidget
 {
     ImPlotContext* const context;
+    const PodcastTheme& theme;
 
    #ifdef PODCAST_MASTER
     std::array<float, 5> buffer1;
@@ -84,26 +85,17 @@ class BlockGraph : public ImGuiSubWidget
    #endif
 
 public:
-    explicit BlockGraph(TopLevelWidget* const parent, const QuantumTheme& theme)
+    explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& theme_)
         : ImGuiSubWidget(parent),
-          context(ImPlot::CreateContext())
+          context(ImPlot::CreateContext()),
+          theme(theme_)
     {
         setName("BlockGraph");
-
-        ImVec4 colors[2] = {
-            ImVec4Color(theme.levelMeterColor),
-            ImVec4Color(theme.levelMeterAlternativeColor),
-        };
-
-        colors[0].w = colors[1].w = 0.666f;
 
         ImGuiStyle& style(ImGui::GetStyle());
         style.WindowPadding = ImVec2();
         style.WindowRounding = style.WindowBorderSize = 0.f;
         style.Colors[ImGuiCol_FrameBg] = ImVec4();
-
-        ImPlotStyle& plotSyle(ImPlot::GetStyle());
-        plotSyle.Colormap = ImPlot::AddColormap("BlockGraph", colors, ARRAY_SIZE(colors));
 
         clear();
     }
@@ -198,9 +190,13 @@ protected:
             ImPlot::SetupFinish();
 
            #ifdef PODCAST_MASTER
+            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 0.9, 1.0);
            #else
+            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor.withAlpha(0.666f)));
             ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 5, 0, 5.5);
+
+            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor.withAlpha(0.666f)));
             // ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
             ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 0.8, 1.0);
            #endif

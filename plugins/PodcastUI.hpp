@@ -65,7 +65,7 @@ static_assert(kParameterRanges[kParameter_leveler_gain].def == 0.f, "leveler gai
 
 struct InputMeterGroup : QuantumFrame
 {
-    const QuantumTheme& theme;
+    const PodcastTheme& theme;
 
    #ifdef PODCAST_MASTER
     QuantumStereoLevelMeterWithLUFS meter;
@@ -76,7 +76,7 @@ struct InputMeterGroup : QuantumFrame
 
     explicit InputMeterGroup(NanoTopLevelWidget* const parent,
                              KnobEventHandler::Callback* const cb,
-                             const QuantumTheme& t)
+                             const PodcastTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           meter(this, t),
@@ -107,6 +107,7 @@ struct InputMeterGroup : QuantumFrame
         gainKnob.setStep(1.f);
         gainKnob.setUnitLabel(kParameterUnits[kParameter_input_gain]);
         gainKnob.setValue(kParameterRanges[kParameter_input_gain].def, false);
+        gainKnob.setRingColor(theme.levelMeterColor);
     }
 
     void adjustSize(const QuantumMetrics& metrics, const uint height)
@@ -206,7 +207,7 @@ struct InputMeterGroup : QuantumFrame
 
 struct InputLevelerGroup : QuantumFrame
 {
-    const QuantumTheme& theme;
+    const PodcastTheme& theme;
 
     QuantumGainReductionMeter leveler;
     QuantumRadioSwitch enableSwitch;
@@ -222,7 +223,7 @@ struct InputLevelerGroup : QuantumFrame
     explicit InputLevelerGroup(NanoTopLevelWidget* const parent,
                                ButtonEventHandler::Callback* const bcb,
                                KnobEventHandler::Callback* const kcb,
-                               const QuantumTheme& t)
+                               const PodcastTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           leveler(this, t),
@@ -257,6 +258,9 @@ struct InputLevelerGroup : QuantumFrame
         targetKnob.setStep(1.f);
         targetKnob.setUnitLabel(kParameterUnits[kParameter_leveler_target]);
         targetKnob.setValue(kParameterRanges[kParameter_leveler_target].def, false);
+
+        enableSwitch.setBackgroundColor(theme.widgetAlternativeColor);
+        targetKnob.setRingColor(theme.widgetAlternativeColor);
     }
 
     void adjustSize(const QuantumMetrics& metrics, const uint height)
@@ -290,11 +294,11 @@ struct InputLevelerGroup : QuantumFrame
 #ifdef PODCAST_MASTER
 struct OutputLevelerGroup : QuantumFrame
 {
-    const QuantumTheme& theme;
+    const PodcastTheme& theme;
 
     QuantumGainReductionMeter leveler;
 
-    explicit OutputLevelerGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
+    explicit OutputLevelerGroup(NanoTopLevelWidget* const parent, const PodcastTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           leveler(this, t)
@@ -332,11 +336,11 @@ struct OutputLevelerGroup : QuantumFrame
 
 struct OutputMeterGroup : QuantumFrame
 {
-    const QuantumTheme& theme;
+    const PodcastTheme& theme;
 
     QuantumStereoLevelMeterWithLUFS meter;
 
-    explicit OutputMeterGroup(NanoTopLevelWidget* const parent, const QuantumTheme& t)
+    explicit OutputMeterGroup(NanoTopLevelWidget* const parent, const PodcastTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           meter(this, t)
@@ -371,7 +375,7 @@ struct OutputMeterGroup : QuantumFrame
 
 struct TopCenteredGroup : NanoSubWidget
 {
-    const QuantumTheme& theme;
+    const PodcastTheme& theme;
 
    #ifndef __MOD_DEVICES__
     QuantumRadioSwitch globalEnableSwitch;
@@ -380,7 +384,7 @@ struct TopCenteredGroup : NanoSubWidget
 
     explicit TopCenteredGroup(NanoTopLevelWidget* const parent,
                               ButtonEventHandler::Callback* const bcb,
-                              const QuantumTheme& t)
+                              const PodcastTheme& t)
         : NanoSubWidget(parent),
           theme(t)
        #ifndef __MOD_DEVICES__
@@ -429,7 +433,7 @@ struct TopCenteredGroup : NanoSubWidget
 
 struct ContentGroup : QuantumFrame
 {
-    const QuantumTheme& theme;
+    const PodcastTheme& theme;
 
     BlockGraph graph;
 
@@ -443,7 +447,7 @@ public:
     explicit ContentGroup(NanoTopLevelWidget* const parent,
                           ButtonEventHandler::Callback* const bcb,
                           KnobEventHandler::Callback* const kcb,
-                          const QuantumTheme& t)
+                          const PodcastTheme& t)
         : QuantumFrame(parent, t),
           theme(t),
           graph(parent, t),
@@ -466,6 +470,7 @@ public:
         timbreKnob.setSideLabels("warmer", "brighter");
         timbreKnob.setRingColor(theme.levelMeterColor);
         timbreKnob.setUnitLabel(kParameterUnits[kParameter_timbre]);
+        timbreKnob.setRingColor(theme.knobRimColor);
 
         styleKnob.setCallback(kcb);
         styleKnob.setId(kParameter_style);
@@ -478,6 +483,7 @@ public:
         styleKnob.setSideLabels("natural", "radio-ish");
         styleKnob.setRingColor(theme.levelMeterAlternativeColor);
         styleKnob.setUnitLabel(kParameterUnits[kParameter_style]);
+        styleKnob.setRingColor(theme.knobAlternativeRimColor);
 
         timbreSwitch.setCallback(bcb);
         timbreSwitch.setCheckable(true);
@@ -553,13 +559,13 @@ protected:
 
 class PodcastNameWidget : public NanoSubWidget
 {
-    QuantumTheme& theme;
+    PodcastTheme& theme;
     QuantumThemeCallback* const callback;
     NanoImage image, image2x;
     ScopedPointer<InspectorWindow> inspectorWindow;
 
 public:
-    explicit PodcastNameWidget(NanoTopLevelWidget* const parent, QuantumThemeCallback* const cb, QuantumTheme& t)
+    explicit PodcastNameWidget(NanoTopLevelWidget* const parent, QuantumThemeCallback* const cb, PodcastTheme& t)
         : NanoSubWidget(parent),
           theme(t),
           callback(cb)
@@ -611,7 +617,7 @@ class PodcastUI : public UI,
                   public QuantumThemeCallback
 {
 protected:
-    QuantumTheme theme;
+    PodcastTheme theme;
 
     // group of widgets
     TopCenteredGroup topCenteredGroup;
@@ -625,9 +631,6 @@ protected:
 
     // plugin name
     PodcastNameWidget name;
-
-    // for when theme changes
-    bool resizeOnNextIdle = false;
 
     // little helper for text input on double click
     // ScopedPointer<DoubleClickHelper> doubleClickHelper;
@@ -651,6 +654,7 @@ public:
 
         if (d_isNotEqual(scaleFactor, 1.0))
         {
+            setGeometryConstraints(DISTRHO_UI_MINIMUM_WIDTH * scaleFactor, DISTRHO_UI_MINIMUM_HEIGHT * scaleFactor);
             setSize(DISTRHO_UI_DEFAULT_WIDTH * scaleFactor, DISTRHO_UI_DEFAULT_HEIGHT * scaleFactor);
 
             theme.borderSize *= scaleFactor;
@@ -660,6 +664,10 @@ public:
             theme.widgetLineSize *= scaleFactor;
             theme.windowPadding *= scaleFactor;
             theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+        }
+        else
+        {
+            setGeometryConstraints(DISTRHO_UI_MINIMUM_WIDTH * scaleFactor, DISTRHO_UI_MINIMUM_HEIGHT * scaleFactor);
         }
 
         // bottom of the drawing stack
@@ -855,16 +863,6 @@ protected:
         resizeWidgets(ev.size.getWidth(), ev.size.getHeight());
     }
 
-    void uiIdle() override
-    {
-        if (resizeOnNextIdle)
-        {
-            // TODO
-
-            resizeOnNextIdle = false;
-        }
-    }
-
     /* ----------------------------------------------------------------------------------------------------------------
      * Custom Widget Callbacks */
 
@@ -940,23 +938,32 @@ protected:
         if (colors)
         {
             recursiveTypeFind<QuantumButton>(getChildren(), [=](QuantumButton* const w){
-                w->setBackgroundColor(theme.widgetDefaultActiveColor);
-            });
-            recursiveTypeFind<QuantumValueSlider>(getChildren(), [=](QuantumValueSlider* const w){
-                w->setBackgroundColor(theme.widgetDefaultActiveColor);
-                w->setTextColor(theme.textLightColor);
-            });
-            recursiveTypeFind<QuantumValueMeter>(getChildren(), [=](QuantumValueMeter* const w){
-                w->setBackgroundColor(theme.widgetDefaultAlternativeColor);
-                w->setTextColor(theme.textLightColor);
+                w->setBackgroundColor(theme.widgetActiveColor);
             });
             recursiveTypeFind<QuantumLevelMeter>(getChildren(), [=](QuantumLevelMeter* const w){
                 w->setBackgroundColor(theme.levelMeterColor);
             });
+            recursiveTypeFind<QuantumRadioSwitch>(getChildren(), [=](QuantumRadioSwitch* const w){
+                w->setBackgroundColor(theme.widgetActiveColor);
+            });
+            recursiveTypeFind<QuantumValueSlider>(getChildren(), [=](QuantumValueSlider* const w){
+                w->setBackgroundColor(theme.widgetActiveColor);
+                w->setTextColor(theme.textLightColor);
+            });
+            recursiveTypeFind<QuantumValueMeter>(getChildren(), [=](QuantumValueMeter* const w){
+                w->setBackgroundColor(theme.widgetAlternativeColor);
+                w->setTextColor(theme.textLightColor);
+            });
+
+            inputGroup.gainKnob.setRingColor(theme.levelMeterColor);
+            inputLevelerGroup.enableSwitch.setBackgroundColor(theme.widgetAlternativeColor);
+            inputLevelerGroup.targetKnob.setRingColor(theme.widgetAlternativeColor);
+            contentGroup.timbreKnob.setRingColor(theme.knobRimColor);
+            contentGroup.styleKnob.setRingColor(theme.knobAlternativeRimColor);
         }
 
         if (size)
-            resizeOnNextIdle = true;
+            resizeWidgets(getWidth(), getHeight());
     }
 
     template<class W>

@@ -1,23 +1,10 @@
-/*
- * Inspector Window for DPF
- * Copyright (C) 2022 Filipe Coelho <falktx@falktx.com>
- *
- * Permission to use, copy, modify, and/or distribute this software for any purpose with
- * or without fee is hereby granted, provided that the above copyright notice and this
- * permission notice appear in all copies.
- *
- * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES WITH REGARD
- * TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS. IN
- * NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY SPECIAL, DIRECT, INDIRECT, OR CONSEQUENTIAL
- * DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER
- * IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN
- * CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
- */
+// Copyright 2022-2025 Filipe Coelho <falktx@falktx.com>
+// SPDX-License-Identifier: GPL-3.0-or-later
 
 #pragma once
 
 #include "DearImGui.hpp"
-#include "Quantum.hpp"
+#include "PodcastTheme.hpp"
 
 #include "Application.hpp"
 #include "extra/String.hpp"
@@ -32,14 +19,14 @@ class InspectorWindow : public ImGuiTopLevelWidget
 {
     std::list<SubWidget*> subwidgets;
 
-    QuantumTheme& theme;
+    PodcastTheme& theme;
     QuantumThemeCallback* const themeChangeCallback;
 
 public:
     bool isOpen = true;
     double userScaling = 1;
 
-    explicit InspectorWindow(TopLevelWidget* const tlw, QuantumTheme& t, QuantumThemeCallback* const cb)
+    explicit InspectorWindow(TopLevelWidget* const tlw, PodcastTheme& t, QuantumThemeCallback* const cb)
         : ImGuiTopLevelWidget(tlw->getWindow()),
           subwidgets(tlw->getChildren()),
           theme(t),
@@ -67,55 +54,28 @@ protected:
         int val;
         bool changedSize = false;
         bool changedColors = false;
-        bool changedScale = false;
 
         if (ImGui::Button("Reset"))
         {
-            changedScale = true;
-            userScaling = 1;
-        }
-
-        ImGui::SameLine();
-
-        if (ImGui::SmallButton("150% Zoom"))
-        {
-            changedScale = true;
-            userScaling = 1.5;
-        }
-
-        ImGui::SameLine();
-
-        if (ImGui::SmallButton("200% Zoom"))
-        {
-            changedScale = true;
-            userScaling = 2;
-        }
-
-        ImGui::SameLine();
-
-        if (ImGui::SmallButton("300% Zoom"))
-        {
-            changedScale = true;
-            userScaling = 3;
-        }
-
-        ImGui::SameLine();
-        ImGui::TextUnformatted("(zoom changes reset colors)");
-
-        if (changedScale)
-        {
-            changedSize = true;
             changedColors = true;
-            scaleFactor = getScaleFactor() * userScaling;
-            theme = QuantumTheme();
+            theme = PodcastTheme();
             theme.borderSize *= scaleFactor;
             theme.padding *= scaleFactor;
             theme.fontSize *= scaleFactor;
             theme.textHeight *= scaleFactor;
+            theme.knobIndicatorSize *= scaleFactor;
             theme.widgetLineSize *= scaleFactor;
             theme.windowPadding *= scaleFactor;
             theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
         }
+
+        /*
+        ImGui::SameLine();
+
+        if (ImGui::Button("Save"))
+        {
+        }
+        */
 
         val = static_cast<int>(theme.borderSize / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Border Size", &val, 1, 10))
@@ -147,6 +107,13 @@ protected:
             theme.textHeight = val * scaleFactor;
         }
 
+        val = static_cast<int>(theme.knobIndicatorSize / scaleFactor + 0.5f);
+        if (ImGui::SliderInt("Knob Indicator Size", &val, 2, 8))
+        {
+            changedSize = true;
+            theme.knobIndicatorSize = val * scaleFactor;
+        }
+
         val = static_cast<int>(theme.widgetLineSize / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Widget Line Size", &val, 1, 10))
         {
@@ -154,11 +121,15 @@ protected:
             theme.widgetLineSize = val * scaleFactor;
         }
 
+        changedColors |= ImGui::ColorEdit4("Bars", theme.barsColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Bars Alternative", theme.barsAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Knob Rim", theme.knobRimColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Knob Rim Alternative", theme.knobAlternativeRimColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Widget Default Active", theme.widgetDefaultActiveColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Widget Default Alternative", theme.widgetDefaultAlternativeColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Active", theme.widgetActiveColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Widget Alternative", theme.widgetAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Foreground", theme.widgetForegroundColor.rgba);
         changedColors |= ImGui::ColorEdit4("Window Background", theme.windowBackgroundColor.rgba);
         changedColors |= ImGui::ColorEdit4("Text Light", theme.textLightColor.rgba);

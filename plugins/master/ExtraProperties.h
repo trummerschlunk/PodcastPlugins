@@ -7,14 +7,17 @@
 #define DISTRHO_PLUGIN_WANT_LATENCY    1
 #define DISTRHO_UI_FILE_BROWSER        0
 #define DISTRHO_UI_USE_NANOVG          1
-#define DISTRHO_UI_USER_RESIZABLE      0
+#define DISTRHO_UI_USER_RESIZABLE      1
 
-#define DISTRHO_UI_DEFAULT_WIDTH 850
+#define DISTRHO_UI_DEFAULT_WIDTH 900
 #define DISTRHO_UI_DEFAULT_HEIGHT 500
 
-#define DISTRHO_PLUGIN_CLAP_ID "trummerschlunk.podcast-plugins.track"
+#define DISTRHO_UI_MINIMUM_WIDTH 800
+#define DISTRHO_UI_MINIMUM_HEIGHT 430
+
+#define DISTRHO_PLUGIN_CLAP_ID "trummerschlunk.podcast-plugins.master"
 #define DISTRHO_PLUGIN_BRAND_ID KlSc
-#define DISTRHO_PLUGIN_UNIQUE_ID PoTr
+#define DISTRHO_PLUGIN_UNIQUE_ID PoMs
 
 enum ExtraParameters {
     kExtraParameterCount
