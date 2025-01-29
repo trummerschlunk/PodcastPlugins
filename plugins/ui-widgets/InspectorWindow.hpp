@@ -62,6 +62,7 @@ protected:
             theme.borderSize *= scaleFactor;
             theme.padding *= scaleFactor;
             theme.fontSize *= scaleFactor;
+            theme.sidelabelsFontSize *= scaleFactor;
             theme.textHeight *= scaleFactor;
             theme.knobIndicatorSize *= scaleFactor;
             theme.widgetLineSize *= scaleFactor;
@@ -100,6 +101,13 @@ protected:
                 theme.textHeight = theme.fontSize;
         }
 
+        val = static_cast<int>(theme.sidelabelsFontSize / scaleFactor + 0.5f);
+        if (ImGui::SliderInt("Size Labels Font Size", &val, 8, 20))
+        {
+            changedSize = true;
+            theme.sidelabelsFontSize = val * scaleFactor;
+        }
+
         val = static_cast<int>(theme.textHeight / scaleFactor + 0.5f);
         if (ImGui::SliderInt("Text Height", &val, theme.fontSize / scaleFactor, 60))
         {
@@ -123,10 +131,11 @@ protected:
 
         changedColors |= ImGui::ColorEdit4("Bars", theme.barsColor.rgba);
         changedColors |= ImGui::ColorEdit4("Bars Alternative", theme.barsAlternativeColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Knob Rim", theme.knobRimColor.rgba);
         changedColors |= ImGui::ColorEdit4("Knob Rim Alternative", theme.knobAlternativeRimColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Plugin Name", theme.nameColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Active", theme.widgetActiveColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Alternative", theme.widgetAlternativeColor.rgba);

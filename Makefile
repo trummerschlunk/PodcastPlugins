@@ -64,8 +64,7 @@ PLUGIN_GENERATED_FILES += bin/pod-master.lv2/ui.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/ui.ttl
-PLUGIN_GENERATED_FILES += build/BuildInfo1.hpp
-PLUGIN_GENERATED_FILES += build/BuildInfo2.hpp
+PLUGIN_GENERATED_FILES += build/BuildInfo.hpp
 PLUGIN_GENERATED_FILES += build/Logo.hpp
 
 gen: $(PLUGIN_GENERATED_FILES)
@@ -186,20 +185,10 @@ else
 NEWLINE = '\\$(nothing)n'
 endif
 
-# only generated once
-build/BuildInfo1.hpp:
-	mkdir -p build
-	echo 'constexpr const char kBuildInfoString1[] = ""' > $@
-	echo '"A plugin by Klaus Scheuermann, made with Faust and DPF$(NEWLINE)"' >> $@
-	echo '"DSP: Klaus Scheuermann, magnetophon, x42, jkbd$(NEWLINE)"' >> $@
-	echo '"GUI, Plugin: falkTX$(NEWLINE)"' >> $@
-	echo '"Supported by the Prototype Fund / German Federal Ministry of Education and Research"' >> $@
-	echo ';' >> $@
-
 # regenerated on every possible change
-build/BuildInfo2.hpp: dsp/* plugins/*/* template/* template/LV2/* VERSION.mk
+build/BuildInfo.hpp: dsp/* plugins/* plugins/*/* template/* template/LV2/* VERSION.mk
 	mkdir -p build
-	echo 'constexpr const char kBuildInfoString2[] = ""' > $@
+	echo 'constexpr const char kBuildInfoString[] = ""' > $@
 ifneq ($(wildcard .git/HEAD),)
 	echo '"Built using `$(shell git branch --show-current | tr -d "'")` branch with commit:$(NEWLINE)$(shell git log -n 1 --decorate=no --pretty=oneline --abbrev-commit | tr -d "'")"' >> $@
 else

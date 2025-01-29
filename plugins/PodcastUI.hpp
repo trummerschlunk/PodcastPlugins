@@ -3,13 +3,13 @@
 
 #include "DistrhoUI.hpp"
 
+#include "NanoVG.hpp"
 #include "Quantum.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "ui-widgets/BlockGraph.hpp"
 #include "ui-widgets/InspectorWindow.hpp"
 
-#include "BuildInfo1.hpp"
-#include "BuildInfo2.hpp"
+#include "BuildInfo.hpp"
 #include "Logo.hpp"
 
 #include <functional>
@@ -118,7 +118,7 @@ struct InputMeterGroup : QuantumFrame
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
        #else
         const uint meterWidth = metrics.stereoLevelMeter.getWidth();
-        const uint usableWidth = meterWidth + theme.fontSize * 2;
+        const uint usableWidth = meterWidth + theme.fontSize + theme.padding * 2 + theme.borderSize * 2;
         const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 4 - theme.fontSize;
        #endif
         const uint knobWidth = metrics.stereoLevelMeter.getWidth() + theme.fontSize;
@@ -132,45 +132,31 @@ struct InputMeterGroup : QuantumFrame
     void setAbsolutePos(const int x, const int y)
     {
         QuantumFrame::setAbsolutePos(x, y);
-       #ifdef PODCAST_MASTER
-        const int left = x + theme.borderSize + theme.padding;
-       #else
-        const int left = x + theme.borderSize + theme.padding + theme.fontSize;
-       #endif
-        meter.setAbsolutePos(left, y + theme.borderSize + theme.padding);
-        gainKnob.setAbsolutePos(left
-                               #ifdef PODCAST_MASTER
-                               + theme.fontSize,
-                               #else
-                                - theme.fontSize / 2,
-                               #endif
+        meter.setAbsolutePos(x + getWidth() / 2 - meter.getWidth() / 2, y + theme.borderSize + theme.padding);
+        gainKnob.setAbsolutePos(x + getWidth() / 2 - gainKnob.getWidth() / 2,
                                 meter.getAbsoluteY() + meter.getHeight()
                                #ifndef PODCAST_MASTER
-                               + theme.fontSize + theme.padding * 2
+                                + theme.fontSize + theme.padding * 2
                                #endif
                                 );
     }
 
 #ifndef PODCAST_MASTER
-    void onNanoDisplay() override
+    void displayBrackets(const float db1, const float db2)
     {
-        QuantumFrame::onNanoDisplay();
-
         const int strokeSize = theme.widgetLineSize * 2;
-        const int sectionWidth = theme.fontSize - theme.padding;
+        const int sectionWidth = theme.fontSize / 2;
 
         const float verticalReservedHeight = theme.textHeight;
         const float usableMeterHeight = meter.getHeight() - verticalReservedHeight;
-        constexpr const float db7 = 1.f - normalizedLevelMeterValue(-7);
-        constexpr const float db15 = 1.f - normalizedLevelMeterValue(-15);
+        const float db1norm = 1.f - normalizedLevelMeterValue(db1);
+        const float db2norm = 1.f - normalizedLevelMeterValue(db2);
 
-        const float yOffset = theme.borderSize + verticalReservedHeight + usableMeterHeight * db7 /*- strokeSize*/;
-        const float ySize = usableMeterHeight * db15 - usableMeterHeight * db7;
-
-        fillColor(Color(0, 255, 0));
+        const float yOffset = theme.borderSize + verticalReservedHeight + usableMeterHeight * db1norm /*- strokeSize*/;
+        const float ySize = usableMeterHeight * db2norm - usableMeterHeight * db1norm;
 
         save();
-        translate(theme.borderSize + theme.padding, yOffset);
+        translate(getWidth() / 2 - meter.getWidth() / 2 - sectionWidth - theme.padding, yOffset);
         beginPath();
         moveTo(0, 0);
         lineTo(sectionWidth, 0);
@@ -185,7 +171,7 @@ struct InputMeterGroup : QuantumFrame
         fill();
 
         save();
-        translate(getWidth() - sectionWidth - theme.borderSize - theme.padding, yOffset);
+        translate(getWidth() / 2 + meter.getWidth() / 2 + theme.padding, yOffset);
         beginPath();
         moveTo(0, 0);
         lineTo(sectionWidth, 0);
@@ -198,6 +184,18 @@ struct InputMeterGroup : QuantumFrame
         lineTo(0, 0);
         restore();
         fill();
+
+    }
+
+    void onNanoDisplay() override
+    {
+        QuantumFrame::onNanoDisplay();
+
+        fillColor(Color(0, 255, 0));
+        displayBrackets(-7, -15);
+
+        fillColor(Color(255, 0, 0));
+        displayBrackets(-0.5, -6.75);
     }
 #endif
 };
@@ -378,6 +376,7 @@ struct TopCenteredGroup : NanoSubWidget
     const PodcastTheme& theme;
 
    #ifndef __MOD_DEVICES__
+    QuantumLabel globalEnableLabel;
     QuantumRadioSwitch globalEnableSwitch;
     QuantumVerticalSeparatorLine separator;
    #endif
@@ -388,6 +387,7 @@ struct TopCenteredGroup : NanoSubWidget
         : NanoSubWidget(parent),
           theme(t)
        #ifndef __MOD_DEVICES__
+        , globalEnableLabel(this, t)
         , globalEnableSwitch(this, t)
         , separator(this, t)
        #endif
@@ -395,6 +395,9 @@ struct TopCenteredGroup : NanoSubWidget
         setName("Top Center");
 
        #ifndef __MOD_DEVICES__
+        globalEnableLabel.setLabel("Global Enable");
+        globalEnableLabel.setName("Global Enable Label");
+
         globalEnableSwitch.setCallback(bcb);
         globalEnableSwitch.setCheckable(true);
         globalEnableSwitch.setChecked(!kParameterRanges[kParameter_bypass_global].def, false);
@@ -408,6 +411,7 @@ struct TopCenteredGroup : NanoSubWidget
     void adjustSize(const QuantumMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
     {
        #ifndef __MOD_DEVICES__
+        globalEnableLabel.adjustSize();
         globalEnableSwitch.adjustSize();
         separator.setSize(metrics.separatorVertical);
         separator.setHeight(widgetsHeight);
@@ -418,7 +422,9 @@ struct TopCenteredGroup : NanoSubWidget
     void setAbsolutePos(int x, const int y)
     {
        #ifndef __MOD_DEVICES__
-        globalEnableSwitch.setAbsolutePos(x, y + (separator.getHeight() / 2 - globalEnableSwitch.getHeight() / 2));
+        globalEnableLabel.setAbsolutePos(x, y + (separator.getHeight() / 2 - globalEnableLabel.getHeight() / 2));
+        globalEnableSwitch.setAbsolutePos(globalEnableLabel.getAbsoluteX() + globalEnableLabel.getWidth() + theme.padding,
+                                          y + (separator.getHeight() / 2 - globalEnableSwitch.getHeight() / 2));
         separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
        #endif
     }
@@ -468,6 +474,7 @@ public:
         timbreKnob.setValue(kParameterRanges[kParameter_timbre].def, false);
         timbreKnob.setLabel("Timbre");
         timbreKnob.setSideLabels("warmer", "brighter");
+        timbreKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
         timbreKnob.setRingColor(theme.levelMeterColor);
         timbreKnob.setUnitLabel(kParameterUnits[kParameter_timbre]);
         timbreKnob.setRingColor(theme.knobRimColor);
@@ -481,6 +488,7 @@ public:
         styleKnob.setValue(kParameterRanges[kParameter_style].def, false);
         styleKnob.setLabel("Style");
         styleKnob.setSideLabels("natural", "radio-ish");
+        styleKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
         styleKnob.setRingColor(theme.levelMeterAlternativeColor);
         styleKnob.setUnitLabel(kParameterUnits[kParameter_style]);
         styleKnob.setRingColor(theme.knobAlternativeRimColor);
@@ -545,11 +553,11 @@ protected:
         fillColor(theme.textMidColor);
         textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
 
-        const int yoffset = std::strchr(kBuildInfoString2, '\n') ? theme.fontSize : 0;
+        const int yoffset = std::strchr(kBuildInfoString, '\n') ? theme.fontSize : 0;
         textBox(0,
                 getHeight() - yoffset - theme.padding,
                 getWidth() - theme.borderSize * 2 - theme.padding * 2,
-                kBuildInfoString2,
+                kBuildInfoString,
                 nullptr);
     }
 };
@@ -711,6 +719,8 @@ public:
 
         topCenteredGroup.setAbsolutePos(name.getAbsoluteX()
                                        #ifndef __MOD_DEVICES__
+                                        - topCenteredGroup.globalEnableLabel.getWidth()
+                                        - theme.padding
                                         - topCenteredGroup.globalEnableSwitch.getWidth()
                                        #endif
                                         - theme.padding * 8 - theme.borderSize,
@@ -847,6 +857,23 @@ protected:
         rect(widthBy3 - 1, 0, widthBy3 + 2, height);
         fillColor(color1);
         fill();
+
+        fontSize(theme.fontSize * 1.25);
+        fillColor(theme.textLightColor);
+        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
+        text(inputGroup.getAbsoluteX() + inputGroup.getWidth() / 2 + inputLevelerGroup.getWidth() / 2 + theme.padding,
+             inputGroup.getAbsoluteY() / 2 + theme.padding, "Podcast Plugins", nullptr);
+
+        fontSize(theme.fontSize * 1.5);
+        fillColor(theme.nameColor);
+        textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
+        text(contentGroup.getAbsoluteX(), inputGroup.getAbsoluteY() / 2 + theme.padding,
+            #ifdef PODCAST_MASTER
+             "MASTER",
+            #else
+             "TRACK",
+            #endif
+             nullptr);
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -963,7 +990,11 @@ protected:
         }
 
         if (size)
+        {
+            contentGroup.timbreKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
+            contentGroup.styleKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
             resizeWidgets(getWidth(), getHeight());
+        }
     }
 
     template<class W>

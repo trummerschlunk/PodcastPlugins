@@ -18,10 +18,9 @@
 
 #include "DearImGui.hpp"
 #include "PodcastTheme.hpp"
+#include "extra/ValueSmoother.hpp"
 
-#include "TopLevelWidget.hpp"
 #include "implot/implot.h"
-#include "src/DistrhoDefines.h"
 
 #include <array>
 
@@ -80,7 +79,8 @@ class BlockGraph : public ImGuiSubWidget
    #ifdef PODCAST_MASTER
     std::array<float, 5> buffer1;
    #else
-    std::array<float, 5> buffer1;
+    std::array<LinearValueSmoother, 5> values1;
+    std::array<float, 20> buffer1;
     std::array<float, 20> buffer2;
    #endif
 
@@ -91,6 +91,14 @@ public:
           theme(theme_)
     {
         setName("BlockGraph");
+
+       #ifndef PODCAST_MASTER
+        for (LinearValueSmoother& value1 : values1)
+        {
+            value1.setSampleRate(60.f);
+            value1.setTimeConstant(1 / 30.f);
+        }
+       #endif
 
         ImGuiStyle& style(ImGui::GetStyle());
         style.WindowPadding = ImVec2();
@@ -110,12 +118,21 @@ public:
         buffer1.fill(0.f);
        #ifndef PODCAST_MASTER
         buffer2.fill(0.f);
+        for (LinearValueSmoother& value1 : values1)
+        {
+            value1.setTargetValue(0.f);
+            value1.clearToTargetValue();
+        }
        #endif
     }
 
     void update1(const int block, const float value)
     {
+       #ifdef PODCAST_MASTER
         buffer1[block] = value;
+       #else
+        values1[block].setTargetValue(value);
+       #endif
     }
 
    #ifndef PODCAST_MASTER
@@ -193,6 +210,9 @@ protected:
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 0.9, 1.0);
            #else
+            for (int i = 0; i < 5; ++i)
+                buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
+
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor.withAlpha(0.666f)));
             ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 5, 0, 5.5);
 
