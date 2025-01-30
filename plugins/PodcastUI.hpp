@@ -524,6 +524,7 @@ public:
         timbreStrengthSlider.setRange(kParameterRanges[kParameter_timbre_strength].min,
                                       kParameterRanges[kParameter_timbre_strength].max);
         timbreStrengthSlider.setDefault(kParameterRanges[kParameter_timbre_strength].def);
+        timbreStrengthSlider.setStep(1.f);
         timbreStrengthSlider.setValue(kParameterRanges[kParameter_timbre_strength].def, false);
         timbreStrengthSlider.setUnitLabel(kParameterUnits[kParameter_timbre_strength]);
 #endif

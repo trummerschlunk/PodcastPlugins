@@ -239,7 +239,7 @@ static constexpr const char* kParameterUnits[42] = {
     "",
     "",
     "",
-    "",
+    "%",
     "",
     "dB",
     "dB",

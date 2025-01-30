@@ -51,6 +51,9 @@ protected:
         {
         case kParameter_input_gain:
         case kParameter_leveler_target:
+       #ifdef PODCAST_TRACK
+        case kParameter_timbre_strength:
+       #endif
             param.hints |= kParameterIsInteger;
             break;
         }
