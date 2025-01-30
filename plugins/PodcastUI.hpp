@@ -101,6 +101,7 @@ struct InputMeterGroup : QuantumFrame
         gainKnob.setId(kParameter_input_gain);
         gainKnob.setLabel("Input\nGain");
         gainKnob.setName("Gain");
+        gainKnob.setOrientation(QuantumSmallKnob::CenterToSides);
         gainKnob.setRange(kParameterRanges[kParameter_input_gain].min,
                           kParameterRanges[kParameter_input_gain].max);
         gainKnob.setDefault(kParameterRanges[kParameter_input_gain].def);
@@ -250,6 +251,8 @@ struct InputLevelerGroup : QuantumFrame
         targetKnob.setId(kParameter_leveler_target);
         targetKnob.setLabel("Target Loudness");
         targetKnob.setName("Target");
+
+        targetKnob.setOrientation(QuantumSmallKnob::CenterToSides);
         targetKnob.setRange(kParameterRanges[kParameter_leveler_target].min,
                             kParameterRanges[kParameter_leveler_target].max);
         targetKnob.setDefault(kParameterRanges[kParameter_leveler_target].def);
@@ -468,6 +471,7 @@ public:
         timbreKnob.setCallback(kcb);
         timbreKnob.setId(kParameter_timbre);
         timbreKnob.setName("Timbre");
+        timbreKnob.setOrientation(QuantumKnob::CenterToSides);
         timbreKnob.setRange(kParameterRanges[kParameter_timbre].min,
                             kParameterRanges[kParameter_timbre].max);
         timbreKnob.setDefault(kParameterRanges[kParameter_timbre].def);
@@ -482,6 +486,7 @@ public:
         styleKnob.setCallback(kcb);
         styleKnob.setId(kParameter_style);
         styleKnob.setName("Style");
+        styleKnob.setOrientation(QuantumKnob::CenterToSides);
         styleKnob.setRange(kParameterRanges[kParameter_style].min,
                            kParameterRanges[kParameter_style].max);
         styleKnob.setDefault(kParameterRanges[kParameter_style].def);
@@ -950,7 +955,19 @@ protected:
 
     void knobDoubleClicked(SubWidget* const widget) override
     {
-        // TODO
+        const uint id = widget->getId();
+
+        switch (id)
+        {
+        case kParameter_timbre:
+        case kParameter_style:
+            static_cast<QuantumKnob*>(widget)->setValue(kParameterRanges[id].def, true);
+            break;
+        case kParameter_input_gain:
+        case kParameter_leveler_target:
+            static_cast<QuantumKnob*>(widget)->setValue(kParameterRanges[id].def, true);
+            break;
+        }
     }
 
     void quantumThemeChanged(const bool size, const bool colors) override
