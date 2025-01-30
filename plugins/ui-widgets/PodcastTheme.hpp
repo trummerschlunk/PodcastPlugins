@@ -12,7 +12,7 @@ struct PodcastTheme : QuantumTheme
 {
     uint sidelabelsFontSize = 13;
     Color barsColor = knobRimColor;
-    Color barsAlternativeColor = knobAlternativeRimColor;
+    Color barsAlternativeColor = knobAlternativeRimColor.withAlpha(0.666f);
     Color nameColor = widgetAlternativeColor;
 
     PodcastTheme() noexcept

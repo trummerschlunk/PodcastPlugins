@@ -145,6 +145,9 @@ public:
 protected:
     void onImGuiDisplay() override
     {
+        ImGuiStyle& style(ImGui::GetStyle());
+        style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textDarkColor);
+
         ImPlot::SetCurrentContext(context);
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
@@ -161,6 +164,7 @@ protected:
 
         constexpr const ImPlotFlags plotFlags = 0
             |ImPlotFlags_NoTitle
+            |ImPlotFlags_NoLegend
             |ImPlotFlags_NoMouseText
             |ImPlotFlags_NoMenus
             |ImPlotFlags_NoBoxSelect
@@ -174,6 +178,7 @@ protected:
                 |ImPlotAxisFlags_NoMenus
                 |ImPlotAxisFlags_NoSideSwitch
                 |ImPlotAxisFlags_NoHighlight
+                |ImPlotAxisFlags_Foreground
                 |ImPlotAxisFlags_Lock;
             constexpr const ImPlotLegendFlags legendFlags = 0
                 |ImPlotLegendFlags_NoMenus
@@ -183,12 +188,31 @@ protected:
                 "", "60", "225", "850", "3.2k", "12k",
             };
            #else
-            constexpr const char* axisLabelsX[21] = {
-                "", "60", "80", "100", "140", "185", "240", "320", "420", "560", "740", "975", "1.3k", "1.7k", "2.3k", "3k", "4k", "5.2k", "7k", "9k", "12k",
+            constexpr const char* axisLabelsX[20] = {
+                "        60",
+                "        80",
+                "        100",
+                "        140",
+                "        185",
+                "        240",
+                "        320",
+                "        420",
+                "        560",
+                "        740",
+                "        975",
+                "        1.3k",
+                "        1.7k",
+                "        2.3k",
+                "         3k",
+                "         4k",
+                "         5.2k",
+                "         7k",
+                "         9k",
+                "        12k",
             };
            #endif
-            constexpr const double axisValuesX[21] = {
-                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20,
+            constexpr const double axisValuesX[20] = {
+                0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19,
             };
             constexpr const char* axisLabelsY[9] = {
                 "-12", "-9", "-6", "-3", "0", "3", "6", "9", "12",
@@ -198,7 +222,7 @@ protected:
             };
             ImPlot::SetupAxis(ImAxis_X1, "Freq (Hz)", axisFlags);
             ImPlot::SetupAxis(ImAxis_Y1, "Gain (dB)", axisFlags | ImPlotAxisFlags_Opposite);
-            ImPlot::SetupAxisLimits(ImAxis_X1, 0.5, ARRAY_SIZE(axisLabelsX) - 0.5, ImGuiCond_Always);
+            ImPlot::SetupAxisLimits(ImAxis_X1, 0, ARRAY_SIZE(axisLabelsX), ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, -13, 13, ImGuiCond_Always);
             ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_Linear);
             ImPlot::SetupAxisTicks(ImAxis_X1, axisValuesX, ARRAY_SIZE(axisLabelsX), axisLabelsX);
@@ -213,12 +237,12 @@ protected:
             for (int i = 0; i < 5; ++i)
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor.withAlpha(0.666f)));
+            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             // ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 20, 0, 1.05, 0.525);
-            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 1.0);
+            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 0.5);
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor.withAlpha(0.666f)));
-            ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 0.8, 1.0);
+            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor));
+            ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 1.0, 0.5);
            #endif
 
             ImPlot::EndPlot();

@@ -192,11 +192,11 @@ struct InputMeterGroup : QuantumFrame
     {
         QuantumFrame::onNanoDisplay();
 
-        fillColor(Color(0, 255, 0));
-        displayBrackets(-7, -15);
-
         fillColor(Color(255, 0, 0));
-        displayBrackets(-0.5, -6.75);
+        displayBrackets(-0.5, -5.9);
+
+        fillColor(Color(0, 255, 0));
+        displayBrackets(-6.1, -16);
     }
 #endif
 };
@@ -644,9 +644,6 @@ protected:
 
     // plugin name
     PodcastNameWidget name;
-
-    // little helper for text input on double click
-    // ScopedPointer<DoubleClickHelper> doubleClickHelper;
 
 public:
     PodcastUI()
