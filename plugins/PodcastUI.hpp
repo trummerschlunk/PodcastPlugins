@@ -582,6 +582,7 @@ protected:
     {
         QuantumFrame::onNanoDisplay();
 
+       #ifdef PODCAST_TRACK
         fillColor(theme.textLightColor);
         fontSize(theme.sidelabelsFontSize);
         textAlign(ALIGN_TOP|ALIGN_CENTER);
@@ -589,6 +590,7 @@ protected:
              timbreStrengthSlider.getAbsoluteY() + timbreStrengthSlider.getHeight() + theme.padding - getAbsoluteY(),
              "Strength",
              nullptr);
+       #endif
 
         fontSize(theme.fontSize);
         fillColor(theme.textMidColor);
