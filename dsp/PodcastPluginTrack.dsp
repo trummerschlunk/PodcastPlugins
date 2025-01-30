@@ -38,6 +38,7 @@ init_leveler_speed = 80;
 // [symbol:input_gain]                           1 pre-gain knob -20/-20, centered at 0
 // [symbol:leveler_target]                       leveler target knob -50/-2
 // [symbol:timbre]                               1 spectral ballancer timbre knob -5/+5, centered at 0
+// [symbol:timbre_strength]                      spectral ballancer timbre strength knob 0/100
 // [symbol:style]                                style knob -5/+5, centered at 0
 // [symbol:bypass_global]                        1 global bypass switch 0/1 
 // [symbol:bypass_leveler]                       bypass leveler
@@ -75,7 +76,7 @@ envelop_mb = si.smooth(ba.tau2pole(0.1)); //fi.lowpass(1,3);
 //----------------------- Almost no GUI Elements -----------------------
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
 spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2][symbol:timbre]timbre",0,-5,5,0.1) : _+5 : _/ 10;
-sb_strength = 1; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1]strength", 1,0,1,0.1);
+sb_strength = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1][symbol:timbre_strength]strength", 80,0,100,1) /100;
 delay = Latency_spectral_ballancer * ma.SR; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]delay", 100,0,1000,1) / 1000 * ma.SR;
 ballancer_checkbox = checkbox("v:Podcast Plugins/h:[0]Modules/[2][symbol:bypass_timbre]bypass timbre");
 prefilter_checkbox = 0; //checkbox("v:Podcast Plugins/h:[0]Modules/[1]prefilter");
