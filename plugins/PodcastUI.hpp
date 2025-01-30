@@ -823,6 +823,9 @@ protected:
             break;
         case kParameter_timbre:
             contentGroup.timbreKnob.setValue(value, false);
+           #ifdef PODCAST_MASTER
+            contentGroup.graph.update2(value);
+           #endif
             break;
         case kParameter_style:
             contentGroup.styleKnob.setValue(value, false);
@@ -981,6 +984,9 @@ protected:
     void knobValueChanged(SubWidget* const widget, const float value) override
     {
         setParameterValue(widget->getId(), value);
+       #ifdef PODCAST_MASTER
+        contentGroup.graph.update2(value);
+       #endif
     }
 
     void knobDoubleClicked(SubWidget* const widget) override

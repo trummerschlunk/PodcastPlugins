@@ -78,6 +78,7 @@ class BlockGraph : public ImGuiSubWidget
 
    #ifdef PODCAST_MASTER
     std::array<float, 5> buffer1;
+    std::array<float, 5> buffer2;
    #else
     std::array<float, 20> buffer1;
     std::array<float, 20> buffer2;
@@ -115,9 +116,7 @@ public:
     void clear()
     {
         buffer1.fill(0.f);
-       #ifndef PODCAST_MASTER
         buffer2.fill(0.f);
-       #endif
 
         for (LinearValueSmoother& value1 : values1)
         {
@@ -131,7 +130,15 @@ public:
         values1[block].setTargetValue(value);
     }
 
-   #ifndef PODCAST_MASTER
+   #ifdef PODCAST_MASTER
+    void update2(const float value)
+    {
+        buffer2[0] = - value;
+        buffer2[1] = - value * 0.5f;
+        buffer2[3] = value * 0.5f;
+        buffer2[4] = value;
+    }
+   #else
     void update2(const int block, const float value)
     {
         buffer2[block] = value;
@@ -236,6 +243,9 @@ protected:
 
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 1.0, 0.5);
+
+            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor));
+            ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
            #else
             for (int i = 0; i < 5; ++i)
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
