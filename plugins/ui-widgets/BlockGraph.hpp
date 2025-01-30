@@ -79,10 +79,11 @@ class BlockGraph : public ImGuiSubWidget
    #ifdef PODCAST_MASTER
     std::array<float, 5> buffer1;
    #else
-    std::array<LinearValueSmoother, 5> values1;
     std::array<float, 20> buffer1;
     std::array<float, 20> buffer2;
    #endif
+
+    std::array<LinearValueSmoother, 5> values1;
 
 public:
     explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& theme_)
@@ -92,13 +93,11 @@ public:
     {
         setName("BlockGraph");
 
-       #ifndef PODCAST_MASTER
         for (LinearValueSmoother& value1 : values1)
         {
             value1.setSampleRate(60.f);
-            value1.setTimeConstant(1 / 30.f);
+            value1.setTimeConstant(1.f / 15.f);
         }
-       #endif
 
         ImGuiStyle& style(ImGui::GetStyle());
         style.WindowPadding = ImVec2();
@@ -118,21 +117,18 @@ public:
         buffer1.fill(0.f);
        #ifndef PODCAST_MASTER
         buffer2.fill(0.f);
+       #endif
+
         for (LinearValueSmoother& value1 : values1)
         {
             value1.setTargetValue(0.f);
             value1.clearToTargetValue();
         }
-       #endif
     }
 
     void update1(const int block, const float value)
     {
-       #ifdef PODCAST_MASTER
-        buffer1[block] = value;
-       #else
         values1[block].setTargetValue(value);
-       #endif
     }
 
    #ifndef PODCAST_MASTER
@@ -235,6 +231,9 @@ protected:
             ImPlot::SetupFinish();
 
            #ifdef PODCAST_MASTER
+            for (int i = 0; i < 5; ++i)
+                buffer1[i] = values1[i].next();
+
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 1.0, 0.5);
            #else
