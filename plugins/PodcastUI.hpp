@@ -623,8 +623,8 @@ public:
     {
         setName("Name");
 
-        image = createImageFromMemory(Logo::signet_master_me_whiteData, Logo::signet_master_me_whiteDataSize, 0);
-        image2x = createImageFromMemory(Logo::signet_master_me_white_2xData, Logo::signet_master_me_white_2xDataSize, 0);
+        image = createImageFromMemory(Logo::master_me_whiteData, Logo::master_me_whiteDataSize, 0);
+        image2x = createImageFromMemory(Logo::master_me_white_2xData, Logo::master_me_white_2xDataSize, 0);
     }
 
     void adjustSize()
@@ -891,16 +891,11 @@ protected:
         fillColor(color1);
         fill();
 
-        fontSize(theme.fontSize * 1.25);
-        fillColor(theme.textLightColor);
-        textAlign(ALIGN_CENTER|ALIGN_MIDDLE);
-        text(inputGroup.getAbsoluteX() + inputGroup.getWidth() / 2 + inputLevelerGroup.getWidth() / 2 + theme.padding,
-             inputGroup.getAbsoluteY() / 2 + theme.padding, "Podcast Plugins", nullptr);
-
         fontSize(theme.fontSize * 1.5);
         fillColor(theme.nameColor);
         textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
-        text(contentGroup.getAbsoluteX(), inputGroup.getAbsoluteY() / 2 + theme.padding,
+        text(inputGroup.getAbsoluteX() + theme.padding,
+             inputGroup.getAbsoluteY() / 2 + theme.padding,
             #ifdef PODCAST_MASTER
              "MASTER",
             #else

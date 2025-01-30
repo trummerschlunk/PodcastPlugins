@@ -197,7 +197,7 @@ endif
 	echo ';' >> $@
 
 # convert logo into raw data for C++ code
-build/Logo.hpp: img/logo/signet_master_me_white.png img/logo/signet_master_me_white@2x.png
+build/Logo.hpp: img/logo/master_me_white.png img/logo/master_me_white@2x.png
 	mkdir -p build
 	./dpf/utils/res2c.py Logo img/logo/ build/
 

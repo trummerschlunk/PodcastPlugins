@@ -184,8 +184,12 @@ protected:
                 |ImPlotLegendFlags_NoMenus
                 |ImPlotLegendFlags_Horizontal;
            #ifdef PODCAST_MASTER
-            constexpr const char* axisLabelsX[6] = {
-                "", "60", "225", "850", "3.2k", "12k",
+            constexpr const char* axisLabelsX[5] = {
+                "                            60",
+                "                           225",
+                "                           850",
+                "                           3.2k",
+                "                           12k",
             };
            #else
             constexpr const char* axisLabelsX[20] = {
@@ -232,7 +236,7 @@ protected:
 
            #ifdef PODCAST_MASTER
             ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
-            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 0.9, 1.0);
+            ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 1.0, 0.5);
            #else
             for (int i = 0; i < 5; ++i)
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
