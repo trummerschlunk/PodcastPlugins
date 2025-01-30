@@ -166,7 +166,7 @@ static constexpr const char* kParameterUnits[23] = {
     "dB",
     "dB",
     "",
-    "dB",
+    "",
     
     // ouputs
     "",
