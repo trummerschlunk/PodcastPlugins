@@ -33,6 +33,7 @@ enum Parameters {
     kParameter_bypass_leveler,
     kParameter_bypass_style,
     kParameter_bypass_global,
+    kParameter_timbre_strength,
     kParameter_timbre,
     kParameter_input_gain,
     kParameter_leveler_target,
@@ -85,12 +86,13 @@ enum States {
     kStateCount
 };
 
-static constexpr const char* kParameterNames[41] = {
+static constexpr const char* kParameterNames[42] = {
     // inputs
     "bypass timbre",
     "bypass_leveler",
     "bypass style",
     "bypass global",
+    "strength",
     "timbre",
     "PreGain",
     "target",
@@ -133,12 +135,13 @@ static constexpr const char* kParameterNames[41] = {
     
 };
 
-static constexpr const struct { float def, min, max; } kParameterRanges[41] = {
+static constexpr const struct { float def, min, max; } kParameterRanges[42] = {
     // inputs
     { 0, 0, 1 },
     { 0, 0, 1 },
     { 0, 0, 1 },
     { 0, 0, 1 },
+    { 80.0, 0.0, 100.0 },
     { 0.0, -5.0, 5.0 },
     { 0.0, -20.0, 20.0 },
     { -18.0, -30.0, -6.0 },
@@ -181,12 +184,13 @@ static constexpr const struct { float def, min, max; } kParameterRanges[41] = {
     
 };
 
-static constexpr const char* kParameterSymbols[41] = {
+static constexpr const char* kParameterSymbols[42] = {
     // inputs
     "bypass_timbre",
     "bypass_leveler",
     "bypass_style",
     "bypass_global",
+    "timbre_strength",
     "timbre",
     "input_gain",
     "leveler_target",
@@ -229,8 +233,9 @@ static constexpr const char* kParameterSymbols[41] = {
     
 };
 
-static constexpr const char* kParameterUnits[41] = {
+static constexpr const char* kParameterUnits[42] = {
     // inputs
+    "",
     "",
     "",
     "",

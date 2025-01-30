@@ -452,6 +452,10 @@ struct ContentGroup : QuantumFrame
     QuantumRadioSwitch timbreSwitch;
     QuantumRadioSwitch styleSwitch;
 
+#ifdef PODCAST_TRACK
+    QuantumValueSlider timbreStrengthSlider;
+#endif
+
 public:
     explicit ContentGroup(NanoTopLevelWidget* const parent,
                           ButtonEventHandler::Callback* const bcb,
@@ -464,6 +468,9 @@ public:
           styleKnob(this, t),
           timbreSwitch(this, t),
           styleSwitch(this, t)
+#ifdef PODCAST_TRACK
+        , timbreStrengthSlider(this, t)
+#endif
     {
         loadSharedResources();
         setName("Content");
@@ -509,15 +516,29 @@ public:
         styleSwitch.setChecked(!kParameterRanges[kParameter_bypass_style].def, false);
         styleSwitch.setId(kParameter_bypass_style);
         styleSwitch.setName("Style Enable Button");
+
+#ifdef PODCAST_TRACK
+        timbreStrengthSlider.setCallback(kcb);
+        timbreStrengthSlider.setId(kParameter_timbre_strength);
+        timbreStrengthSlider.setName("Timbre Strength Slider");
+        timbreStrengthSlider.setRange(kParameterRanges[kParameter_timbre_strength].min,
+                                      kParameterRanges[kParameter_timbre_strength].max);
+        timbreStrengthSlider.setDefault(kParameterRanges[kParameter_timbre_strength].def);
+        timbreStrengthSlider.setValue(kParameterRanges[kParameter_timbre_strength].def, false);
+        timbreStrengthSlider.setUnitLabel(kParameterUnits[kParameter_timbre_strength]);
+#endif
     }
 
-    void adjustSize(const QuantumMetrics& metrics)
+    void adjustSize()
     {
         graph.setSize(getWidth() - theme.borderSize * 2 - theme.padding * 2,
                       getHeight() / 2 - theme.borderSize * 2 - theme.padding * 2);
 
         timbreSwitch.adjustSize();
         styleSwitch.adjustSize();
+#ifdef PODCAST_TRACK
+        timbreStrengthSlider.setWidth(60 * getTopLevelWidget()->getScaleFactor());
+#endif
 
         const uint knobSize = getHeight() / 3 - theme.borderSize * 2 - theme.padding * 2;
         timbreKnob.setSize(knobSize, knobSize);
@@ -547,12 +568,26 @@ public:
                                    styleKnob.getWidth() / 2 -
                                    styleSwitch.getWidth() / 2,
                                    styleKnob.getAbsoluteY() + styleKnob.getHeight() + theme.padding * 2);
+
+       #ifdef PODCAST_TRACK
+        const uint timbreCenterX = timbreKnob.getAbsoluteX() + timbreKnob.getWidth() / 2;
+        timbreStrengthSlider.setAbsolutePos(timbreCenterX - timbreStrengthSlider.getWidth() / 2,
+                                            timbreSwitch.getAbsoluteY() + timbreSwitch.getHeight() + theme.padding * 2);
+       #endif
     }
 
 protected:
     void onNanoDisplay() override
     {
         QuantumFrame::onNanoDisplay();
+
+        fillColor(theme.textLightColor);
+        fontSize(theme.sidelabelsFontSize);
+        textAlign(ALIGN_TOP|ALIGN_CENTER);
+        text(timbreStrengthSlider.getAbsoluteX() + timbreStrengthSlider.getWidth() / 2 - getAbsoluteX(),
+             timbreStrengthSlider.getAbsoluteY() + timbreStrengthSlider.getHeight() + theme.padding - getAbsoluteY(),
+             "Strength",
+             nullptr);
 
         fontSize(theme.fontSize);
         fillColor(theme.textMidColor);
@@ -748,7 +783,7 @@ public:
                              inputLevelerGroup.getWidth() -
                              outputGroup.getWidth(),
                              contentHeight);
-        contentGroup.adjustSize(metrics);
+        contentGroup.adjustSize();
         topCenteredGroup.adjustSize(metrics, width, height, name.getHeight() / 1.5);
 
         repositionWidgets();
