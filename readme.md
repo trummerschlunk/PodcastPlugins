@@ -1,3 +1,6 @@
+![Logo](./artwork/logo_podcast_plugins/track/logo_power_plugins_signet_black.png)
+
+
 # Podcast Plugins
 Podcast Plugins are under development. The first release is scheduled for 1st of March 2025.
 
