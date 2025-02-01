@@ -23,6 +23,6 @@ The DSP is written in [Faust](https://faust.grame.fr) by [Klaus Scheuermann](htt
 
 The plugins are made by [ƒalkTX](https://github.com/falkTX) using [DPF](https://github.com/DISTRHO/DPF).
 
-The logo and signet are by [Peter Schlossnikel](hhtps://petriografie.de).
+The logo and signet are by [Peter Schlossnikel](https://petriografie.de).
 
 Programming guidance and lovely bits of foss code have been provided by [Robin](https://github.com/x42), [magnetophone](https://github.com/magnetophon), [Jakob](https://gist.github.com/jkbd), [Dario](https://github.com/dariosanfilippo). Thanks <3
