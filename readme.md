@@ -38,6 +38,8 @@ Podcast Plugins are cross-platform and will work on the following operating syst
 - [linux](#install_linux)
 - [other](#install_other)
 
+Supported plugin formats are CLAP, VST, VST3, LV2 and AU. 
+
 Download the installers for your operating system [here](https://github.com/trummerschlunk/PodcastPlugins/actions). (link tba)
 
 The installer will put the plugin files in the appropriate folders on your system. The next time you start your DAW, they will be available.
@@ -145,3 +147,47 @@ Here you can control the volume of the incoming audio before it hits the plugin'
 #### TARGET LOUDNESS
 The standard loudness for podcasts is -16dB LUFS. If for some reason you want to work at a lower loudness (or higher, not recommended), you can set it here.
 
+# Technical Details
+
+## DSP (digital signal processing)
+The DSP is written in [Faust](https://faust.grame.fr) by [Klaus Scheuermann](https://4ohm.de).
+
+### PodcastPlugins TRACK
+
+*image of signal flow diagram*
+
+The plugin's processing consists of 5 stages:
+
+1. Input Gain: nothing fancy here ;)
+
+2. Spectral Balancer: The audio is split into 20 bands. Each band is normalized against the wideband loudness of the audio resultig the actual momentary frequency spectrum of the incoming signal. The resulting curve is compared to a target frequency curve carefully chosen based on 20 years of vocal mixing experience. 20 bandpass filters are then adjusted, so the spectrum of the audio matches the target curve. Actually there are two curves to interpolate between with the TIMBRE knob: a *warmer* one and a *brighter* one. The intensity of the Spectral Balancer can be adjusted with the *strength* parameter.
+
+3. Leveler: a nicely tweaked leveling algorithm with an adjustable target loudness (in LUFS).
+
+4. Multiband Dynamics: classic multiband compressor/expander with two presets to interpolate between: *natural* & *radio-ish*.
+
+5. Brickwall limiter: a lookahead limiter to avoid peaks.
+
+### PodcastPlugins MASTER
+
+*image of signal flow diagram*
+
+The plugin's processing consists of 5 stages:
+
+1. Leveler 1: a nicely tweaked leveling algorithm with an adjustable target loudness (in LUFS).
+
+2. Tilt EQ: a soft tilt EQ consisting of two shelves which can be adjusted with the TIMBRE knob.
+
+3. Multiband Dynamics: classic multiband compressor/expander with two presets to interpolate between: *natural* & *radio-ish*.
+
+4. Leveler 2: a second leveling stage, very slow and subtile.
+
+5. Brickwall limiter: a lookahead limiter to avoid peaks.
+
+## DPF Plugin Framework
+
+PodcastPlugins use [DPF](https://github.com/DISTRHO/DPF) as a plugin framework.
+
+## GUI
+
+tba
