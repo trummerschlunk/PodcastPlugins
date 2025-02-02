@@ -2710,11 +2710,10 @@ void SetupFinish() {
                     const ImPlotTick& tk = tkr.Ticks[j];
                     const float datum = ax.Datum1 + (opp ? (-gp.Style.LabelPadding.y -txt_height -tk.Level * (txt_height + gp.Style.LabelPadding.y))
                                                         : gp.Style.LabelPadding.y + tk.Level * (txt_height + gp.Style.LabelPadding.y));
-                    if (tk.ShowLabel && tk.PixelPos >= plot.PlotRect.Min.x - 1 && tk.PixelPos <= plot.PlotRect.Max.x + 1) {
-                        const float halfx = ((j + 1 == count ? plot.PlotRect.Max.x : tkr.Ticks[j + 1].PixelPos) - tk.PixelPos) * 0.5f;
-                        ImVec2 start(tk.PixelPos + halfx - 0.5f * tk.LabelSize.x, datum);
-                        DrawList.AddText(start, ax.ColorTxt, tkr.GetText(j));
-                    }
+
+                    const float halfx = ((j + 1 == count ? plot.PlotRect.Max.x : tkr.Ticks[j + 1].PixelPos) - tk.PixelPos) * 0.5f;
+                    ImVec2 start(tk.PixelPos + halfx - 0.5f * tk.LabelSize.x, datum);
+                    DrawList.AddText(start, ax.ColorTxt, tkr.GetText(j));
                 }
             }
             else {

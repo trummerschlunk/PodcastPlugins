@@ -191,12 +191,15 @@ public:
 protected:
     void onImGuiDisplay() override
     {
+        ImPlot::SetCurrentContext(context);
+
         ImGuiStyle& style(ImGui::GetStyle());
         style.Colors[ImGuiCol_Border] = ImVec4Color(theme.widgetBackgroundColor);
         style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textDarkColor);
         style.Colors[ImGuiCol_WindowBg] = ImVec4Color(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
 
-        ImPlot::SetCurrentContext(context);
+        ImPlotStyle& pstyle(ImPlot::GetStyle());
+        pstyle.Colors[ImPlotCol_Crosshairs] = ImVec4Color(theme.textDarkColor.withAlpha(0.5f));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
