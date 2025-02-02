@@ -581,7 +581,7 @@ protected:
         QuantumFrame::onNanoDisplay();
 
        #ifdef PODCAST_TRACK
-        fillColor(theme.textLightColor);
+        fillColor(timbreStrengthSlider.isEnabled() ? theme.textLightColor : theme.textDarkColor);
         fontSize(theme.sidelabelsFontSize);
         textAlign(ALIGN_TOP|ALIGN_CENTER);
         text(timbreStrengthSlider.getAbsoluteX() + timbreStrengthSlider.getWidth() / 2 - getAbsoluteX(),
@@ -590,13 +590,14 @@ protected:
              nullptr);
        #endif
 
-        fontSize(theme.fontSize);
-        fillColor(theme.textMidColor);
+        const bool hasNewline = std::strchr(kBuildInfoString, '\n');
+
+        fontSize(hasNewline ? d_roundToIntPositive(theme.fontSize * 0.8f) : theme.fontSize);
+        fillColor(hasNewline ? theme.textDarkColor : theme.textMidColor);
         textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
 
-        const int yoffset = std::strchr(kBuildInfoString, '\n') ? theme.fontSize : 0;
         textBox(0,
-                getHeight() - yoffset - theme.padding,
+                getHeight() - theme.padding - (hasNewline ? theme.fontSize : 0),
                 getWidth() - theme.borderSize * 2 - theme.padding * 2,
                 kBuildInfoString,
                 nullptr);
@@ -803,6 +804,9 @@ protected:
             contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
             contentGroup.timbreKnob.setEnabled(value < 0.5f);
             contentGroup.graph.setEnabled1(value < 0.5f);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(value < 0.5f);
+           #endif
             break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
@@ -966,6 +970,9 @@ protected:
         case kParameter_bypass_timbre:
             contentGroup.timbreKnob.setEnabled(enabled);
             contentGroup.graph.setEnabled1(enabled);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(enabled);
+           #endif
             break;
         case kParameter_bypass_style:
             contentGroup.styleKnob.setEnabled(enabled);

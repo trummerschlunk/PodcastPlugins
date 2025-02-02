@@ -21,6 +21,10 @@ protected:
     {
         switch (index)
         {
+        // inputs
+        case kParameter_timbre_strength:
+            contentGroup.timbreStrengthSlider.setValue(value);
+            break;
         // outputs
         case kParameter_spectral_ballancer_gain_band__0:
         case kParameter_spectral_ballancer_gain_band__1:
