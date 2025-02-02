@@ -2703,13 +2703,30 @@ void SetupFinish() {
             DrawList.AddText(label_pos, ax.ColorTxt, label);
         }
         if (ax.HasTickLabels()) {
-            for (int j = 0; j < tkr.TickCount(); ++j) {
-                const ImPlotTick& tk = tkr.Ticks[j];
-                const float datum = ax.Datum1 + (opp ? (-gp.Style.LabelPadding.y -txt_height -tk.Level * (txt_height + gp.Style.LabelPadding.y))
-                                                     : gp.Style.LabelPadding.y + tk.Level * (txt_height + gp.Style.LabelPadding.y));
-                if (tk.ShowLabel && tk.PixelPos >= plot.PlotRect.Min.x - 1 && tk.PixelPos <= plot.PlotRect.Max.x + 1) {
-                    ImVec2 start(tk.PixelPos - 0.5f * tk.LabelSize.x, datum);
-                    DrawList.AddText(start, ax.ColorTxt, tkr.GetText(j));
+            // NOTE custom drawing for PodcastPlugins, centering horizontal labels
+            if (! ImHasFlag(plot.Items.Legend.Flags, ImPlotLegendFlags_Horizontal)) {
+                const int count = tkr.TickCount();
+                for (int j = 0; j < count; ++j) {
+                    const ImPlotTick& tk = tkr.Ticks[j];
+                    const float datum = ax.Datum1 + (opp ? (-gp.Style.LabelPadding.y -txt_height -tk.Level * (txt_height + gp.Style.LabelPadding.y))
+                                                        : gp.Style.LabelPadding.y + tk.Level * (txt_height + gp.Style.LabelPadding.y));
+                    if (tk.ShowLabel && tk.PixelPos >= plot.PlotRect.Min.x - 1 && tk.PixelPos <= plot.PlotRect.Max.x + 1) {
+                        const float halfx = ((j + 1 == count ? plot.PlotRect.Max.x : tkr.Ticks[j + 1].PixelPos) - tk.PixelPos) * 0.5f;
+                        ImVec2 start(tk.PixelPos + halfx - 0.5f * tk.LabelSize.x, datum);
+                        DrawList.AddText(start, ax.ColorTxt, tkr.GetText(j));
+                    }
+                }
+            }
+            else {
+                // normal old code here
+                for (int j = 0; j < tkr.TickCount(); ++j) {
+                    const ImPlotTick& tk = tkr.Ticks[j];
+                    const float datum = ax.Datum1 + (opp ? (-gp.Style.LabelPadding.y -txt_height -tk.Level * (txt_height + gp.Style.LabelPadding.y))
+                                                        : gp.Style.LabelPadding.y + tk.Level * (txt_height + gp.Style.LabelPadding.y));
+                    if (tk.ShowLabel && tk.PixelPos >= plot.PlotRect.Min.x - 1 && tk.PixelPos <= plot.PlotRect.Max.x + 1) {
+                        ImVec2 start(tk.PixelPos - 0.5f * tk.LabelSize.x, datum);
+                        DrawList.AddText(start, ax.ColorTxt, tkr.GetText(j));
+                    }
                 }
             }
         }

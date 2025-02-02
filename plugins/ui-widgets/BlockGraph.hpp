@@ -228,39 +228,36 @@ protected:
                 |ImPlotAxisFlags_NoHighlight
                 |ImPlotAxisFlags_Foreground
                 |ImPlotAxisFlags_Lock;
-            constexpr const ImPlotLegendFlags legendFlags = 0
-                |ImPlotLegendFlags_NoMenus
-                |ImPlotLegendFlags_Horizontal;
            #ifdef PODCAST_MASTER
             constexpr const char* axisLabelsX[5] = {
-                "                              60",
-                "                             225",
-                "                             850",
-                "                              3.2k",
-                "                              12k",
+                "60",
+                "225",
+                "850",
+                "3.2k",
+                "12k",
             };
            #else
             constexpr const char* axisLabelsX[20] = {
-                "        60",
-                "        80",
-                "        100",
-                "        140",
-                "        185",
-                "        240",
-                "        320",
-                "        420",
-                "        560",
-                "        740",
-                "        975",
-                "        1.3k",
-                "        1.7k",
-                "        2.3k",
-                "         3k",
-                "         4k",
-                "         5.2k",
-                "         7k",
-                "         9k",
-                "        12k",
+                "60",
+                "80",
+                "100",
+                "140",
+                "185",
+                "240",
+                "320",
+                "420",
+                "560",
+                "740",
+                "975",
+                "1.3k",
+                "1.7k",
+                "2.3k",
+                "3k",
+                "4k",
+                "5.2k",
+                "7k",
+                "9k",
+                "12k",
             };
            #endif
             constexpr const double axisValuesX[20] = {
@@ -272,14 +269,13 @@ protected:
             constexpr const double axisValuesY[9] = {
                 -12, -9, -6, -3, 0, 3, 6, 9, 12,
             };
-            ImPlot::SetupAxis(ImAxis_X1, "Freq (Hz)", axisFlags);
-            ImPlot::SetupAxis(ImAxis_Y1, "Gain (dB)", axisFlags | ImPlotAxisFlags_Opposite);
+            ImPlot::SetupAxis(ImAxis_X1, nullptr, axisFlags);
+            ImPlot::SetupAxis(ImAxis_Y1, nullptr, axisFlags | ImPlotAxisFlags_Opposite);
             ImPlot::SetupAxisLimits(ImAxis_X1, 0, ARRAY_SIZE(axisLabelsX), ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, -13, 13, ImGuiCond_Always);
             ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_Linear);
             ImPlot::SetupAxisTicks(ImAxis_X1, axisValuesX, ARRAY_SIZE(axisLabelsX), axisLabelsX);
             ImPlot::SetupAxisTicks(ImAxis_Y1, axisValuesY, ARRAY_SIZE(axisLabelsY), axisLabelsY, false, 4);
-            ImPlot::SetupLegend(ImPlotLocation_NorthWest, legendFlags);
             ImPlot::SetupFinish();
 
             ImPlot::SetNextFillStyle(ImVec4Color(enabled[0] ? theme.barsColor : theme.textDarkColor.withAlpha(0.5f)));
