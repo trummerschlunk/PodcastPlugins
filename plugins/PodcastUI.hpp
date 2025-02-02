@@ -61,7 +61,7 @@ static_assert(kParameterRanges[kParameter_leveler_gain].def == 0.f, "leveler gai
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------
-// custom layout for input levels (single widget)
+// custom layout for input levels
 
 struct InputMeterGroup : QuantumFrame
 {
@@ -117,15 +117,14 @@ struct InputMeterGroup : QuantumFrame
        #ifdef PODCAST_MASTER
         const uint meterWidth = metrics.stereoLevelMeterWithLufs.getWidth();
         const uint usableWidth = meterWidth;
-        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
        #else
         const uint meterWidth = metrics.stereoLevelMeter.getWidth();
         const uint usableWidth = meterWidth + theme.fontSize + theme.padding * 2 + theme.borderSize * 2;
-        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 4 - theme.fontSize;
        #endif
+        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
         const uint knobWidth = metrics.stereoLevelMeter.getWidth() + theme.fontSize;
 
-        meter.setSize(meterWidth, usableHeight - knobWidth - theme.fontSize);
+        meter.setSize(meterWidth, usableHeight - knobWidth - theme.fontSize - theme.padding);
         gainKnob.setSize(knobWidth, knobWidth + theme.fontSize);
 
         setSize(usableWidth + theme.borderSize * 2 + theme.padding * 2, height);
@@ -136,11 +135,7 @@ struct InputMeterGroup : QuantumFrame
         QuantumFrame::setAbsolutePos(x, y);
         meter.setAbsolutePos(x + getWidth() / 2 - meter.getWidth() / 2, y + theme.borderSize + theme.padding);
         gainKnob.setAbsolutePos(x + getWidth() / 2 - gainKnob.getWidth() / 2,
-                                meter.getAbsoluteY() + meter.getHeight()
-                               #ifndef PODCAST_MASTER
-                                + theme.fontSize + theme.padding * 2
-                               #endif
-                                );
+                                meter.getAbsoluteY() + meter.getHeight() + theme.padding);
     }
 
 #ifndef PODCAST_MASTER
@@ -282,11 +277,12 @@ struct InputLevelerGroup : QuantumFrame
     {
         QuantumFrame::setAbsolutePos(x, y);
 
-        const int xfinal = x + theme.borderSize + theme.padding;
-        leveler.setAbsolutePos(xfinal + theme.fontSize / 2, y + theme.borderSize + theme.padding);
-        enableSwitch.setAbsolutePos(x + getWidth() / 2 - enableSwitch.getWidth() / 2,
+        const int xmid = x + getWidth() / 2;
+        leveler.setAbsolutePos(xmid - leveler.getWidth() / 2, y + theme.borderSize + theme.padding);
+        enableSwitch.setAbsolutePos(xmid - enableSwitch.getWidth() / 2,
                                     leveler.getAbsoluteY() + leveler.getHeight() + theme.padding);
-        targetKnob.setAbsolutePos(xfinal, enableSwitch.getAbsoluteY() + enableSwitch.getHeight() + theme.padding);
+        targetKnob.setAbsolutePos(xmid - targetKnob.getWidth() / 2,
+                                  enableSwitch.getAbsoluteY() + enableSwitch.getHeight() + theme.padding);
     }
 };
 
