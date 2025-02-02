@@ -801,12 +801,16 @@ protected:
         // inputs
         case kParameter_bypass_timbre:
             contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
+            contentGroup.timbreKnob.setEnabled(value < 0.5f);
             break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
+            inputLevelerGroup.leveler.setEnabled(value < 0.5f);
+            inputLevelerGroup.targetKnob.setEnabled(value < 0.5f);
             break;
         case kParameter_bypass_style:
             contentGroup.styleSwitch.setChecked(value < 0.5f, false);
+            contentGroup.styleKnob.setEnabled(value < 0.5f);
             break;
         case kParameter_bypass_global:
            #ifndef __MOD_DEVICES__
@@ -951,8 +955,6 @@ protected:
         editParameter(id, false);
 
         // extra handling for setting enabled color
-        // TODO
-        /*
         switch (id)
         {
         case kParameter_bypass_timbre:
@@ -966,7 +968,6 @@ protected:
             contentGroup.styleKnob.setEnabled(enabled);
             break;
         }
-        */
     }
 
     void knobDragStarted(SubWidget* const widget) override
@@ -982,8 +983,10 @@ protected:
     void knobValueChanged(SubWidget* const widget, const float value) override
     {
         setParameterValue(widget->getId(), value);
+
        #ifdef PODCAST_MASTER
-        contentGroup.graph.update2(value);
+        if (widget->getId() == kParameter_timbre)
+            contentGroup.graph.update2(value);
        #endif
     }
 
