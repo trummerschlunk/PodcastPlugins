@@ -113,6 +113,8 @@ class BlockGraph : public ImGuiSubWidget
 
     std::array<LinearValueSmoother, 5> values1;
 
+    bool enabled[2] = { true, true };
+
 public:
     explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& theme_)
         : ImGuiSubWidget(parent),
@@ -154,6 +156,16 @@ public:
             value1.setTargetValue(0.f);
             value1.clearToTargetValue();
         }
+    }
+
+    void setEnabled1(const bool enable)
+    {
+        enabled[0] = enable;
+    }
+
+    void setEnabled2(const bool enable)
+    {
+        enabled[1] = enable;
     }
 
     void update1(const int block, const float value)
@@ -270,24 +282,24 @@ protected:
             ImPlot::SetupLegend(ImPlotLocation_NorthWest, legendFlags);
             ImPlot::SetupFinish();
 
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[0] ? theme.barsColor : theme.textDarkColor.withAlpha(0.5f)));
            #ifdef PODCAST_MASTER
             for (int i = 0; i < 5; ++i)
                 buffer1[i] = values1[i].next();
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 1.0, 0.5);
-
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor));
-            ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
            #else
             for (int i = 0; i < 5; ++i)
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             // ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 20, 0, 1.05, 0.525);
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 0.5);
+           #endif
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor));
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.barsAlternativeColor : theme.textDarkColor.withAlpha(0.5f)));
+           #ifdef PODCAST_MASTER
+            ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
+           #else
             ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 1.0, 0.5);
            #endif
 

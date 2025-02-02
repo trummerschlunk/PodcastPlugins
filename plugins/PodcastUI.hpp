@@ -802,6 +802,7 @@ protected:
         case kParameter_bypass_timbre:
             contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
             contentGroup.timbreKnob.setEnabled(value < 0.5f);
+            contentGroup.graph.setEnabled1(value < 0.5f);
             break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
@@ -811,6 +812,7 @@ protected:
         case kParameter_bypass_style:
             contentGroup.styleSwitch.setChecked(value < 0.5f, false);
             contentGroup.styleKnob.setEnabled(value < 0.5f);
+            contentGroup.graph.setEnabled2(value < 0.5f);
             break;
         case kParameter_bypass_global:
            #ifndef __MOD_DEVICES__
@@ -940,8 +942,8 @@ protected:
         switch (id)
         {
         // bypass switches, inverted operation
-        case kParameter_bypass_timbre:
         case kParameter_bypass_leveler:
+        case kParameter_bypass_timbre:
         case kParameter_bypass_style:
         case kParameter_bypass_global:
             value = enabled ? 0.f : 1.f;
@@ -957,15 +959,17 @@ protected:
         // extra handling for setting enabled color
         switch (id)
         {
-        case kParameter_bypass_timbre:
-            contentGroup.timbreKnob.setEnabled(enabled);
-            break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.leveler.setEnabled(enabled);
             inputLevelerGroup.targetKnob.setEnabled(enabled);
             break;
+        case kParameter_bypass_timbre:
+            contentGroup.timbreKnob.setEnabled(enabled);
+            contentGroup.graph.setEnabled1(enabled);
+            break;
         case kParameter_bypass_style:
             contentGroup.styleKnob.setEnabled(enabled);
+            contentGroup.graph.setEnabled2(enabled);
             break;
         }
     }
