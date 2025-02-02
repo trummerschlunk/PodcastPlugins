@@ -85,6 +85,7 @@ struct InputMeterGroup : QuantumFrame
         setName("Inputs");
 
         meter.setName(" + Meter");
+        meter.setTopLabel("Input");
         meter.setRange(kParameterRanges[kParameter_input_peak_channel_0].min,
                        kParameterRanges[kParameter_input_peak_channel_0].max);
        #ifdef PODCAST_MASTER
@@ -349,6 +350,7 @@ struct OutputMeterGroup : QuantumFrame
         setName("Outputs");
 
         meter.setName(" + Meter");
+        meter.setTopLabel("Output");
         meter.setRange(kParameterRanges[kParameter_output_peak_channel_0].min,
                        kParameterRanges[kParameter_output_peak_channel_0].max);
         meter.setValues(kParameterRanges[kParameter_output_peak_channel_0].min,
@@ -533,7 +535,7 @@ public:
     void adjustSize()
     {
         graph.setSize(getWidth() - theme.borderSize * 2 - theme.padding * 2,
-                      getHeight() / 2 - theme.borderSize * 2 - theme.padding * 2);
+                      getHeight() / 2 - theme.borderSize * 2 - theme.padding * 2 - theme.fontSize);
 
         timbreSwitch.adjustSize();
         styleSwitch.adjustSize();
@@ -555,7 +557,7 @@ public:
         const int yfinal = y + getHeight() - knobSize * 1.5 - theme.borderSize - theme.padding;
 
         graph.setAbsolutePos(x + theme.borderSize + theme.padding,
-                             y + theme.borderSize + theme.padding);
+                             y + theme.fontSize * 2 / 3 + theme.borderSize + theme.padding * 2);
 
         timbreKnob.setAbsolutePos(midPoint - knobSize * 0.75, yfinal);
         styleKnob.setAbsolutePos(midPoint + knobSize * 0.75, yfinal);

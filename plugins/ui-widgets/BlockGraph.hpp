@@ -58,6 +58,33 @@ static void SetupAxisTicks(ImAxis idx, const double* values, int n_ticks, const 
                   (axis.Formatter && axis.FormatterData) ? axis.FormatterData : axis.HasFormatSpec ? axis.FormatSpec : (void*)IMPLOT_LABEL_FORMAT);
 }
 
+static void ScaleAllSizes(ImPlotStyle& style, const float scale_factor)
+{
+    style.LineWeight = ImFloor(style.LineWeight * scale_factor);
+    style.MarkerSize = ImFloor(style.MarkerSize * scale_factor);
+    style.MarkerWeight = ImFloor(style.MarkerWeight * scale_factor);
+    style.ErrorBarSize = ImFloor(style.ErrorBarSize * scale_factor);
+    style.ErrorBarWeight = ImFloor(style.ErrorBarWeight * scale_factor);
+    style.DigitalBitHeight = ImFloor(style.DigitalBitHeight * scale_factor);
+    style.DigitalBitGap = ImFloor(style.DigitalBitGap * scale_factor);
+    style.PlotBorderSize = ImFloor(style.PlotBorderSize * scale_factor);
+    style.MajorTickLen = ImFloor(style.MajorTickLen * scale_factor);
+    style.MinorTickLen = ImFloor(style.MinorTickLen * scale_factor);
+    style.MajorTickSize = ImFloor(style.MajorTickSize * scale_factor);
+    style.MinorTickSize = ImFloor(style.MinorTickSize * scale_factor);
+    style.MajorGridSize = ImFloor(style.MajorGridSize * scale_factor);
+    style.MinorGridSize = ImFloor(style.MinorGridSize * scale_factor);
+    style.PlotPadding = ImFloor(style.PlotPadding * scale_factor);
+    style.LabelPadding = ImFloor(style.LabelPadding * scale_factor);
+    style.LegendPadding = ImFloor(style.LegendPadding * scale_factor);
+    style.LegendInnerPadding = ImFloor(style.LegendInnerPadding * scale_factor);
+    style.LegendSpacing = ImFloor(style.LegendSpacing * scale_factor);
+    style.MousePosPadding = ImFloor(style.MousePosPadding * scale_factor);
+    style.AnnotationPadding = ImFloor(style.AnnotationPadding * scale_factor);
+    style.PlotDefaultSize = ImFloor(style.PlotDefaultSize * scale_factor);
+    style.PlotMinSize = ImFloor(style.PlotMinSize * scale_factor);
+}
+
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -101,9 +128,13 @@ public:
         }
 
         ImGuiStyle& style(ImGui::GetStyle());
-        style.WindowPadding = ImVec2();
+        style.FramePadding = style.WindowPadding = ImVec2();
         style.WindowRounding = style.WindowBorderSize = 0.f;
         style.Colors[ImGuiCol_FrameBg] = ImVec4();
+
+        ImPlotStyle& pstyle(ImPlot::GetStyle());
+        ImPlot::ScaleAllSizes(pstyle, parent->getScaleFactor());
+        pstyle.PlotPadding = ImVec2();
 
         clear();
     }
@@ -190,11 +221,11 @@ protected:
                 |ImPlotLegendFlags_Horizontal;
            #ifdef PODCAST_MASTER
             constexpr const char* axisLabelsX[5] = {
-                "                            60",
-                "                           225",
-                "                           850",
-                "                           3.2k",
-                "                           12k",
+                "                              60",
+                "                             225",
+                "                             850",
+                "                              3.2k",
+                "                              12k",
             };
            #else
             constexpr const char* axisLabelsX[20] = {
