@@ -149,7 +149,9 @@ protected:
     void onImGuiDisplay() override
     {
         ImGuiStyle& style(ImGui::GetStyle());
+        style.Colors[ImGuiCol_Border] = ImVec4Color(theme.widgetBackgroundColor);
         style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textDarkColor);
+        style.Colors[ImGuiCol_WindowBg] = ImVec4Color(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
 
         ImPlot::SetCurrentContext(context);
 
