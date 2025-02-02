@@ -623,8 +623,8 @@ public:
     {
         setName("Name");
 
-        image = createImageFromMemory(Logo::master_me_whiteData, Logo::master_me_whiteDataSize, 0);
-        image2x = createImageFromMemory(Logo::master_me_white_2xData, Logo::master_me_white_2xDataSize, 0);
+        image = createImageFromMemory(Logo::signetData, Logo::signetDataSize, 0);
+        image2x = createImageFromMemory(Logo::signet_2xData, Logo::signet_2xDataSize, 0);
     }
 
     void adjustSize()
