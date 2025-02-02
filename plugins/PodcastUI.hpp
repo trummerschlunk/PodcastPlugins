@@ -11,6 +11,7 @@
 
 #include "BuildInfo.hpp"
 #include "Logo.hpp"
+#include "Name.hpp"
 
 #include <functional>
 
@@ -637,11 +638,13 @@ public:
 protected:
     void onNanoDisplay() override
     {
+        const uint width = getWidth();
+        const uint height = getHeight();
         const double scaleFactor = getTopLevelWidget()->getScaleFactor();
 
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillPaint(imagePattern(0, 0, getWidth(), getHeight(), 0, scaleFactor >= 1.5 ? image2x : image, 1));
+        rect(0, 0, width, height);
+        fillPaint(imagePattern(0, 0, width, height, 0, scaleFactor >= 1.5 ? image2x : image, 1));
         fill();
     }
 
@@ -681,6 +684,7 @@ protected:
 
     // plugin name
     PodcastNameWidget name;
+    NanoImage imageName;
 
 public:
     PodcastUI()
@@ -699,6 +703,11 @@ public:
         loadSharedResources();
 
         const double scaleFactor = getScaleFactor();
+
+        if (scaleFactor >= 1.5)
+            imageName = createImageFromMemory(Name::name_2xData, Name::name_2xDataSize, 0);
+        else
+            imageName = createImageFromMemory(Name::nameData, Name::nameDataSize, 0);
 
         if (d_isNotEqual(scaleFactor, 1.0))
         {
@@ -902,6 +911,22 @@ protected:
         fillColor(color1);
         fill();
 
+        // image name
+        const Size<uint> imgSize = imageName.getSize();
+        const double targetHeight = 28 * getScaleFactor();
+        const double imgScaleFactor = targetHeight / imgSize.getHeight();
+
+        const int x = inputGroup.getAbsoluteX() + theme.padding;
+        const int y = inputGroup.getAbsoluteY() * 0.5f - targetHeight * 0.5f;
+        beginPath();
+        rect(x, y, imgSize.getWidth() * imgScaleFactor, targetHeight);
+        fillPaint(imagePattern(x, y,
+                               imgSize.getWidth() * imgScaleFactor,
+                               imgSize.getHeight() * imgScaleFactor,
+                               0, imageName, 1.f));
+        fill();
+
+        /*
         fontSize(theme.fontSize * 1.5);
         fillColor(theme.nameColor);
         textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
@@ -913,6 +938,7 @@ protected:
              "TRACK",
             #endif
              nullptr);
+        */
     }
 
     bool onMouse(const MouseEvent& ev) override
