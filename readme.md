@@ -17,7 +17,7 @@ This plugin is inserted on the individual audio tracks of all speakers. It wil t
 ## PodcastPlugins **MASTER**
 This plugin is inserted on the audio master bus of the DAW. It will shape the sound some more and take care of levels and dynamics.
 
-![Plugin GUI](./gui/PodcastPlugin_Master_Mockup.png) *mockup of Podcast Plugin Master*
+![Plugin GUI](./gui/PodcastPluginMaster_screenshot.png) *screenshot of Podcast Plugin Master*
 
 # Development
 The DSP is written in [Faust](https://faust.grame.fr) by [Klaus Scheuermann](https://4ohm.de).
