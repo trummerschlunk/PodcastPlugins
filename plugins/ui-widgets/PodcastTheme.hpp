@@ -14,8 +14,8 @@
 struct PodcastTheme : QuantumTheme
 {
     uint sidelabelsFontSize = 13;
-    Color barsColor = knobRimColor;
-    Color barsAlternativeColor = knobAlternativeRimColor.withAlpha(0.666f);
+    Color barsColor = knobAlternativeRimColor;
+    Color barsAlternativeColor = knobRimColor.withAlpha(0.666f);
 
     PodcastTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
     {

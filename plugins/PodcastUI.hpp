@@ -812,7 +812,7 @@ protected:
         case kParameter_bypass_timbre:
             contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
             contentGroup.timbreKnob.setEnabled(value < 0.5f);
-            contentGroup.graph.setEnabled1(value < 0.5f);
+            contentGroup.graph.setEnabled2(value < 0.5f);
            #ifdef PODCAST_TRACK
             contentGroup.timbreStrengthSlider.setEnabled(value < 0.5f);
            #endif
@@ -825,7 +825,7 @@ protected:
         case kParameter_bypass_style:
             contentGroup.styleSwitch.setChecked(value < 0.5f, false);
             contentGroup.styleKnob.setEnabled(value < 0.5f);
-            contentGroup.graph.setEnabled2(value < 0.5f);
+            contentGroup.graph.setEnabled1(value < 0.5f);
             break;
         case kParameter_bypass_global:
            #ifndef __MOD_DEVICES__
@@ -995,14 +995,14 @@ protected:
             break;
         case kParameter_bypass_timbre:
             contentGroup.timbreKnob.setEnabled(enabled);
-            contentGroup.graph.setEnabled1(enabled);
+            contentGroup.graph.setEnabled2(enabled);
            #ifdef PODCAST_TRACK
             contentGroup.timbreStrengthSlider.setEnabled(enabled);
            #endif
             break;
         case kParameter_bypass_style:
             contentGroup.styleKnob.setEnabled(enabled);
-            contentGroup.graph.setEnabled2(enabled);
+            contentGroup.graph.setEnabled1(enabled);
             break;
         }
     }
