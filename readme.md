@@ -44,23 +44,27 @@ Download the installers for your operating system [here](https://github.com/trum
 
 The installer will put the plugin files in the appropriate folders on your system. The next time you start your DAW, they will be available.
 
-## macOS
 <a id="install_macos"></a>
+
+## macOS
 
 The installer will work for intel macs and silicon/arm macs.
 
 As the installer is not signed, you will have to allow the installer to run. Please learn more for your macOS version [here](https://support.apple.com/guide/mac-help/open-a-mac-app-from-an-unknown-developer-mh40616/15.0/mac/15.0).
 
-## windows
 <a id="install_windows"></a>
+
+## windows
 tba
+
+<a id="install_linux"></a>
 
 ## linux
-<a id="install_linux"></a>
 tba
 
-## other OS
 <a id="install_other"></a>
+
+## other OS
 tba
 
 # Getting Startet
@@ -78,7 +82,7 @@ After installation, two plugins are available in your DAW:
 
 The default setting of the **TRACK** plugin will be fine in most cases. You can close the plugin window and just let it do it's thing.
 
-If you want to tweak the sound further, read [advanced settings](#advanced_settings).
+If you want to tweak the sound further, read [advanced settings](#advanced_settings_track).
 
 ## PodcastPlugin **MASTER**
 **MASTER** is an automatic leveling and mastering plugin which will take care of the final touch of your podcast. It goes on the master channel of your DAW project.
@@ -87,9 +91,11 @@ If you want to tweak the sound further, read [advanced settings](#advanced_setti
 
 The default setting of the **MASTER** plugin will be fine in most cases. You can close the plugin window and just let it do it's thing.
 
-If you want to tweak the sound further, read [advanced settings](#advanced_settings).
+If you want to tweak the sound further, read [advanced settings](#advanced_settings_master).
 
 # Advanced Settings
+
+<a id="advanced_settings_track"></a>
 
 ## Advanced Settings for PodcastPlugins **TRACK**
 
@@ -119,6 +125,8 @@ The green and red brackets indicate a *good* and *bad* level.
 
 #### TARGET LOUDNESS
 The standard loudness for podcasts is -16dB LUFS. If for some reason you want to work at a lower loudness (or higher, not recommended), you can set it here.
+
+<a id="advanced_settings_master"></a>
 
 ## Advanced Settings for PodcastPlugins **MASTER**
 
