@@ -811,20 +811,23 @@ protected:
         // inputs
         case kParameter_bypass_timbre:
             contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
-            contentGroup.timbreKnob.setEnabled(value < 0.5f);
+            contentGroup.timbreKnob.setEnabled(value < 0.5f, false);
             contentGroup.graph.setEnabled2(value < 0.5f);
            #ifdef PODCAST_TRACK
-            contentGroup.timbreStrengthSlider.setEnabled(value < 0.5f);
+            contentGroup.timbreStrengthSlider.setEnabled(value < 0.5f, false);
            #endif
             break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
             inputLevelerGroup.leveler.setEnabled(value < 0.5f);
-            inputLevelerGroup.targetKnob.setEnabled(value < 0.5f);
+            inputLevelerGroup.targetKnob.setEnabled(value < 0.5f, false);
+           #ifdef PODCAST_MASTER
+            outputLevelerGroup.leveler.setEnabled(value < 0.5f);
+           #endif
             break;
         case kParameter_bypass_style:
             contentGroup.styleSwitch.setChecked(value < 0.5f, false);
-            contentGroup.styleKnob.setEnabled(value < 0.5f);
+            contentGroup.styleKnob.setEnabled(value < 0.5f, false);
             contentGroup.graph.setEnabled1(value < 0.5f);
             break;
         case kParameter_bypass_global:
@@ -991,17 +994,20 @@ protected:
         {
         case kParameter_bypass_leveler:
             inputLevelerGroup.leveler.setEnabled(enabled);
-            inputLevelerGroup.targetKnob.setEnabled(enabled);
+            inputLevelerGroup.targetKnob.setEnabled(enabled, false);
+           #ifdef PODCAST_MASTER
+            outputLevelerGroup.leveler.setEnabled(enabled);
+           #endif
             break;
         case kParameter_bypass_timbre:
-            contentGroup.timbreKnob.setEnabled(enabled);
+            contentGroup.timbreKnob.setEnabled(enabled, false);
             contentGroup.graph.setEnabled2(enabled);
            #ifdef PODCAST_TRACK
-            contentGroup.timbreStrengthSlider.setEnabled(enabled);
+            contentGroup.timbreStrengthSlider.setEnabled(enabled, false);
            #endif
             break;
         case kParameter_bypass_style:
-            contentGroup.styleKnob.setEnabled(enabled);
+            contentGroup.styleKnob.setEnabled(enabled, false);
             contentGroup.graph.setEnabled1(enabled);
             break;
         }
