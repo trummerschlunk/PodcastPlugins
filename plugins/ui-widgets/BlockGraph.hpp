@@ -58,6 +58,33 @@ static void SetupAxisTicks(ImAxis idx, const double* values, int n_ticks, const 
                   (axis.Formatter && axis.FormatterData) ? axis.FormatterData : axis.HasFormatSpec ? axis.FormatSpec : (void*)IMPLOT_LABEL_FORMAT);
 }
 
+static void ScaleAllSizes(ImPlotStyle& style, const float scale_factor)
+{
+    style.LineWeight = ImFloor(style.LineWeight * scale_factor);
+    style.MarkerSize = ImFloor(style.MarkerSize * scale_factor);
+    style.MarkerWeight = ImFloor(style.MarkerWeight * scale_factor);
+    style.ErrorBarSize = ImFloor(style.ErrorBarSize * scale_factor);
+    style.ErrorBarWeight = ImFloor(style.ErrorBarWeight * scale_factor);
+    style.DigitalBitHeight = ImFloor(style.DigitalBitHeight * scale_factor);
+    style.DigitalBitGap = ImFloor(style.DigitalBitGap * scale_factor);
+    style.PlotBorderSize = ImFloor(style.PlotBorderSize * scale_factor);
+    style.MajorTickLen = ImFloor(style.MajorTickLen * scale_factor);
+    style.MinorTickLen = ImFloor(style.MinorTickLen * scale_factor);
+    style.MajorTickSize = ImFloor(style.MajorTickSize * scale_factor);
+    style.MinorTickSize = ImFloor(style.MinorTickSize * scale_factor);
+    style.MajorGridSize = ImFloor(style.MajorGridSize * scale_factor);
+    style.MinorGridSize = ImFloor(style.MinorGridSize * scale_factor);
+    style.PlotPadding = ImFloor(style.PlotPadding * scale_factor);
+    style.LabelPadding = ImFloor(style.LabelPadding * scale_factor);
+    style.LegendPadding = ImFloor(style.LegendPadding * scale_factor);
+    style.LegendInnerPadding = ImFloor(style.LegendInnerPadding * scale_factor);
+    style.LegendSpacing = ImFloor(style.LegendSpacing * scale_factor);
+    style.MousePosPadding = ImFloor(style.MousePosPadding * scale_factor);
+    style.AnnotationPadding = ImFloor(style.AnnotationPadding * scale_factor);
+    style.PlotDefaultSize = ImFloor(style.PlotDefaultSize * scale_factor);
+    style.PlotMinSize = ImFloor(style.PlotMinSize * scale_factor);
+}
+
 }
 
 // --------------------------------------------------------------------------------------------------------------------
@@ -86,6 +113,8 @@ class BlockGraph : public ImGuiSubWidget
 
     std::array<LinearValueSmoother, 5> values1;
 
+    bool enabled[2] = { true, true };
+
 public:
     explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& theme_)
         : ImGuiSubWidget(parent),
@@ -101,9 +130,13 @@ public:
         }
 
         ImGuiStyle& style(ImGui::GetStyle());
-        style.WindowPadding = ImVec2();
+        style.FramePadding = style.WindowPadding = ImVec2();
         style.WindowRounding = style.WindowBorderSize = 0.f;
         style.Colors[ImGuiCol_FrameBg] = ImVec4();
+
+        ImPlotStyle& pstyle(ImPlot::GetStyle());
+        ImPlot::ScaleAllSizes(pstyle, parent->getScaleFactor());
+        pstyle.PlotPadding = ImVec2();
 
         clear();
     }
@@ -123,6 +156,16 @@ public:
             value1.setTargetValue(0.f);
             value1.clearToTargetValue();
         }
+    }
+
+    void setEnabled1(const bool enable)
+    {
+        enabled[0] = enable;
+    }
+
+    void setEnabled2(const bool enable)
+    {
+        enabled[1] = enable;
     }
 
     void update1(const int block, const float value)
@@ -148,12 +191,15 @@ public:
 protected:
     void onImGuiDisplay() override
     {
+        ImPlot::SetCurrentContext(context);
+
         ImGuiStyle& style(ImGui::GetStyle());
         style.Colors[ImGuiCol_Border] = ImVec4Color(theme.widgetBackgroundColor);
         style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textDarkColor);
         style.Colors[ImGuiCol_WindowBg] = ImVec4Color(Color(theme.windowBackgroundColor, theme.widgetBackgroundColor, 0.75f));
 
-        ImPlot::SetCurrentContext(context);
+        ImPlotStyle& pstyle(ImPlot::GetStyle());
+        pstyle.Colors[ImPlotCol_Crosshairs] = ImVec4Color(theme.textDarkColor.withAlpha(0.5f));
 
         ImGui::SetNextWindowPos(ImVec2(0, 0));
         ImGui::SetNextWindowSize(ImVec2(getWidth(), getHeight()));
@@ -185,39 +231,36 @@ protected:
                 |ImPlotAxisFlags_NoHighlight
                 |ImPlotAxisFlags_Foreground
                 |ImPlotAxisFlags_Lock;
-            constexpr const ImPlotLegendFlags legendFlags = 0
-                |ImPlotLegendFlags_NoMenus
-                |ImPlotLegendFlags_Horizontal;
            #ifdef PODCAST_MASTER
             constexpr const char* axisLabelsX[5] = {
-                "                            60",
-                "                           225",
-                "                           850",
-                "                           3.2k",
-                "                           12k",
+                "60",
+                "225",
+                "850",
+                "3.2k",
+                "12k",
             };
            #else
             constexpr const char* axisLabelsX[20] = {
-                "        60",
-                "        80",
-                "        100",
-                "        140",
-                "        185",
-                "        240",
-                "        320",
-                "        420",
-                "        560",
-                "        740",
-                "        975",
-                "        1.3k",
-                "        1.7k",
-                "        2.3k",
-                "         3k",
-                "         4k",
-                "         5.2k",
-                "         7k",
-                "         9k",
-                "        12k",
+                "60",
+                "80",
+                "100",
+                "140",
+                "185",
+                "240",
+                "320",
+                "420",
+                "560",
+                "740",
+                "975",
+                "1.3k",
+                "1.7k",
+                "2.3k",
+                "3k",
+                "4k",
+                "5.2k",
+                "7k",
+                "9k",
+                "12k",
             };
            #endif
             constexpr const double axisValuesX[20] = {
@@ -229,34 +272,33 @@ protected:
             constexpr const double axisValuesY[9] = {
                 -12, -9, -6, -3, 0, 3, 6, 9, 12,
             };
-            ImPlot::SetupAxis(ImAxis_X1, "Freq (Hz)", axisFlags);
-            ImPlot::SetupAxis(ImAxis_Y1, "Gain (dB)", axisFlags | ImPlotAxisFlags_Opposite);
+            ImPlot::SetupAxis(ImAxis_X1, nullptr, axisFlags);
+            ImPlot::SetupAxis(ImAxis_Y1, nullptr, axisFlags | ImPlotAxisFlags_Opposite);
             ImPlot::SetupAxisLimits(ImAxis_X1, 0, ARRAY_SIZE(axisLabelsX), ImGuiCond_Always);
             ImPlot::SetupAxisLimits(ImAxis_Y1, -13, 13, ImGuiCond_Always);
             ImPlot::SetupAxisScale(ImAxis_Y1, ImPlotScale_Linear);
             ImPlot::SetupAxisTicks(ImAxis_X1, axisValuesX, ARRAY_SIZE(axisLabelsX), axisLabelsX);
             ImPlot::SetupAxisTicks(ImAxis_Y1, axisValuesY, ARRAY_SIZE(axisLabelsY), axisLabelsY, false, 4);
-            ImPlot::SetupLegend(ImPlotLocation_NorthWest, legendFlags);
             ImPlot::SetupFinish();
 
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[0] ? theme.barsColor : theme.textDarkColor.withAlpha(0.5f)));
            #ifdef PODCAST_MASTER
             for (int i = 0; i < 5; ++i)
                 buffer1[i] = values1[i].next();
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 1.0, 0.5);
-
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor));
-            ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
            #else
             for (int i = 0; i < 5; ++i)
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsColor));
             // ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 20, 0, 1.05, 0.525);
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 0.5);
+           #endif
 
-            ImPlot::SetNextFillStyle(ImVec4Color(theme.barsAlternativeColor));
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.barsAlternativeColor : theme.textDarkColor.withAlpha(0.5f)));
+           #ifdef PODCAST_MASTER
+            ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
+           #else
             ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 1.0, 0.5);
            #endif
 

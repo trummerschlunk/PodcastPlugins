@@ -4,16 +4,31 @@
 #pragma once
 
 #include "DearImGui.hpp"
+#include "DistrhoUtils.hpp"
 #include "PodcastTheme.hpp"
 
 #include "Application.hpp"
 #include "extra/String.hpp"
+
+#include "json.hpp"
 
 #include <list>
 
 START_NAMESPACE_DGL
 
 // --------------------------------------------------------------------------------------------------------------------
+
+static std::string ColorToString(const Color& color)
+{
+    char str[10];
+    std::snprintf(str,
+                  sizeof(str),
+                  "#%02x%02x%02x",
+                  d_roundToIntPositive(color.red * 255),
+                  d_roundToIntPositive(color.green * 255),
+                  d_roundToIntPositive(color.blue * 255));
+    return str;
+}
 
 class InspectorWindow : public ImGuiTopLevelWidget
 {
@@ -58,41 +73,62 @@ protected:
         if (ImGui::Button("Reset"))
         {
             changedColors = true;
-            theme = PodcastTheme();
-            theme.borderSize *= scaleFactor;
-            theme.padding *= scaleFactor;
-            theme.fontSize *= scaleFactor;
-            theme.sidelabelsFontSize *= scaleFactor;
-            theme.textHeight *= scaleFactor;
-            theme.knobIndicatorSize *= scaleFactor;
-            theme.widgetLineSize *= scaleFactor;
-            theme.windowPadding *= scaleFactor;
-            theme.textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+            theme = PodcastTheme(scaleFactor, false);
         }
 
-        /*
         ImGui::SameLine();
 
         if (ImGui::Button("Save"))
         {
-        }
-        */
+            if (FILE* const fd = std::fopen("PodcastTheme.json.tmp", "w"))
+            {
+                nlohmann::json j;
+                j["borderSize"] = d_roundToIntPositive(theme.borderSize / scaleFactor);
+                j["padding"] = d_roundToIntPositive(theme.padding / scaleFactor);
+                j["fontSize"] = d_roundToIntPositive(theme.fontSize / scaleFactor);
+                j["textHeight"] = d_roundToIntPositive(theme.textHeight / scaleFactor);
+                j["knobIndicatorSize"] = d_roundToIntPositive(theme.knobIndicatorSize / scaleFactor);
+                j["widgetLineSize"] = d_roundToIntPositive(theme.widgetLineSize / scaleFactor);
+                j["sidelabelsFontSize"] = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
+                j["levelMeterColor"] = ColorToString(theme.levelMeterColor);
+                j["levelMeterAlternativeColor"] = ColorToString(theme.levelMeterAlternativeColor);
+                j["knobRimColor"] = ColorToString(theme.knobRimColor);
+                j["knobAlternativeRimColor"] = ColorToString(theme.knobAlternativeRimColor);
+                j["widgetBackgroundColor"] = ColorToString(theme.widgetBackgroundColor);
+                j["widgetActiveColor"] = ColorToString(theme.widgetActiveColor);
+                j["widgetAlternativeColor"] = ColorToString(theme.widgetAlternativeColor);
+                j["widgetForegroundColor"] = ColorToString(theme.widgetForegroundColor);
+                j["windowBackgroundColor"] = ColorToString(theme.windowBackgroundColor);
+                j["textLightColor"] = ColorToString(theme.textLightColor);
+                j["textMidColor"] = ColorToString(theme.textMidColor);
+                j["textDarkColor"] = ColorToString(theme.textDarkColor);
+                j["barsColor"] = ColorToString(theme.barsColor);
+                j["barsAlternativeColor"] = ColorToString(theme.barsAlternativeColor);
 
-        val = static_cast<int>(theme.borderSize / scaleFactor + 0.5f);
+                const std::string jsonstr = j.dump(2, ' ', false, nlohmann::detail::error_handler_t::replace);
+
+                std::fwrite(jsonstr.c_str(), 1, jsonstr.length(), fd);
+                std::fflush(fd);
+                std::fclose(fd);
+                std::rename("PodcastTheme.json.tmp", "PodcastTheme.json");
+            }
+        }
+
+        val = d_roundToIntPositive(theme.borderSize / scaleFactor);
         if (ImGui::SliderInt("Border Size", &val, 1, 10))
         {
             changedSize = true;
             theme.borderSize = val * scaleFactor;
         }
 
-        val = static_cast<int>(theme.padding / scaleFactor + 0.5f);
+        val = d_roundToIntPositive(theme.padding / scaleFactor);
         if (ImGui::SliderInt("Padding", &val, 0, 20))
         {
             changedSize = true;
             theme.padding = val * scaleFactor;
         }
 
-        val = static_cast<int>(theme.fontSize / scaleFactor + 0.5f);
+        val = d_roundToIntPositive(theme.fontSize / scaleFactor);
         if (ImGui::SliderInt("Font Size", &val, 8, 50))
         {
             changedSize = true;
@@ -101,28 +137,28 @@ protected:
                 theme.textHeight = theme.fontSize;
         }
 
-        val = static_cast<int>(theme.sidelabelsFontSize / scaleFactor + 0.5f);
+        val = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
         if (ImGui::SliderInt("Size Labels Font Size", &val, 8, 20))
         {
             changedSize = true;
             theme.sidelabelsFontSize = val * scaleFactor;
         }
 
-        val = static_cast<int>(theme.textHeight / scaleFactor + 0.5f);
+        val = d_roundToIntPositive(theme.textHeight / scaleFactor);
         if (ImGui::SliderInt("Text Height", &val, theme.fontSize / scaleFactor, 60))
         {
             changedSize = true;
             theme.textHeight = val * scaleFactor;
         }
 
-        val = static_cast<int>(theme.knobIndicatorSize / scaleFactor + 0.5f);
+        val = d_roundToIntPositive(theme.knobIndicatorSize / scaleFactor);
         if (ImGui::SliderInt("Knob Indicator Size", &val, 2, 8))
         {
             changedSize = true;
             theme.knobIndicatorSize = val * scaleFactor;
         }
 
-        val = static_cast<int>(theme.widgetLineSize / scaleFactor + 0.5f);
+        val = d_roundToIntPositive(theme.widgetLineSize / scaleFactor);
         if (ImGui::SliderInt("Widget Line Size", &val, 1, 10))
         {
             changedSize = true;
@@ -135,7 +171,6 @@ protected:
         changedColors |= ImGui::ColorEdit4("Knob Rim Alternative", theme.knobAlternativeRimColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Plugin Name", theme.nameColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Active", theme.widgetActiveColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Alternative", theme.widgetAlternativeColor.rgba);

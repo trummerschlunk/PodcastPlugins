@@ -11,6 +11,7 @@
 
 #include "BuildInfo.hpp"
 #include "Logo.hpp"
+#include "Name.hpp"
 
 #include <functional>
 
@@ -61,7 +62,7 @@ static_assert(kParameterRanges[kParameter_leveler_gain].def == 0.f, "leveler gai
 #endif
 
 // --------------------------------------------------------------------------------------------------------------------
-// custom layout for input levels (single widget)
+// custom layout for input levels
 
 struct InputMeterGroup : QuantumFrame
 {
@@ -85,6 +86,7 @@ struct InputMeterGroup : QuantumFrame
         setName("Inputs");
 
         meter.setName(" + Meter");
+        meter.setTopLabel("Input");
         meter.setRange(kParameterRanges[kParameter_input_peak_channel_0].min,
                        kParameterRanges[kParameter_input_peak_channel_0].max);
        #ifdef PODCAST_MASTER
@@ -116,15 +118,14 @@ struct InputMeterGroup : QuantumFrame
        #ifdef PODCAST_MASTER
         const uint meterWidth = metrics.stereoLevelMeterWithLufs.getWidth();
         const uint usableWidth = meterWidth;
-        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
        #else
         const uint meterWidth = metrics.stereoLevelMeter.getWidth();
         const uint usableWidth = meterWidth + theme.fontSize + theme.padding * 2 + theme.borderSize * 2;
-        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 4 - theme.fontSize;
        #endif
+        const uint usableHeight = height - theme.borderSize * 2 - theme.padding * 2;
         const uint knobWidth = metrics.stereoLevelMeter.getWidth() + theme.fontSize;
 
-        meter.setSize(meterWidth, usableHeight - knobWidth - theme.fontSize);
+        meter.setSize(meterWidth, usableHeight - knobWidth - theme.fontSize - theme.padding);
         gainKnob.setSize(knobWidth, knobWidth + theme.fontSize);
 
         setSize(usableWidth + theme.borderSize * 2 + theme.padding * 2, height);
@@ -135,11 +136,7 @@ struct InputMeterGroup : QuantumFrame
         QuantumFrame::setAbsolutePos(x, y);
         meter.setAbsolutePos(x + getWidth() / 2 - meter.getWidth() / 2, y + theme.borderSize + theme.padding);
         gainKnob.setAbsolutePos(x + getWidth() / 2 - gainKnob.getWidth() / 2,
-                                meter.getAbsoluteY() + meter.getHeight()
-                               #ifndef PODCAST_MASTER
-                                + theme.fontSize + theme.padding * 2
-                               #endif
-                                );
+                                meter.getAbsoluteY() + meter.getHeight() + theme.padding);
     }
 
 #ifndef PODCAST_MASTER
@@ -281,11 +278,12 @@ struct InputLevelerGroup : QuantumFrame
     {
         QuantumFrame::setAbsolutePos(x, y);
 
-        const int xfinal = x + theme.borderSize + theme.padding;
-        leveler.setAbsolutePos(xfinal + theme.fontSize / 2, y + theme.borderSize + theme.padding);
-        enableSwitch.setAbsolutePos(x + getWidth() / 2 - enableSwitch.getWidth() / 2,
+        const int xmid = x + getWidth() / 2;
+        leveler.setAbsolutePos(xmid - leveler.getWidth() / 2, y + theme.borderSize + theme.padding);
+        enableSwitch.setAbsolutePos(xmid - enableSwitch.getWidth() / 2,
                                     leveler.getAbsoluteY() + leveler.getHeight() + theme.padding);
-        targetKnob.setAbsolutePos(xfinal, enableSwitch.getAbsoluteY() + enableSwitch.getHeight() + theme.padding);
+        targetKnob.setAbsolutePos(xmid - targetKnob.getWidth() / 2,
+                                  enableSwitch.getAbsoluteY() + enableSwitch.getHeight() + theme.padding);
     }
 };
 
@@ -349,6 +347,7 @@ struct OutputMeterGroup : QuantumFrame
         setName("Outputs");
 
         meter.setName(" + Meter");
+        meter.setTopLabel("Output");
         meter.setRange(kParameterRanges[kParameter_output_peak_channel_0].min,
                        kParameterRanges[kParameter_output_peak_channel_0].max);
         meter.setValues(kParameterRanges[kParameter_output_peak_channel_0].min,
@@ -533,7 +532,7 @@ public:
     void adjustSize()
     {
         graph.setSize(getWidth() - theme.borderSize * 2 - theme.padding * 2,
-                      getHeight() / 2 - theme.borderSize * 2 - theme.padding * 2);
+                      getHeight() / 2 - theme.borderSize * 2 - theme.padding * 2 - theme.fontSize);
 
         timbreSwitch.adjustSize();
         styleSwitch.adjustSize();
@@ -555,7 +554,7 @@ public:
         const int yfinal = y + getHeight() - knobSize * 1.5 - theme.borderSize - theme.padding;
 
         graph.setAbsolutePos(x + theme.borderSize + theme.padding,
-                             y + theme.borderSize + theme.padding);
+                             y + theme.fontSize * 2 / 3 + theme.borderSize + theme.padding * 2);
 
         timbreKnob.setAbsolutePos(midPoint - knobSize * 0.75, yfinal);
         styleKnob.setAbsolutePos(midPoint + knobSize * 0.75, yfinal);
@@ -583,7 +582,7 @@ protected:
         QuantumFrame::onNanoDisplay();
 
        #ifdef PODCAST_TRACK
-        fillColor(theme.textLightColor);
+        fillColor(timbreStrengthSlider.isEnabled() ? theme.textLightColor : theme.textDarkColor);
         fontSize(theme.sidelabelsFontSize);
         textAlign(ALIGN_TOP|ALIGN_CENTER);
         text(timbreStrengthSlider.getAbsoluteX() + timbreStrengthSlider.getWidth() / 2 - getAbsoluteX(),
@@ -592,13 +591,14 @@ protected:
              nullptr);
        #endif
 
-        fontSize(theme.fontSize);
-        fillColor(theme.textMidColor);
+        const bool hasNewline = std::strchr(kBuildInfoString, '\n');
+
+        fontSize(hasNewline ? d_roundToIntPositive(theme.fontSize * 0.8f) : theme.fontSize);
+        fillColor(hasNewline ? theme.textDarkColor : theme.textMidColor);
         textAlign(ALIGN_BOTTOM|ALIGN_RIGHT);
 
-        const int yoffset = std::strchr(kBuildInfoString, '\n') ? theme.fontSize : 0;
         textBox(0,
-                getHeight() - yoffset - theme.padding,
+                getHeight() - theme.padding - (hasNewline ? theme.fontSize : 0),
                 getWidth() - theme.borderSize * 2 - theme.padding * 2,
                 kBuildInfoString,
                 nullptr);
@@ -638,11 +638,13 @@ public:
 protected:
     void onNanoDisplay() override
     {
+        const uint width = getWidth();
+        const uint height = getHeight();
         const double scaleFactor = getTopLevelWidget()->getScaleFactor();
 
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
-        fillPaint(imagePattern(0, 0, getWidth(), getHeight(), 0, scaleFactor >= 1.5 ? image2x : image, 1));
+        rect(0, 0, width, height);
+        fillPaint(imagePattern(0, 0, width, height, 0, scaleFactor >= 1.5 ? image2x : image, 1));
         fill();
     }
 
@@ -682,6 +684,7 @@ protected:
 
     // plugin name
     PodcastNameWidget name;
+    NanoImage imageName;
 
 public:
     PodcastUI()
@@ -700,6 +703,11 @@ public:
         loadSharedResources();
 
         const double scaleFactor = getScaleFactor();
+
+        if (scaleFactor >= 1.5)
+            imageName = createImageFromMemory(Name::name_2xData, Name::name_2xDataSize, 0);
+        else
+            imageName = createImageFromMemory(Name::nameData, Name::nameDataSize, 0);
 
         if (d_isNotEqual(scaleFactor, 1.0))
         {
@@ -803,12 +811,21 @@ protected:
         // inputs
         case kParameter_bypass_timbre:
             contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
+            contentGroup.timbreKnob.setEnabled(value < 0.5f);
+            contentGroup.graph.setEnabled1(value < 0.5f);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(value < 0.5f);
+           #endif
             break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
+            inputLevelerGroup.leveler.setEnabled(value < 0.5f);
+            inputLevelerGroup.targetKnob.setEnabled(value < 0.5f);
             break;
         case kParameter_bypass_style:
             contentGroup.styleSwitch.setChecked(value < 0.5f, false);
+            contentGroup.styleKnob.setEnabled(value < 0.5f);
+            contentGroup.graph.setEnabled2(value < 0.5f);
             break;
         case kParameter_bypass_global:
            #ifndef __MOD_DEVICES__
@@ -894,6 +911,22 @@ protected:
         fillColor(color1);
         fill();
 
+        // image name
+        const Size<uint> imgSize = imageName.getSize();
+        const double targetHeight = 28 * getScaleFactor();
+        const double imgScaleFactor = targetHeight / imgSize.getHeight();
+
+        const int x = inputGroup.getAbsoluteX() + theme.padding;
+        const int y = inputGroup.getAbsoluteY() * 0.5f - targetHeight * 0.5f;
+        beginPath();
+        rect(x, y, imgSize.getWidth() * imgScaleFactor, targetHeight);
+        fillPaint(imagePattern(x, y,
+                               imgSize.getWidth() * imgScaleFactor,
+                               imgSize.getHeight() * imgScaleFactor,
+                               0, imageName, 1.f));
+        fill();
+
+        /*
         fontSize(theme.fontSize * 1.5);
         fillColor(theme.nameColor);
         textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
@@ -905,6 +938,7 @@ protected:
              "TRACK",
             #endif
              nullptr);
+        */
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -938,8 +972,8 @@ protected:
         switch (id)
         {
         // bypass switches, inverted operation
-        case kParameter_bypass_timbre:
         case kParameter_bypass_leveler:
+        case kParameter_bypass_timbre:
         case kParameter_bypass_style:
         case kParameter_bypass_global:
             value = enabled ? 0.f : 1.f;
@@ -953,22 +987,24 @@ protected:
         editParameter(id, false);
 
         // extra handling for setting enabled color
-        // TODO
-        /*
         switch (id)
         {
-        case kParameter_bypass_timbre:
-            contentGroup.timbreKnob.setEnabled(enabled);
-            break;
         case kParameter_bypass_leveler:
             inputLevelerGroup.leveler.setEnabled(enabled);
             inputLevelerGroup.targetKnob.setEnabled(enabled);
             break;
+        case kParameter_bypass_timbre:
+            contentGroup.timbreKnob.setEnabled(enabled);
+            contentGroup.graph.setEnabled1(enabled);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(enabled);
+           #endif
+            break;
         case kParameter_bypass_style:
             contentGroup.styleKnob.setEnabled(enabled);
+            contentGroup.graph.setEnabled2(enabled);
             break;
         }
-        */
     }
 
     void knobDragStarted(SubWidget* const widget) override
@@ -984,8 +1020,10 @@ protected:
     void knobValueChanged(SubWidget* const widget, const float value) override
     {
         setParameterValue(widget->getId(), value);
+
        #ifdef PODCAST_MASTER
-        contentGroup.graph.update2(value);
+        if (widget->getId() == kParameter_timbre)
+            contentGroup.graph.update2(value);
        #endif
     }
 

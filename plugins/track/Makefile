@@ -6,6 +6,7 @@ FILES_UI  = TrackUI.cpp
 FILES_UI += ../ui-widgets/implot/implot.cpp
 FILES_UI += ../ui-widgets/implot/implot_items.cpp
 FILES_UI += ../../build/Logo.cpp
+FILES_UI += ../../build/track/Name.cpp
 FILES_UI += ../../dpf-widgets/opengl/DearImGui.cpp
 FILES_UI += ../../dpf-widgets/opengl/Quantum.cpp
 
@@ -25,6 +26,7 @@ BUILD_CXX_FLAGS += -DIMGUI_DISABLE_DEBUG_TOOLS
 BUILD_CXX_FLAGS += -DIMGUI_DISABLE_DEMO_WINDOWS
 BUILD_CXX_FLAGS += -I..
 BUILD_CXX_FLAGS += -I../../build
+BUILD_CXX_FLAGS += -I../../build/track
 BUILD_CXX_FLAGS += -I../../dpf-widgets/opengl
 BUILD_CXX_FLAGS += -I../../pregen/track
 BUILD_CXX_FLAGS += -funroll-loops
