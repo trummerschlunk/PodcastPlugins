@@ -189,10 +189,10 @@ struct InputMeterGroup : QuantumFrame
     {
         QuantumFrame::onNanoDisplay();
 
-        fillColor(Color(255, 0, 0));
+        fillColor(meter.isEnabled() ? Color(255, 0, 0, 0.75f) : theme.windowBackgroundColor);
         displayBrackets(-0.5, -5.9);
 
-        fillColor(Color(0, 255, 0));
+        fillColor(meter.isEnabled() ? Color(0, 255, 0, 0.75f) : theme.windowBackgroundColor);
         displayBrackets(-6.1, -16);
     }
 #endif
@@ -686,6 +686,14 @@ protected:
     PodcastNameWidget name;
     NanoImage imageName;
 
+    // cached enabled state
+    struct {
+        bool global = true;
+        bool leveler = true;
+        bool timbre = true;
+        bool style = true;
+    } enabled;
+
 public:
     PodcastUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
@@ -809,31 +817,53 @@ protected:
         switch (index)
         {
         // inputs
-        case kParameter_bypass_timbre:
-            contentGroup.timbreSwitch.setChecked(value < 0.5f, false);
-            contentGroup.timbreKnob.setEnabled(value < 0.5f, false);
-            contentGroup.graph.setEnabled2(value < 0.5f);
-           #ifdef PODCAST_TRACK
-            contentGroup.timbreStrengthSlider.setEnabled(value < 0.5f, false);
+        case kParameter_bypass_leveler:
+            enabled.leveler = value < 0.5f;
+            inputLevelerGroup.enableSwitch.setChecked(enabled.leveler, false);
+            inputLevelerGroup.leveler.setEnabled(enabled.leveler && enabled.global);
+            inputLevelerGroup.targetKnob.setEnabled(enabled.leveler && enabled.global, false);
+           #ifdef PODCAST_MASTER
+            outputLevelerGroup.leveler.setEnabled(enabled.leveler && enabled.global);
            #endif
             break;
-        case kParameter_bypass_leveler:
-            inputLevelerGroup.enableSwitch.setChecked(value < 0.5f, false);
-            inputLevelerGroup.leveler.setEnabled(value < 0.5f);
-            inputLevelerGroup.targetKnob.setEnabled(value < 0.5f, false);
-           #ifdef PODCAST_MASTER
-            outputLevelerGroup.leveler.setEnabled(value < 0.5f);
+        case kParameter_bypass_timbre:
+            enabled.timbre = value < 0.5f;
+            contentGroup.timbreSwitch.setChecked(enabled.timbre, false);
+            contentGroup.timbreKnob.setEnabled(enabled.timbre && enabled.global, false);
+            contentGroup.graph.setEnabled2(enabled.timbre && enabled.global);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(enabled.timbre && enabled.global, false);
            #endif
             break;
         case kParameter_bypass_style:
-            contentGroup.styleSwitch.setChecked(value < 0.5f, false);
-            contentGroup.styleKnob.setEnabled(value < 0.5f, false);
-            contentGroup.graph.setEnabled1(value < 0.5f);
+            enabled.style = value < 0.5f;
+            contentGroup.styleSwitch.setChecked(enabled.style, false);
+            contentGroup.styleKnob.setEnabled(enabled.style && enabled.global, false);
+            contentGroup.graph.setEnabled1(enabled.style && enabled.global);
             break;
         case kParameter_bypass_global:
+            enabled.global = value < 0.5f;
            #ifndef __MOD_DEVICES__
-            topCenteredGroup.globalEnableSwitch.setChecked(value < 0.5f, false);
+            topCenteredGroup.globalEnableSwitch.setChecked(enabled.global, false);
            #endif
+            inputGroup.meter.setEnabled(enabled.global);
+            inputGroup.gainKnob.setEnabled(enabled.global, false);
+            outputGroup.meter.setEnabled(enabled.global);
+            inputLevelerGroup.enableSwitch.setEnabled(enabled.leveler && enabled.global, false);
+            inputLevelerGroup.leveler.setEnabled(enabled.leveler && enabled.global);
+            inputLevelerGroup.targetKnob.setEnabled(enabled.leveler && enabled.global, false);
+           #ifdef PODCAST_MASTER
+            outputLevelerGroup.leveler.setEnabled(enabled.leveler && enabled.global);
+           #endif
+            contentGroup.timbreSwitch.setEnabled(enabled.timbre && enabled.global, false);
+            contentGroup.timbreKnob.setEnabled(enabled.timbre && enabled.global, false);
+            contentGroup.graph.setEnabled2(enabled.timbre && enabled.global);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(enabled.timbre && enabled.global, false);
+           #endif
+            contentGroup.styleSwitch.setEnabled(enabled.style && enabled.global, false);
+            contentGroup.styleKnob.setEnabled(enabled.style && enabled.global, false);
+            contentGroup.graph.setEnabled1(enabled.style && enabled.global);
             break;
         case kParameter_input_gain:
             inputGroup.gainKnob.setValue(value, false);
@@ -968,7 +998,7 @@ protected:
         QuantumRadioSwitch* const qswitch = reinterpret_cast<QuantumRadioSwitch*>(widget);
         DISTRHO_SAFE_ASSERT_RETURN(qswitch != nullptr,);
 
-        const bool enabled = qswitch->isChecked();
+        const bool enable = qswitch->isChecked();
 
         float value;
 
@@ -979,7 +1009,7 @@ protected:
         case kParameter_bypass_timbre:
         case kParameter_bypass_style:
         case kParameter_bypass_global:
-            value = enabled ? 0.f : 1.f;
+            value = enable ? 0.f : 1.f;
             break;
         default:
             return;
@@ -993,22 +1023,46 @@ protected:
         switch (id)
         {
         case kParameter_bypass_leveler:
-            inputLevelerGroup.leveler.setEnabled(enabled);
-            inputLevelerGroup.targetKnob.setEnabled(enabled, false);
+            enabled.leveler = enable;
+            inputLevelerGroup.leveler.setEnabled(enable && enabled.global);
+            inputLevelerGroup.targetKnob.setEnabled(enable && enabled.global, false);
            #ifdef PODCAST_MASTER
-            outputLevelerGroup.leveler.setEnabled(enabled);
+            outputLevelerGroup.leveler.setEnabled(enable && enabled.global);
            #endif
             break;
         case kParameter_bypass_timbre:
-            contentGroup.timbreKnob.setEnabled(enabled, false);
-            contentGroup.graph.setEnabled2(enabled);
+            enabled.timbre = enable;
+            contentGroup.timbreKnob.setEnabled(enable && enabled.global, false);
+            contentGroup.graph.setEnabled2(enable && enabled.global);
            #ifdef PODCAST_TRACK
-            contentGroup.timbreStrengthSlider.setEnabled(enabled, false);
+            contentGroup.timbreStrengthSlider.setEnabled(enable && enabled.global, false);
            #endif
             break;
         case kParameter_bypass_style:
-            contentGroup.styleKnob.setEnabled(enabled, false);
-            contentGroup.graph.setEnabled1(enabled);
+            enabled.style = enable;
+            contentGroup.styleKnob.setEnabled(enable && enabled.global, false);
+            contentGroup.graph.setEnabled1(enable && enabled.global);
+            break;
+        case kParameter_bypass_global:
+            enabled.global = enable;
+            inputGroup.meter.setEnabled(enable);
+            inputGroup.gainKnob.setEnabled(enable, false);
+            outputGroup.meter.setEnabled(enable);
+            inputLevelerGroup.enableSwitch.setEnabled(enable && enabled.leveler, false);
+            inputLevelerGroup.leveler.setEnabled(enable && enabled.leveler);
+            inputLevelerGroup.targetKnob.setEnabled(enable && enabled.leveler, false);
+           #ifdef PODCAST_MASTER
+            outputLevelerGroup.leveler.setEnabled(enable && enabled.leveler);
+           #endif
+            contentGroup.timbreSwitch.setEnabled(enable && enabled.timbre, false);
+            contentGroup.timbreKnob.setEnabled(enable && enabled.timbre, false);
+            contentGroup.graph.setEnabled2(enable && enabled.timbre);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setEnabled(enable && enabled.timbre, false);
+           #endif
+            contentGroup.styleSwitch.setEnabled(enable && enabled.style, false);
+            contentGroup.styleKnob.setEnabled(enable && enabled.style, false);
+            contentGroup.graph.setEnabled1(enable && enabled.style);
             break;
         }
     }
