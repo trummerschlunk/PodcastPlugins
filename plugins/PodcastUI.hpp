@@ -7,6 +7,7 @@
 #include "Quantum.hpp"
 #include "extra/ScopedPointer.hpp"
 #include "ui-widgets/BlockGraph.hpp"
+#include "ui-widgets/DoubleClickHelper.hpp"
 #include "ui-widgets/InspectorWindow.hpp"
 
 #include "BuildInfo.hpp"
@@ -666,6 +667,7 @@ protected:
 
 class PodcastUI : public UI,
                   public ButtonEventHandler::Callback,
+                  public DoubleClickHelper::Callback,
                   public KnobEventHandler::Callback,
                   public QuantumThemeCallback
 {
@@ -685,6 +687,12 @@ protected:
     // plugin name
     PodcastNameWidget name;
     NanoImage imageName;
+
+    // for when theme changes
+    bool resizeOnNextIdle = false;
+
+    // little helper for text input on double click
+    ScopedPointer<DoubleClickHelper> doubleClickHelper;
 
     // cached enabled state
     struct {
@@ -988,6 +996,18 @@ protected:
         resizeWidgets(ev.size.getWidth(), ev.size.getHeight());
     }
 
+    void uiIdle() override
+    {
+        if (resizeOnNextIdle)
+        {
+            resizeWidgets(getWidth(), getHeight());
+
+            // TODO calculate next size to use
+
+            resizeOnNextIdle = false;
+        }
+    }
+
     /* ----------------------------------------------------------------------------------------------------------------
      * Custom Widget Callbacks */
 
@@ -1089,6 +1109,72 @@ protected:
 
     void knobDoubleClicked(SubWidget* const widget) override
     {
+        doubleClickHelper = nullptr;
+
+#if 1
+        // value entry
+        bool isInteger;
+        float value;
+        uint fontSize = theme.fontSize;
+        Rectangle<int> area;
+
+        switch (widget->getId())
+        {
+        case kParameter_input_gain:
+        case kParameter_leveler_target:
+        {
+            QuantumSmallKnob* const knob = dynamic_cast<QuantumSmallKnob*>(widget);
+            DISTRHO_SAFE_ASSERT_RETURN(knob != nullptr,);
+            isInteger = true;
+            value = knob->getValue();
+
+            const uint knobWidth = knob->getWidth();
+            area = Rectangle<int>(knob->getAbsoluteX() + knobWidth * 0.125,
+                                  knob->getAbsoluteY() + knobWidth / 2 - theme.fontSize,
+                                  knobWidth * 0.75,
+                                  theme.fontSize * 1.5);
+            break;
+        }
+        case kParameter_style:
+        case kParameter_timbre:
+        {
+            QuantumKnob* const knob = dynamic_cast<QuantumKnob*>(widget);
+            DISTRHO_SAFE_ASSERT_RETURN(knob != nullptr,);
+            isInteger = false;
+            value = knob->getValue();
+            fontSize *= 2;
+
+            const uint knobWidth = knob->getWidth();
+            area = Rectangle<int>(knob->getAbsoluteX() + knobWidth * 0.125,
+                                  knob->getAbsoluteY() + knobWidth / 2 - theme.fontSize,
+                                  knobWidth * 0.75,
+                                  theme.fontSize * 2.5);
+            break;
+        }
+       #ifdef PODCAST_TRACK
+        case kParameter_timbre_strength:
+        {
+            QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
+            DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+            isInteger = true;
+            value = slider->getValue();
+            area = slider->getAbsoluteArea();
+            break;
+        }
+       #endif
+        default:
+            return;
+        }
+
+        char text[32] = {};
+        if (isInteger)
+            std::snprintf(text, 31, "%d", static_cast<int>(value));
+        else
+            std::snprintf(text, 31, "%.2f", std::round(value * 100.f)/100.f);
+
+        doubleClickHelper = new DoubleClickHelper(this, this, widget, text, area, theme, fontSize);
+#else
+        // reset to default
         const uint id = widget->getId();
 
         switch (id)
@@ -1101,6 +1187,68 @@ protected:
         case kParameter_leveler_target:
             static_cast<QuantumKnob*>(widget)->setValue(kParameterRanges[id].def, true);
             break;
+        }
+#endif
+    }
+
+    static inline float safeNumberFromText(const uint id, const bool isInteger, const char* const text) noexcept
+    {
+        float value;
+
+        if (isInteger)
+        {
+            try {
+                value = static_cast<float>(std::atoi(text));
+            } DISTRHO_SAFE_EXCEPTION_RETURN("safeNumberFromText", kParameterRanges[id].def);
+        }
+        else
+        {
+            const ScopedSafeLocale ssl;
+
+            try {
+                value = static_cast<float>(std::atof(text));
+            } DISTRHO_SAFE_EXCEPTION_RETURN("safeNumberFromText", kParameterRanges[id].def);
+        }
+
+        return std::max(kParameterRanges[id].min, std::min(kParameterRanges[id].max, value));
+    }
+
+    void doubleClickHelperDone(SubWidget* const widget, const char* const text) override
+    {
+        doubleClickHelper = nullptr;
+        repaint();
+
+        const uint id = widget->getId();
+
+        switch (id)
+        {
+        case kParameter_input_gain:
+        case kParameter_leveler_target:
+        {
+            QuantumSmallKnob* const knob = dynamic_cast<QuantumSmallKnob*>(widget);
+            DISTRHO_SAFE_ASSERT_RETURN(knob != nullptr,);
+            knob->setValue(safeNumberFromText(id, true, text), true);
+            break;
+        }
+        case kParameter_style:
+        case kParameter_timbre:
+        {
+            QuantumKnob* const knob = dynamic_cast<QuantumKnob*>(widget);
+            DISTRHO_SAFE_ASSERT_RETURN(knob != nullptr,);
+            knob->setValue(safeNumberFromText(id, false, text), true);
+            break;
+        }
+       #ifdef PODCAST_TRACK
+        case kParameter_timbre_strength:
+        {
+            QuantumValueSlider* const slider = dynamic_cast<QuantumValueSlider*>(widget);
+            DISTRHO_SAFE_ASSERT_RETURN(slider != nullptr,);
+            slider->setValue(safeNumberFromText(id, true, text), true);
+            break;
+        }
+       #endif
+        default:
+            return;
         }
     }
 
@@ -1137,7 +1285,7 @@ protected:
         {
             contentGroup.timbreKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
             contentGroup.styleKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
-            resizeWidgets(getWidth(), getHeight());
+            resizeOnNextIdle = true;
         }
     }
 
