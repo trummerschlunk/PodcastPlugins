@@ -116,10 +116,10 @@ class BlockGraph : public ImGuiSubWidget
     bool enabled[2] = { true, true };
 
 public:
-    explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& theme_)
+    explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& t)
         : ImGuiSubWidget(parent),
           context(ImPlot::CreateContext()),
-          theme(theme_)
+          theme(t)
     {
         setName("BlockGraph");
 

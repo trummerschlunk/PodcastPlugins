@@ -45,6 +45,12 @@ protected:
 
     void initParameter(const uint32_t index, Parameter& param) override
     {
+        if (index == kParameter_bypass_global)
+        {
+            param.initDesignation(kParameterDesignationBypass);
+            return;
+        }
+
         FaustGeneratedPlugin::initParameter(index, param);
 
         switch (index)
