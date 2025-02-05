@@ -1115,7 +1115,7 @@ protected:
         // value entry
         bool isInteger;
         float value;
-        uint fontSize = theme.fontSize;
+        uint fontSize = theme.fontSize / getScaleFactor();
         Rectangle<int> area;
 
         switch (widget->getId())
