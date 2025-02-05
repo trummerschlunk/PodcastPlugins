@@ -45,12 +45,7 @@ public:
         : ImGuiTopLevelWidget(tlw->getWindow()),
           subwidgets(tlw->getChildren()),
           theme(t),
-          themeChangeCallback(cb)
-    {
-        ResizeEvent ev;
-        ev.size = tlw->getSize();
-        onResize(ev);
-    }
+          themeChangeCallback(cb) {}
 
 protected:
     void onImGuiDisplay() override
@@ -59,10 +54,9 @@ protected:
             return;
 
         double scaleFactor = getScaleFactor() * userScaling;
-        const double initialSize = 1200 * scaleFactor;
 
-        ImGui::SetNextWindowPos(ImVec2(initialSize / 4, initialSize / 16), ImGuiCond_Once);
-        ImGui::SetNextWindowSize(ImVec2(initialSize / 2, initialSize / 3), ImGuiCond_Once);
+        ImGui::SetNextWindowPos(ImVec2(90 * scaleFactor, 5 * scaleFactor), ImGuiCond_Once);
+        ImGui::SetNextWindowSize(ImVec2(600 * scaleFactor, 490 * scaleFactor), ImGuiCond_Once);
 
         ImGui::Begin("Theme", &isOpen, ImGuiWindowFlags_NoCollapse);
 
@@ -92,8 +86,8 @@ protected:
                 j["sidelabelsFontSize"] = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
                 j["levelMeterColor"] = ColorToString(theme.levelMeterColor);
                 j["levelMeterAlternativeColor"] = ColorToString(theme.levelMeterAlternativeColor);
-                j["knobRimColor"] = ColorToString(theme.knobRimColor);
-                j["knobAlternativeRimColor"] = ColorToString(theme.knobAlternativeRimColor);
+                j["knobRingColor"] = ColorToString(theme.knobRingColor);
+                j["knobAlternativeRingColor"] = ColorToString(theme.knobAlternativeRingColor);
                 j["widgetBackgroundColor"] = ColorToString(theme.widgetBackgroundColor);
                 j["widgetActiveColor"] = ColorToString(theme.widgetActiveColor);
                 j["widgetAlternativeColor"] = ColorToString(theme.widgetAlternativeColor);
@@ -102,8 +96,6 @@ protected:
                 j["textLightColor"] = ColorToString(theme.textLightColor);
                 j["textMidColor"] = ColorToString(theme.textMidColor);
                 j["textDarkColor"] = ColorToString(theme.textDarkColor);
-                j["barsColor"] = ColorToString(theme.barsColor);
-                j["barsAlternativeColor"] = ColorToString(theme.barsAlternativeColor);
 
                 const std::string jsonstr = j.dump(2, ' ', false, nlohmann::detail::error_handler_t::replace);
 
@@ -165,10 +157,8 @@ protected:
             theme.widgetLineSize = val * scaleFactor;
         }
 
-        changedColors |= ImGui::ColorEdit4("Bars", theme.barsColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Bars Alternative", theme.barsAlternativeColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Knob Rim", theme.knobRimColor.rgba);
-        changedColors |= ImGui::ColorEdit4("Knob Rim Alternative", theme.knobAlternativeRimColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Knob Ring", theme.knobRingColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Knob Ring Alternative", theme.knobAlternativeRingColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);

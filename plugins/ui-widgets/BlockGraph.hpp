@@ -281,7 +281,7 @@ protected:
             ImPlot::SetupAxisTicks(ImAxis_Y1, axisValuesY, ARRAY_SIZE(axisLabelsY), axisLabelsY, false, 4);
             ImPlot::SetupFinish();
 
-            ImPlot::SetNextFillStyle(ImVec4Color(enabled[0] ? theme.barsColor : theme.textDarkColor.withAlpha(0.5f)));
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[0] ? theme.knobAlternativeRingColor : theme.textDarkColor.withAlpha(0.5f)));
            #ifdef PODCAST_MASTER
             for (int i = 0; i < 5; ++i)
                 buffer1[i] = values1[i].next();
@@ -295,7 +295,7 @@ protected:
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 0.5);
            #endif
 
-            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.barsAlternativeColor : theme.textDarkColor.withAlpha(0.5f)));
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor.withAlpha(0.666f) : theme.textDarkColor.withAlpha(0.5f)));
            #ifdef PODCAST_MASTER
             ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
            #else

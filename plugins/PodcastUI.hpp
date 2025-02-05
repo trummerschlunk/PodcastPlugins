@@ -484,11 +484,10 @@ public:
         timbreKnob.setDefault(kParameterRanges[kParameter_timbre].def);
         timbreKnob.setValue(kParameterRanges[kParameter_timbre].def, false);
         timbreKnob.setLabel("Timbre");
+        timbreKnob.setRingColor(theme.knobRingColor);
         timbreKnob.setSideLabels("warmer", "brighter");
         timbreKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
-        timbreKnob.setRingColor(theme.levelMeterColor);
         timbreKnob.setUnitLabel(kParameterUnits[kParameter_timbre]);
-        timbreKnob.setRingColor(theme.knobRimColor);
 
         styleKnob.setCallback(kcb);
         styleKnob.setId(kParameter_style);
@@ -499,18 +498,19 @@ public:
         styleKnob.setDefault(kParameterRanges[kParameter_style].def);
         styleKnob.setValue(kParameterRanges[kParameter_style].def, false);
         styleKnob.setLabel("Style");
+        styleKnob.setRingColor(theme.knobAlternativeRingColor);
         styleKnob.setSideLabels("natural", "radio-ish");
         styleKnob.setSideLabelsFontSize(theme.sidelabelsFontSize);
-        styleKnob.setRingColor(theme.levelMeterAlternativeColor);
         styleKnob.setUnitLabel(kParameterUnits[kParameter_style]);
-        styleKnob.setRingColor(theme.knobAlternativeRimColor);
 
+        timbreSwitch.setBackgroundColor(theme.knobRingColor);
         timbreSwitch.setCallback(bcb);
         timbreSwitch.setCheckable(true);
         timbreSwitch.setChecked(!kParameterRanges[kParameter_bypass_timbre].def, false);
         timbreSwitch.setId(kParameter_bypass_timbre);
         timbreSwitch.setName("Timbre Enable Button");
 
+        styleSwitch.setBackgroundColor(theme.knobAlternativeRingColor);
         styleSwitch.setCallback(bcb);
         styleSwitch.setCheckable(true);
         styleSwitch.setChecked(!kParameterRanges[kParameter_bypass_style].def, false);
@@ -518,6 +518,7 @@ public:
         styleSwitch.setName("Style Enable Button");
 
 #ifdef PODCAST_TRACK
+        timbreStrengthSlider.setBackgroundColor(theme.knobRingColor);
         timbreStrengthSlider.setCallback(kcb);
         timbreStrengthSlider.setId(kParameter_timbre_strength);
         timbreStrengthSlider.setName("Timbre Strength Slider");
@@ -1117,8 +1118,11 @@ protected:
         float value;
         uint fontSize = theme.fontSize / getScaleFactor();
         Rectangle<int> area;
+        Color color;
 
-        switch (widget->getId())
+        const uint id = widget->getId();
+
+        switch (id)
         {
         case kParameter_input_gain:
         case kParameter_leveler_target:
@@ -1133,6 +1137,7 @@ protected:
                                   knob->getAbsoluteY() + knobWidth / 2 - theme.fontSize,
                                   knobWidth * 0.75,
                                   theme.fontSize * 1.5);
+            color = id == kParameter_leveler_target ? theme.widgetAlternativeColor : theme.widgetActiveColor;
             break;
         }
         case kParameter_style:
@@ -1149,6 +1154,7 @@ protected:
                                   knob->getAbsoluteY() + knobWidth / 2 - theme.fontSize,
                                   knobWidth * 0.75,
                                   theme.fontSize * 2.5);
+            color = id == kParameter_timbre ? theme.knobRingColor : theme.knobAlternativeRingColor;
             break;
         }
        #ifdef PODCAST_TRACK
@@ -1159,6 +1165,7 @@ protected:
             isInteger = true;
             value = slider->getValue();
             area = slider->getAbsoluteArea();
+            color = theme.knobRingColor;
             break;
         }
        #endif
@@ -1172,7 +1179,7 @@ protected:
         else
             std::snprintf(text, 31, "%.2f", std::round(value * 100.f)/100.f);
 
-        doubleClickHelper = new DoubleClickHelper(this, this, widget, text, area, theme, fontSize);
+        doubleClickHelper = new DoubleClickHelper(this, this, widget, text, area, color, theme, fontSize);
 #else
         // reset to default
         const uint id = widget->getId();
@@ -1277,8 +1284,13 @@ protected:
             inputGroup.gainKnob.setRingColor(theme.levelMeterColor);
             inputLevelerGroup.enableSwitch.setBackgroundColor(theme.widgetAlternativeColor);
             inputLevelerGroup.targetKnob.setRingColor(theme.widgetAlternativeColor);
-            contentGroup.timbreKnob.setRingColor(theme.knobRimColor);
-            contentGroup.styleKnob.setRingColor(theme.knobAlternativeRimColor);
+            contentGroup.timbreSwitch.setBackgroundColor(theme.knobRingColor);
+            contentGroup.timbreKnob.setRingColor(theme.knobRingColor);
+           #ifdef PODCAST_TRACK
+            contentGroup.timbreStrengthSlider.setBackgroundColor(theme.knobRingColor);
+           #endif
+            contentGroup.styleSwitch.setBackgroundColor(theme.knobAlternativeRingColor);
+            contentGroup.styleKnob.setRingColor(theme.knobAlternativeRingColor);
         }
 
         if (size)

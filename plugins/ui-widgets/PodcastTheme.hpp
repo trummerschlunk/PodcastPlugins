@@ -14,8 +14,6 @@
 struct PodcastTheme : QuantumTheme
 {
     uint sidelabelsFontSize = 13;
-    Color barsColor = knobAlternativeRimColor;
-    Color barsAlternativeColor = knobRimColor.withAlpha(0.666f);
 
     PodcastTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
     {
@@ -54,8 +52,8 @@ struct PodcastTheme : QuantumTheme
             sidelabelsFontSize = j["sidelabelsFontSize"].get<uint>();
             levelMeterColor = Color::fromHTML(j["levelMeterColor"].get<std::string>().c_str());
             levelMeterAlternativeColor = Color::fromHTML(j["levelMeterAlternativeColor"].get<std::string>().c_str());
-            knobRimColor = Color::fromHTML(j["knobRimColor"].get<std::string>().c_str());
-            knobAlternativeRimColor = Color::fromHTML(j["knobAlternativeRimColor"].get<std::string>().c_str());
+            knobRingColor = Color::fromHTML(j["knobRingColor"].get<std::string>().c_str());
+            knobAlternativeRingColor = Color::fromHTML(j["knobAlternativeRingColor"].get<std::string>().c_str());
             widgetBackgroundColor = Color::fromHTML(j["widgetBackgroundColor"].get<std::string>().c_str());
             widgetActiveColor = Color::fromHTML(j["widgetActiveColor"].get<std::string>().c_str());
             widgetAlternativeColor = Color::fromHTML(j["widgetAlternativeColor"].get<std::string>().c_str());
@@ -64,8 +62,6 @@ struct PodcastTheme : QuantumTheme
             textLightColor = Color::fromHTML(j["textLightColor"].get<std::string>().c_str());
             textMidColor = Color::fromHTML(j["textMidColor"].get<std::string>().c_str());
             textDarkColor = Color::fromHTML(j["textDarkColor"].get<std::string>().c_str());
-            barsColor = Color::fromHTML(j["barsColor"].get<std::string>().c_str());
-            barsAlternativeColor = Color::fromHTML(j["barsAlternativeColor"].get<std::string>().c_str());
         } catch (const std::exception& e) {
             d_stderr("failed to parse PodcastTheme: %s", e.what());
             return;

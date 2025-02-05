@@ -43,6 +43,7 @@ public:
                                SubWidget* const w,
                                const char* const text,
                                const Rectangle<int>& area,
+                               const Color& highlightColor,
                                const QuantumTheme& theme,
                                const uint fontSize)
         : ImGuiTopLevelWidget(tlw->getWindow(), fontSize),
@@ -66,7 +67,7 @@ public:
         style.Colors[ImGuiCol_NavHighlight] = ImVec4();
         style.Colors[ImGuiCol_Text] = ImVec4Color(theme.textLightColor);
         style.Colors[ImGuiCol_TextDisabled] = ImVec4Color(theme.textMidColor);
-        style.Colors[ImGuiCol_TextSelectedBg] = ImVec4Color(theme.widgetActiveColor);
+        style.Colors[ImGuiCol_TextSelectedBg] = ImVec4Color(highlightColor);
     }
 
 protected:
