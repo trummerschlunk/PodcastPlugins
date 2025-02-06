@@ -341,7 +341,7 @@ B_band_Compressor_N_chan(B,N) =
                 : par(i, N, shelfcascade ((crossoverFreqs)))
             ;
 
-            compressor(N,prePost,strength,thresh,att,rel,knee,link) = co.peak_compression_gain_N_chan_db (strength,thresh,att,rel,knee,prePost,link,N);
+            compressor(N,prePost,strength,thresh,att,rel,knee,link) = co.peak_compression_gain_N_chan_db(strength,thresh,att,rel,knee,prePost,link,N);
 
             expander(N,strength,thresh,range,att,rel,knee) = co.peak_expansion_gain_N_chan_db(strength,thresh,range,att,hold,rel,knee,prePost,link,maxHold,N) with {
                 hold = 0.01;
