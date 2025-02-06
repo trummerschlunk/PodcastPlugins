@@ -1,5 +1,6 @@
 /bin/
 /build/
+/faustpp/
 /.cache/
 .DS_Store
 compile_commands.json

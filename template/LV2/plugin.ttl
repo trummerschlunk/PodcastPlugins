@@ -77,11 +77,20 @@
     ] ;
     {% endfor %}
 
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index {{inputs+outputs}} ;
+        lv2:name "Latency" ;
+        lv2:symbol "lv2_latency" ;
+        lv2:designation lv2:latency ;
+        lv2:portProperty lv2:reportsLatency, lv2:integer, <http://lv2plug.in/ns/ext/port-props#notOnGUI> ;
+    ] ;
+
     {% for p in active %}
     lv2:port [
         a lv2:InputPort, lv2:ControlPort ;
-        lv2:index {{inputs+outputs+loop.index0}} ;
-    {% if loop.index0 == 99999999999 %}
+        lv2:index {{inputs+outputs+loop.index0+1}} ;
+    {% if p.meta.symbol == "bypass_global" %}
         lv2:name "Enabled" ;
         lv2:symbol "lv2_enabled" ;
         lv2:default 1 ;
@@ -91,7 +100,7 @@
         lv2:designation lv2:enabled ;
     {% else %}
         lv2:name {{cstr(p.label)}} ;
-        lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0))))}} ;
+        lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+loop.index0+1))))}} ;
         lv2:default {{p.init}} ;
         lv2:minimum {{p.min}} ;
         lv2:maximum {{p.max}} ;
@@ -126,9 +135,9 @@
     {% for p in passive %}
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index {{inputs+outputs+active|length+loop.index0}} ;
+        lv2:index {{inputs+outputs+active|length+loop.index0+1}} ;
         lv2:name {{cstr(p.label)}} ;
-        lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0))))}} ;
+        lv2:symbol {{cstr(cid(p.meta.symbol|default("lv2_port_" ~ (inputs+outputs+active|length+loop.index0+1))))}} ;
         lv2:minimum {{p.min}} ;
         lv2:maximum {{p.max}} ;
         {% if p.type in ["button", "checkbox"] or p.meta.boolean is defined %}
