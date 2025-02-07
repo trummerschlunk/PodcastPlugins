@@ -1,13 +1,15 @@
-Podcast Plugins are easy to use plugins for speech enhancement, specifically designed for podcasters who can't or don't want to dig deeper into the craft of sound engineering.
+Podcast Plugins are 2 easy to use plugins for speech enhancement, specifically designed for podcasters who can't or don't want to dig deeper into the craft of sound engineering.
 
 The bundle consists of two plugins:
 
-- Podcast Plugin TRACK
+- PodcastPlugins TRACK
 This plugin is inserted on the individual audio tracks of all speakers. It wil take care of level, equalisation and dynamic processing.
 
-- Podcast Plugin MASTER
+- PodcastPlugins MASTER
 This plugin is inserted on the audio master bus of the DAW. It will shape the sound some more and take care of levels and dynamics.
 
 
-DSP written in FAUST Klaus Scheuermann
+DSP written in FAUST by Klaus Scheuermann
 Plugins written by falkTX using DISTRHO Plugin Framework.
+
+https://4ohm.de
