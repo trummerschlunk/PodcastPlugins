@@ -4,7 +4,7 @@
 // and the Faust post-processor (https://github.com/jpcima/faustpp).
 //
 // Source: PodcastPluginMaster.dsp
-// Name: PodcastPlugin Master
+// Name: PodcastPlugins MASTER
 // Description: 
 // Author: Klaus Scheuermann
 // Copyright: 
@@ -19,7 +19,7 @@
 
 #pragma once
 
-#define DISTRHO_PLUGIN_NAME "PodcastPlugin Master"
+#define DISTRHO_PLUGIN_NAME "PodcastPlugins MASTER"
 #define DISTRHO_PLUGIN_URI  "https://github.com/trummerschlunk/PodcastPlugins#Master"
 
 #define DISTRHO_PLUGIN_HAS_UI          1

@@ -13,13 +13,13 @@
 
 
 
-<https://github.com/trummerschlunk/PodcastPlugins#Master#portGroup_dpf_stereo>
+<https://github.com/trummerschlunk/PodcastPlugins#Track#portGroup_dpf_stereo>
     a pg:Group , pg:StereoGroup ;
     lv2:name "Stereo" ;
     lv2:symbol "dpf_stereo" .
 
 
-<https://github.com/trummerschlunk/PodcastPlugins#Master>
+<https://github.com/trummerschlunk/PodcastPlugins#Track>
     a lv2:UtilityPlugin, lv2:Plugin, doap:Project ;
 
     lv2:extensionData opts:interface ;
@@ -35,7 +35,7 @@
                          <http://lv2plug.in/ns/ext/parameters#sampleRate> ;
 
     
-    ui:ui <https://github.com/trummerschlunk/PodcastPlugins#Master#DPF_UI> ;
+    ui:ui <https://github.com/trummerschlunk/PodcastPlugins#Track#DPF_UI> ;
     
 
     
@@ -45,7 +45,7 @@
         lv2:symbol "lv2_audio_in_1" ;
         lv2:name "Audio Input 1" ;
         
-        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Master#portGroup_dpf_stereo> ;
+        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Track#portGroup_dpf_stereo> ;
             
         lv2:designation pg:left ;
             
@@ -58,7 +58,7 @@
         lv2:symbol "lv2_audio_in_2" ;
         lv2:name "Audio Input 2" ;
         
-        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Master#portGroup_dpf_stereo> ;
+        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Track#portGroup_dpf_stereo> ;
             
         lv2:designation pg:right ;
             
@@ -73,7 +73,7 @@
         lv2:symbol "lv2_audio_out_1" ;
         lv2:name "Audio Output 1" ;
         
-        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Master#portGroup_dpf_stereo> ;
+        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Track#portGroup_dpf_stereo> ;
             
         lv2:designation pg:left ;
             
@@ -86,7 +86,7 @@
         lv2:symbol "lv2_audio_out_2" ;
         lv2:name "Audio Output 2" ;
         
-        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Master#portGroup_dpf_stereo> ;
+        pg:group <https://github.com/trummerschlunk/PodcastPlugins#Track#portGroup_dpf_stereo> ;
             
         lv2:designation pg:right ;
             
@@ -132,7 +132,7 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 6 ;
     
-        lv2:name "bypass leveler" ;
+        lv2:name "bypass_leveler" ;
         lv2:symbol "bypass_leveler" ;
         lv2:default 0 ;
         lv2:minimum 0 ;
@@ -194,6 +194,48 @@
         a lv2:InputPort, lv2:ControlPort ;
         lv2:index 9 ;
     
+        lv2:name "strength" ;
+        lv2:symbol "timbre_strength" ;
+        lv2:default 80.0 ;
+        lv2:minimum 0.0 ;
+        lv2:maximum 100.0 ;
+        
+        
+        
+        
+        
+        
+        
+        
+        unit:unit unit:pc ;
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 10 ;
+    
+        lv2:name "timbre" ;
+        lv2:symbol "timbre" ;
+        lv2:default 0.0 ;
+        lv2:minimum -5.0 ;
+        lv2:maximum 5.0 ;
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    ] ;
+    
+    lv2:port [
+        a lv2:InputPort, lv2:ControlPort ;
+        lv2:index 11 ;
+    
         lv2:name "PreGain" ;
         lv2:symbol "input_gain" ;
         lv2:default 0.0 ;
@@ -214,7 +256,7 @@
     
     lv2:port [
         a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 10 ;
+        lv2:index 12 ;
     
         lv2:name "target" ;
         lv2:symbol "leveler_target" ;
@@ -236,30 +278,10 @@
     
     lv2:port [
         a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 11 ;
+        lv2:index 13 ;
     
-        lv2:name "mb morph" ;
+        lv2:name "style" ;
         lv2:symbol "style" ;
-        lv2:default 0.0 ;
-        lv2:minimum -5.0 ;
-        lv2:maximum 5.0 ;
-        
-        
-        
-        
-        
-        
-        
-        
-    
-    ] ;
-    
-    lv2:port [
-        a lv2:InputPort, lv2:ControlPort ;
-        lv2:index 12 ;
-    
-        lv2:name "timbre" ;
-        lv2:symbol "timbre" ;
         lv2:default 0.0 ;
         lv2:minimum -5.0 ;
         lv2:maximum 5.0 ;
@@ -278,8 +300,8 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 13 ;
-        lv2:name "latency" ;
+        lv2:index 14 ;
+        lv2:name "latency_global" ;
         lv2:symbol "latency_global" ;
         lv2:minimum 0.0 ;
         lv2:maximum 1.0 ;
@@ -294,7 +316,327 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 14 ;
+        lv2:index 15 ;
+        lv2:name "gr  0" ;
+        lv2:symbol "spectral_ballancer_gain_band__0" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 16 ;
+        lv2:name "gr  1" ;
+        lv2:symbol "spectral_ballancer_gain_band__1" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 17 ;
+        lv2:name "gr  2" ;
+        lv2:symbol "spectral_ballancer_gain_band__2" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 18 ;
+        lv2:name "gr  3" ;
+        lv2:symbol "spectral_ballancer_gain_band__3" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 19 ;
+        lv2:name "gr  4" ;
+        lv2:symbol "spectral_ballancer_gain_band__4" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 20 ;
+        lv2:name "gr  5" ;
+        lv2:symbol "spectral_ballancer_gain_band__5" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 21 ;
+        lv2:name "gr  6" ;
+        lv2:symbol "spectral_ballancer_gain_band__6" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 22 ;
+        lv2:name "gr  7" ;
+        lv2:symbol "spectral_ballancer_gain_band__7" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 23 ;
+        lv2:name "gr  8" ;
+        lv2:symbol "spectral_ballancer_gain_band__8" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 24 ;
+        lv2:name "gr  9" ;
+        lv2:symbol "spectral_ballancer_gain_band__9" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 25 ;
+        lv2:name "gr 10" ;
+        lv2:symbol "spectral_ballancer_gain_band_10" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 26 ;
+        lv2:name "gr 11" ;
+        lv2:symbol "spectral_ballancer_gain_band_11" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 27 ;
+        lv2:name "gr 12" ;
+        lv2:symbol "spectral_ballancer_gain_band_12" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 28 ;
+        lv2:name "gr 13" ;
+        lv2:symbol "spectral_ballancer_gain_band_13" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 29 ;
+        lv2:name "gr 14" ;
+        lv2:symbol "spectral_ballancer_gain_band_14" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 30 ;
+        lv2:name "gr 15" ;
+        lv2:symbol "spectral_ballancer_gain_band_15" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 31 ;
+        lv2:name "gr 16" ;
+        lv2:symbol "spectral_ballancer_gain_band_16" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 32 ;
+        lv2:name "gr 17" ;
+        lv2:symbol "spectral_ballancer_gain_band_17" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 33 ;
+        lv2:name "gr 18" ;
+        lv2:symbol "spectral_ballancer_gain_band_18" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 34 ;
+        lv2:name "gr 19" ;
+        lv2:symbol "spectral_ballancer_gain_band_19" ;
+        lv2:minimum -12.0 ;
+        lv2:maximum 12.0 ;
+        
+        
+        
+        
+        
+        
+        
+    ] ;
+    
+    lv2:port [
+        a lv2:OutputPort, lv2:ControlPort ;
+        lv2:index 35 ;
         lv2:name "In 0" ;
         lv2:symbol "input_peak_channel_0" ;
         lv2:minimum -70.0 ;
@@ -310,7 +652,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 15 ;
+        lv2:index 36 ;
         lv2:name "In 1" ;
         lv2:symbol "input_peak_channel_1" ;
         lv2:minimum -70.0 ;
@@ -326,27 +668,9 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 16 ;
-        lv2:name "lufs IN" ;
-        lv2:symbol "lufs_in_meter" ;
-        lv2:minimum -120.0 ;
-        lv2:maximum 0.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 17 ;
-        lv2:name "gain 1" ;
-        lv2:symbol "leveler_gain1" ;
+        lv2:index 37 ;
+        lv2:name "gain" ;
+        lv2:symbol "leveler_gain" ;
         lv2:minimum -50.0 ;
         lv2:maximum 50.0 ;
         
@@ -362,7 +686,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 18 ;
+        lv2:index 38 ;
         lv2:name "gr 1" ;
         lv2:symbol "multiband_compressor_gain_band_1" ;
         lv2:minimum -12.0 ;
@@ -380,7 +704,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 19 ;
+        lv2:index 39 ;
         lv2:name "gr 2" ;
         lv2:symbol "multiband_compressor_gain_band_2" ;
         lv2:minimum -12.0 ;
@@ -398,7 +722,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 20 ;
+        lv2:index 40 ;
         lv2:name "gr 3" ;
         lv2:symbol "multiband_compressor_gain_band_3" ;
         lv2:minimum -12.0 ;
@@ -416,7 +740,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 21 ;
+        lv2:index 41 ;
         lv2:name "gr 4" ;
         lv2:symbol "multiband_compressor_gain_band_4" ;
         lv2:minimum -12.0 ;
@@ -434,7 +758,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 22 ;
+        lv2:index 42 ;
         lv2:name "gr 5" ;
         lv2:symbol "multiband_compressor_gain_band_5" ;
         lv2:minimum -12.0 ;
@@ -452,25 +776,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 23 ;
-        lv2:name "gain 2" ;
-        lv2:symbol "leveler_gain2" ;
-        lv2:minimum -50.0 ;
-        lv2:maximum 50.0 ;
-        
-        
-        
-        
-        unit:unit unit:db ;
-        
-        
-        
-        
-    ] ;
-    
-    lv2:port [
-        a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 24 ;
+        lv2:index 43 ;
         lv2:name "LimiterGR" ;
         lv2:symbol "limiter_gain" ;
         lv2:minimum -60.0 ;
@@ -486,8 +792,8 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 25 ;
-        lv2:name "lufs OUT" ;
+        lv2:index 44 ;
+        lv2:name "lufs" ;
         lv2:symbol "lufs_out_meter" ;
         lv2:minimum -120.0 ;
         lv2:maximum 0.0 ;
@@ -504,7 +810,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 26 ;
+        lv2:index 45 ;
         lv2:name "Out 0" ;
         lv2:symbol "output_peak_channel_0" ;
         lv2:minimum -70.0 ;
@@ -520,7 +826,7 @@
     
     lv2:port [
         a lv2:OutputPort, lv2:ControlPort ;
-        lv2:index 27 ;
+        lv2:index 46 ;
         lv2:name "Out 1" ;
         lv2:symbol "output_peak_channel_1" ;
         lv2:minimum -70.0 ;
@@ -535,7 +841,7 @@
     ] ;
     
 
-    doap:name "PodcastPlugin Master" ;
+    doap:name "PodcastPlugins TRACK" ;
 
     
     doap:developer [

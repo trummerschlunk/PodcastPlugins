@@ -1,6 +1,6 @@
 // -*-Faust-*-
 
-declare name "PodcastPlugin Track";
+declare name "PodcastPlugins TRACK";
 declare version "0.1";
 declare author "Klaus Scheuermann";
 declare license "GPLv3";

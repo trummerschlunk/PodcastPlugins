@@ -4,7 +4,7 @@
 // and the Faust post-processor (https://github.com/jpcima/faustpp).
 //
 // Source: PodcastPluginTrack.dsp
-// Name: PodcastPlugin Track
+// Name: PodcastPlugins TRACK
 // Description: 
 // Author: Klaus Scheuermann
 // Copyright: 
@@ -19,7 +19,7 @@
 
 #pragma once
 
-#define DISTRHO_PLUGIN_NAME "PodcastPlugin Track"
+#define DISTRHO_PLUGIN_NAME "PodcastPlugins TRACK"
 #define DISTRHO_PLUGIN_URI  "https://github.com/trummerschlunk/PodcastPlugins#Track"
 
 #define DISTRHO_PLUGIN_HAS_UI          1

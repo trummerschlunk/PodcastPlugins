@@ -58,12 +58,12 @@ endif
 PLUGIN_TEMPLATE_FILES   = $(subst template/,,$(wildcard template/*.*))
 PLUGIN_GENERATED_FILES  = $(foreach f,$(PLUGIN_TEMPLATE_FILES),pregen/master/$(f))
 PLUGIN_GENERATED_FILES += $(foreach f,$(PLUGIN_TEMPLATE_FILES),pregen/track/$(f))
-PLUGIN_GENERATED_FILES += bin/pod-master.lv2/manifest.ttl
-PLUGIN_GENERATED_FILES += bin/pod-master.lv2/plugin.ttl
-PLUGIN_GENERATED_FILES += bin/pod-master.lv2/ui.ttl
-PLUGIN_GENERATED_FILES += bin/pod-track.lv2/manifest.ttl
-PLUGIN_GENERATED_FILES += bin/pod-track.lv2/plugin.ttl
-PLUGIN_GENERATED_FILES += bin/pod-track.lv2/ui.ttl
+PLUGIN_GENERATED_FILES += bin/pp-master.lv2/manifest.ttl
+PLUGIN_GENERATED_FILES += bin/pp-master.lv2/plugin.ttl
+PLUGIN_GENERATED_FILES += bin/pp-master.lv2/ui.ttl
+PLUGIN_GENERATED_FILES += bin/pp-track.lv2/manifest.ttl
+PLUGIN_GENERATED_FILES += bin/pp-track.lv2/plugin.ttl
+PLUGIN_GENERATED_FILES += bin/pp-track.lv2/ui.ttl
 PLUGIN_GENERATED_FILES += build/BuildInfo.hpp
 PLUGIN_GENERATED_FILES += build/master/Name.hpp
 PLUGIN_GENERATED_FILES += build/track/Name.hpp
@@ -87,25 +87,25 @@ install: podcast-plugins
 	install -d $(DESTDIR)$(PREFIX)/bin
 	install -d $(DESTDIR)$(PREFIX)/lib/clap
 	install -d $(DESTDIR)$(PREFIX)/lib/ladspa
-	install -d $(DESTDIR)$(PREFIX)/lib/lv2/pod-master.lv2
-	install -d $(DESTDIR)$(PREFIX)/lib/lv2/pod-track.lv2
+	install -d $(DESTDIR)$(PREFIX)/lib/lv2/pp-master.lv2
+	install -d $(DESTDIR)$(PREFIX)/lib/lv2/pp-track.lv2
 	install -d $(DESTDIR)$(PREFIX)/lib/vst
-	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
-	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pod-track.vst3/$(VST3_BINARY_DIR)
+	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pp-master.vst3/$(VST3_BINARY_DIR)
+	install -d $(DESTDIR)$(PREFIX)/lib/vst3/pp-track.vst3/$(VST3_BINARY_DIR)
 
-	install -m 755 bin/pod-master                           $(DESTDIR)$(PREFIX)/bin/
-	install -m 644 bin/pod-master.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
-	install -m 644 bin/pod-master-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
-	install -m 644 bin/pod-master.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pod-master.lv2/
-	install -m 644 bin/pod-master-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
-	install -m 644 bin/pod-master.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pod-master.vst3/$(VST3_BINARY_DIR)
+	install -m 755 bin/pp-master                           $(DESTDIR)$(PREFIX)/bin/
+	install -m 644 bin/pp-master.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
+	install -m 644 bin/pp-master-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
+	install -m 644 bin/pp-master.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pp-master.lv2/
+	install -m 644 bin/pp-master-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
+	install -m 644 bin/pp-master.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pp-master.vst3/$(VST3_BINARY_DIR)
 
-	install -m 755 bin/pod-track                           $(DESTDIR)$(PREFIX)/bin/
-	install -m 644 bin/pod-track.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
-	install -m 644 bin/pod-track-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
-	install -m 644 bin/pod-track.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pod-track.lv2/
-	install -m 644 bin/pod-track-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
-	install -m 644 bin/pod-track.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pod-track.vst3/$(VST3_BINARY_DIR)
+	install -m 755 bin/pp-track                           $(DESTDIR)$(PREFIX)/bin/
+	install -m 644 bin/pp-track.clap                      $(DESTDIR)$(PREFIX)/lib/clap/
+	install -m 644 bin/pp-track-ladspa.*                  $(DESTDIR)$(PREFIX)/lib/ladspa/
+	install -m 644 bin/pp-track.lv2/*                     $(DESTDIR)$(PREFIX)/lib/lv2/pp-track.lv2/
+	install -m 644 bin/pp-track-vst.*                     $(DESTDIR)$(PREFIX)/lib/vst/
+	install -m 644 bin/pp-track.vst3/$(VST3_BINARY_DIR)/* $(DESTDIR)$(PREFIX)/lib/vst3/pp-track.vst3/$(VST3_BINARY_DIR)
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for faust dsp to plugin code conversion
@@ -125,15 +125,15 @@ FAUSTPP_RUN = \
 
 FAUSTPP_RUN_MASTER = \
 	$(FAUSTPP_RUN) \
-	-Dbinary_name="pod-master" \
-	-Dlabel="pod-master" \
+	-Dbinary_name="pp-master" \
+	-Dlabel="pp-master" \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Master" \
 	dsp/PodcastPluginMaster.dsp
 
 FAUSTPP_RUN_TRACK = \
 	$(FAUSTPP_RUN) \
-	-Dbinary_name="pod-track" \
-	-Dlabel="pod-track" \
+	-Dbinary_name="pp-track" \
+	-Dlabel="pp-track" \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Track" \
 	dsp/PodcastPluginTrack.dsp
 
@@ -142,19 +142,19 @@ FAUSTPP_RUN_TRACK = \
 # FAUSTPP_OPTS = -X-vec -X-lv -X1 -X-vs -X8
 
 pregen:
-	mkdir -p pregen/master pregen/pod-master.lv2
+	mkdir -p pregen/master pregen/pp-master.lv2
 	$(FAUSTPP_RUN_MASTER) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/master/DistrhoPluginInfo.h
 	$(FAUSTPP_RUN_MASTER) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/master/Plugin.cpp
-	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/manifest.ttl    -o pregen/pod-master.lv2/manifest.ttl
-	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/plugin.ttl      -o pregen/pod-master.lv2/plugin.ttl
-	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/ui.ttl          -o pregen/pod-master.lv2/ui.ttl
+	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/manifest.ttl    -o pregen/pp-master.lv2/manifest.ttl
+	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/plugin.ttl      -o pregen/pp-master.lv2/plugin.ttl
+	$(FAUSTPP_RUN_MASTER)                 -a template/LV2/ui.ttl          -o pregen/pp-master.lv2/ui.ttl
 
-	mkdir -p pregen/track pregen/pod-track.lv2
+	mkdir -p pregen/track pregen/pp-track.lv2
 	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/DistrhoPluginInfo.h -o pregen/track/DistrhoPluginInfo.h
 	$(FAUSTPP_RUN_TRACK) $(FAUSTPP_OPTS) -a template/Plugin.cpp          -o pregen/track/Plugin.cpp
-	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/manifest.ttl    -o pregen/pod-track.lv2/manifest.ttl
-	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/plugin.ttl      -o pregen/pod-track.lv2/plugin.ttl
-	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/ui.ttl          -o pregen/pod-track.lv2/ui.ttl
+	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/manifest.ttl    -o pregen/pp-track.lv2/manifest.ttl
+	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/plugin.ttl      -o pregen/pp-track.lv2/plugin.ttl
+	$(FAUSTPP_RUN_TRACK)                 -a template/LV2/ui.ttl          -o pregen/pp-track.lv2/ui.ttl
 
 .PHONY: pregen
 
@@ -169,12 +169,12 @@ else
 UITYPE = X11
 endif
 
-bin/pod-master.lv2/%: pregen/pod-master.lv2/%
-	mkdir -p bin/pod-master.lv2
+bin/pp-master.lv2/%: pregen/pp-master.lv2/%
+	mkdir -p bin/pp-master.lv2
 	sed -e "s/@libext@/$(LIB_EXT)/g" -e "s/@uitype@/$(UITYPE)/g" $< > $@
 
-bin/pod-track.lv2/%: pregen/pod-track.lv2/%
-	mkdir -p bin/pod-track.lv2
+bin/pp-track.lv2/%: pregen/pp-track.lv2/%
+	mkdir -p bin/pp-track.lv2
 	sed -e "s/@libext@/$(LIB_EXT)/g" -e "s/@uitype@/$(UITYPE)/g" $< > $@
 
 # ---------------------------------------------------------------------------------------------------------------------

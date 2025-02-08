@@ -1,6 +1,6 @@
 #!/usr/bin/make -f
 
-NAME = pod-track
+NAME = pp-track
 FILES_DSP = TrackPlugin.cpp
 FILES_UI  = TrackUI.cpp
 FILES_UI += ../ui-widgets/implot/implot.cpp
@@ -15,7 +15,7 @@ DPF_PATH = ../../dpf
 
 # tweak DPF build
 export DGL_NAMESPACE = PodcastPluginsDGL
-export MODGUI_CLASS_NAME = pod_track
+export MODGUI_CLASS_NAME = pp_track
 export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
 export SKIP_NATIVE_AUDIO_FALLBACK = true
 
