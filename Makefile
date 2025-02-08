@@ -126,14 +126,14 @@ FAUSTPP_RUN = \
 FAUSTPP_RUN_MASTER = \
 	$(FAUSTPP_RUN) \
 	-Dbinary_name="pp-master" \
-	-Dlabel="pp-master" \
+	-Dlabel="pp_master" \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Master" \
 	dsp/PodcastPluginMaster.dsp
 
 FAUSTPP_RUN_TRACK = \
 	$(FAUSTPP_RUN) \
 	-Dbinary_name="pp-track" \
-	-Dlabel="pp-track" \
+	-Dlabel="pp_track" \
 	-Dlv2uri="https://github.com/trummerschlunk/PodcastPlugins\#Track" \
 	dsp/PodcastPluginTrack.dsp
 
