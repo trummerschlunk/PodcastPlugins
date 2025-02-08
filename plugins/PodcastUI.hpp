@@ -11,7 +11,6 @@
 #include "ui-widgets/InspectorWindow.hpp"
 
 #include "BuildInfo.hpp"
-#include "Logo.hpp"
 #include "Name.hpp"
 
 #include <functional>
@@ -372,72 +371,6 @@ struct OutputMeterGroup : QuantumFrame
 };
 
 // --------------------------------------------------------------------------------------------------------------------
-// custom layout for top centered content (global enable and leveler gain)
-
-struct TopCenteredGroup : NanoSubWidget
-{
-    const PodcastTheme& theme;
-
-   #ifndef __MOD_DEVICES__
-    QuantumLabel globalEnableLabel;
-    QuantumRadioSwitch globalEnableSwitch;
-    QuantumVerticalSeparatorLine separator;
-   #endif
-
-    explicit TopCenteredGroup(NanoTopLevelWidget* const parent,
-                              ButtonEventHandler::Callback* const bcb,
-                              const PodcastTheme& t)
-        : NanoSubWidget(parent),
-          theme(t)
-       #ifndef __MOD_DEVICES__
-        , globalEnableLabel(this, t)
-        , globalEnableSwitch(this, t)
-        , separator(this, t)
-       #endif
-    {
-        setName("Top Center");
-
-       #ifndef __MOD_DEVICES__
-        globalEnableLabel.setLabel("Global Enable");
-        globalEnableLabel.setName("Global Enable Label");
-
-        globalEnableSwitch.setCallback(bcb);
-        globalEnableSwitch.setCheckable(true);
-        globalEnableSwitch.setChecked(!kParameterRanges[kParameter_bypass_global].def, false);
-        globalEnableSwitch.setId(kParameter_bypass_global);
-        globalEnableSwitch.setName("Global Enable Button");
-
-        separator.setName("+ separator");
-       #endif
-    }
-
-    void adjustSize(const QuantumMetrics& metrics, const uint width, const uint height, const uint widgetsHeight)
-    {
-       #ifndef __MOD_DEVICES__
-        globalEnableLabel.adjustSize();
-        globalEnableSwitch.adjustSize();
-        separator.setSize(metrics.separatorVertical);
-        separator.setHeight(widgetsHeight);
-       #endif
-        setSize(width, height);
-    }
-
-    void setAbsolutePos(int x, const int y)
-    {
-       #ifndef __MOD_DEVICES__
-        globalEnableLabel.setAbsolutePos(x, y + (separator.getHeight() / 2 - globalEnableLabel.getHeight() / 2));
-        globalEnableSwitch.setAbsolutePos(globalEnableLabel.getAbsoluteX() + globalEnableLabel.getWidth() + theme.padding,
-                                          y + (separator.getHeight() / 2 - globalEnableSwitch.getHeight() / 2));
-        separator.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding * 4, y);
-       #endif
-    }
-
-    void onNanoDisplay() override
-    {
-    }
-};
-
-// --------------------------------------------------------------------------------------------------------------------
 // custom widget for main centered content
 
 struct ContentGroup : QuantumFrame
@@ -608,63 +541,6 @@ protected:
 };
 
 // --------------------------------------------------------------------------------------------------------------------
-// custom widget for drawing plugin name (so it appears on top of other widgets if needed)
-
-class PodcastNameWidget : public NanoSubWidget
-{
-    PodcastTheme& theme;
-    QuantumThemeCallback* const callback;
-    NanoImage image, image2x;
-    ScopedPointer<InspectorWindow> inspectorWindow;
-
-public:
-    explicit PodcastNameWidget(NanoTopLevelWidget* const parent, QuantumThemeCallback* const cb, PodcastTheme& t)
-        : NanoSubWidget(parent),
-          theme(t),
-          callback(cb)
-    {
-        setName("Name");
-
-        image = createImageFromMemory(Logo::signetData, Logo::signetDataSize, 0);
-        image2x = createImageFromMemory(Logo::signet_2xData, Logo::signet_2xDataSize, 0);
-    }
-
-    void adjustSize()
-    {
-        const double scaleFactor = getTopLevelWidget()->getScaleFactor();
-        const Size<uint> imgSize = image.getSize();
-
-        setSize(imgSize.getWidth() * scaleFactor, imgSize.getHeight() * scaleFactor);
-    }
-
-protected:
-    void onNanoDisplay() override
-    {
-        const uint width = getWidth();
-        const uint height = getHeight();
-        const double scaleFactor = getTopLevelWidget()->getScaleFactor();
-
-        beginPath();
-        rect(0, 0, width, height);
-        fillPaint(imagePattern(0, 0, width, height, 0, scaleFactor >= 1.5 ? image2x : image, 1));
-        fill();
-    }
-
-    bool onMouse(const MouseEvent& ev) override
-    {
-        if (ev.button == 1 && ev.press && contains(ev.pos))
-        {
-            if (inspectorWindow == nullptr)
-                inspectorWindow = new InspectorWindow(getTopLevelWidget(), theme, callback);
-
-            inspectorWindow->isOpen = true;
-        }
-
-        return false;
-    }
-};
-
-// --------------------------------------------------------------------------------------------------------------------
 
 class PodcastUI : public UI,
                   public ButtonEventHandler::Callback,
@@ -676,7 +552,6 @@ protected:
     PodcastTheme theme;
 
     // group of widgets
-    TopCenteredGroup topCenteredGroup;
     InputMeterGroup inputGroup;
     InputLevelerGroup inputLevelerGroup;
     ContentGroup contentGroup;
@@ -685,15 +560,24 @@ protected:
    #endif
     OutputMeterGroup outputGroup;
 
+   #ifndef __MOD_DEVICES__
+    // global enable
+    QuantumLabel globalEnableLabel;
+    QuantumRadioSwitch globalEnableSwitch;
+   #endif
+
     // plugin name
-    PodcastNameWidget name;
     NanoImage imageName;
+    Rectangle<double> imageNameArea;
 
     // for when theme changes
     bool resizeOnNextIdle = false;
 
     // little helper for text input on double click
     ScopedPointer<DoubleClickHelper> doubleClickHelper;
+
+    // theme editor and inspector
+    ScopedPointer<InspectorWindow> inspectorWindow;
 
     // cached enabled state
     struct {
@@ -707,7 +591,6 @@ public:
     PodcastUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
           theme(getScaleFactor()),
-          topCenteredGroup(this, this, theme),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),
           contentGroup(this, this, this, theme),
@@ -715,16 +598,36 @@ public:
           outputLevelerGroup(this, theme),
          #endif
           outputGroup(this, theme),
-          name(this, this, theme)
+         #ifndef __MOD_DEVICES__
+          globalEnableLabel(this, theme),
+          globalEnableSwitch(this, theme),
+         #endif
+          doubleClickHelper(nullptr),
+          inspectorWindow(nullptr)
     {
         loadSharedResources();
 
         const double scaleFactor = getScaleFactor();
 
+       #ifndef __MOD_DEVICES__
+        globalEnableLabel.setLabel("Global Enable");
+        globalEnableLabel.setName("Global Enable Label");
+
+        globalEnableSwitch.setCallback(this);
+        globalEnableSwitch.setCheckable(true);
+        globalEnableSwitch.setChecked(!kParameterRanges[kParameter_bypass_global].def, false);
+        globalEnableSwitch.setId(kParameter_bypass_global);
+        globalEnableSwitch.setName("Global Enable Button");
+       #endif
+
         if (scaleFactor >= 1.5)
             imageName = createImageFromMemory(Name::name_2xData, Name::name_2xDataSize, 0);
         else
             imageName = createImageFromMemory(Name::nameData, Name::nameDataSize, 0);
+
+        const Size<uint> imgSize = imageName.getSize();
+        const int w = d_roundToIntPositive(imgSize.getWidth() * (28 * scaleFactor / imgSize.getHeight()));
+        imageNameArea.setSize(w, 28 * scaleFactor);
 
         if (d_isNotEqual(scaleFactor, 1.0))
         {
@@ -735,9 +638,6 @@ public:
         {
             setGeometryConstraints(DISTRHO_UI_MINIMUM_WIDTH * scaleFactor, DISTRHO_UI_MINIMUM_HEIGHT * scaleFactor);
         }
-
-        // bottom of the drawing stack
-        topCenteredGroup.toBottom();
 
         // initial resize and reposition
         resizeWidgets(getWidth(), getHeight());
@@ -753,6 +653,16 @@ public:
 
         const uint width = getWidth();
         const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
+        const uint midY = startY * 0.5f;
+
+       #ifndef __MOD_DEVICES__
+        globalEnableSwitch.setAbsolutePos(theme.windowPadding, midY - globalEnableSwitch.getHeight() * 0.5f);
+        globalEnableLabel.setAbsolutePos(globalEnableSwitch.getAbsoluteX() + globalEnableSwitch.getWidth() + theme.padding,
+                                         midY - globalEnableLabel.getHeight() * 0.5f);
+       #endif
+
+        imageNameArea.setPos(width - imageNameArea.getWidth() - theme.windowPadding - theme.padding,
+                             midY - imageNameArea.getHeight() * 0.5f);
 
         inputGroup.setAbsolutePos(theme.windowPadding, startY);
         inputLevelerGroup.setAbsolutePos(theme.windowPadding + inputGroup.getWidth() + theme.padding, startY);
@@ -769,20 +679,7 @@ public:
                                           theme.padding * 3,
                                           startY);
        #endif
-        outputGroup.setAbsolutePos(width - outputGroup.getWidth() - theme.windowPadding - theme.padding,
-                                   startY);
-
-        name.setAbsolutePos(outputGroup.getAbsoluteX() + outputGroup.getWidth() - name.getWidth(),
-                            (outputGroup.getAbsoluteY() - name.getHeight()) / 2);
-
-        topCenteredGroup.setAbsolutePos(name.getAbsoluteX()
-                                       #ifndef __MOD_DEVICES__
-                                        - topCenteredGroup.globalEnableLabel.getWidth()
-                                        - theme.padding
-                                        - topCenteredGroup.globalEnableSwitch.getWidth()
-                                       #endif
-                                        - theme.padding * 8 - theme.borderSize,
-                                        theme.windowPadding + theme.borderSize);
+        outputGroup.setAbsolutePos(width - outputGroup.getWidth() - theme.windowPadding - theme.padding, startY);
     }
 
     void resizeWidgets(const uint width, const uint height)
@@ -792,7 +689,10 @@ public:
         const uint startY = theme.windowPadding * 2 + metrics.button.getHeight();
         const uint contentHeight = height - startY - theme.windowPadding;
 
-        name.adjustSize();
+       #ifndef __MOD_DEVICES__
+        globalEnableLabel.adjustSize();
+        globalEnableSwitch.adjustSize();
+       #endif
 
         inputGroup.adjustSize(metrics, contentHeight);
         inputLevelerGroup.adjustSize(metrics, contentHeight);
@@ -812,7 +712,6 @@ public:
                              outputGroup.getWidth(),
                              contentHeight);
         contentGroup.adjustSize();
-        topCenteredGroup.adjustSize(metrics, width, height, name.getHeight() / 1.5);
 
         repositionWidgets();
     }
@@ -853,7 +752,7 @@ protected:
         case kParameter_bypass_global:
             enabled.global = value < 0.5f;
            #ifndef __MOD_DEVICES__
-            topCenteredGroup.globalEnableSwitch.setChecked(enabled.global, false);
+            globalEnableSwitch.setChecked(enabled.global, false);
            #endif
             inputGroup.meter.setEnabled(enabled.global);
             inputGroup.gainKnob.setEnabled(enabled.global, false);
@@ -928,15 +827,17 @@ protected:
 
     void onNanoDisplay() override
     {
+        const uint width = getWidth();
+        const uint widthBy3 = width / 3;
+        const uint height = getHeight();
+
         beginPath();
-        rect(0, 0, getWidth(), getHeight());
+        rect(0, 0, width, getHeight());
         fillColor(theme.windowBackgroundColor);
         fill();
 
         const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
         const Color color1(color2.withAlpha(0.f));
-        const uint widthBy3 = getWidth() / 3;
-        const uint height = getHeight();
 
         beginPath();
         rect(0, 0, widthBy3, height);
@@ -944,8 +845,8 @@ protected:
         fill();
 
         beginPath();
-        rect(getWidth() - widthBy3, 0, widthBy3, height);
-        fillPaint(linearGradient(getWidth() - widthBy3, 0, getWidth(), 0, color1, color2));
+        rect(width - widthBy3, 0, widthBy3, height);
+        fillPaint(linearGradient(width - widthBy3, 0, width, 0, color1, color2));
         fill();
 
         beginPath();
@@ -955,38 +856,29 @@ protected:
 
         // image name
         const Size<uint> imgSize = imageName.getSize();
-        const double targetHeight = 28 * getScaleFactor();
-        const double imgScaleFactor = targetHeight / imgSize.getHeight();
+        const double imgScaleFactor = imageNameArea.getHeight() / imgSize.getHeight();
 
-        const int x = inputGroup.getAbsoluteX() + theme.padding;
-        const int y = inputGroup.getAbsoluteY() * 0.5f - targetHeight * 0.5f;
         beginPath();
-        rect(x, y, imgSize.getWidth() * imgScaleFactor, targetHeight);
-        fillPaint(imagePattern(x, y,
-                               imgSize.getWidth() * imgScaleFactor,
-                               imgSize.getHeight() * imgScaleFactor,
-                               0, imageName, 1.f));
+        rect(imageNameArea.getX(), imageNameArea.getY(), imageNameArea.getWidth(), imageNameArea.getHeight());
+        fillPaint(imagePattern(imageNameArea.getX(),
+                               imageNameArea.getY(),
+                               imageNameArea.getWidth(),
+                               imgSize.getHeight() * imgScaleFactor, 0, imageName, 1.f));
         fill();
-
-        /*
-        fontSize(theme.fontSize * 1.5);
-        fillColor(theme.nameColor);
-        textAlign(ALIGN_LEFT|ALIGN_MIDDLE);
-        text(inputGroup.getAbsoluteX() + theme.padding,
-             inputGroup.getAbsoluteY() / 2 + theme.padding,
-            #ifdef PODCAST_MASTER
-             "MASTER",
-            #else
-             "TRACK",
-            #endif
-             nullptr);
-        */
     }
 
     bool onMouse(const MouseEvent& ev) override
     {
         if (ev.press)
             getWindow().focus();
+
+        if (ev.button == 1 && ev.press && imageNameArea.contains(ev.pos))
+        {
+            if (inspectorWindow == nullptr)
+                inspectorWindow = new InspectorWindow(this, theme, this);
+
+            inspectorWindow->isOpen = true;
+        }
 
         return UI::onMouse(ev);
     }

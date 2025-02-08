@@ -65,7 +65,6 @@ PLUGIN_GENERATED_FILES += bin/pod-track.lv2/manifest.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/plugin.ttl
 PLUGIN_GENERATED_FILES += bin/pod-track.lv2/ui.ttl
 PLUGIN_GENERATED_FILES += build/BuildInfo.hpp
-PLUGIN_GENERATED_FILES += build/Logo.hpp
 PLUGIN_GENERATED_FILES += build/master/Name.hpp
 PLUGIN_GENERATED_FILES += build/track/Name.hpp
 
@@ -197,11 +196,6 @@ else
 	echo '"v$(VERSION)"' >> $@
 endif
 	echo ';' >> $@
-
-# convert logo into raw data for C++ code
-build/Logo.hpp: img/logo/signet.png img/logo/signet@2x.png
-	mkdir -p build
-	./dpf/utils/res2c.py Logo img/logo/ build/
 
 # convert name png into raw data for C++ code
 build/%/Name.hpp: img/%/name.png img/%/name@2x.png
