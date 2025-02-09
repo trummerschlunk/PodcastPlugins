@@ -4,11 +4,9 @@
 #pragma once
 
 #include "DearImGui.hpp"
-#include "DistrhoUtils.hpp"
 #include "PodcastTheme.hpp"
-
-#include "Application.hpp"
-#include "extra/String.hpp"
+#include "DistrhoPluginUtils.hpp"
+#include "extra/Filesystem.hpp"
 
 #include "json.hpp"
 
@@ -74,7 +72,11 @@ protected:
 
         if (ImGui::Button("Save"))
         {
-            if (FILE* const fd = std::fopen("PodcastTheme.json.tmp", "w"))
+            String filename(getConfigDir());
+            filename += "PodcastTheme.json";
+
+            const SafeFileWriter file(filename);
+            if (file.ok())
             {
                 nlohmann::json j;
                 j["borderSize"] = d_roundToIntPositive(theme.borderSize / scaleFactor);
@@ -99,10 +101,7 @@ protected:
 
                 const std::string jsonstr = j.dump(2, ' ', false, nlohmann::detail::error_handler_t::replace);
 
-                std::fwrite(jsonstr.c_str(), 1, jsonstr.length(), fd);
-                std::fflush(fd);
-                std::fclose(fd);
-                std::rename("PodcastTheme.json.tmp", "PodcastTheme.json");
+                file.write(jsonstr.c_str(), jsonstr.length());
             }
         }
 

@@ -4,6 +4,7 @@
 #pragma once
 
 #include "Quantum.hpp"
+#include "DistrhoPluginUtils.hpp"
 #include "json.hpp"
 
 #include <fstream>
@@ -35,7 +36,9 @@ struct PodcastTheme : QuantumTheme
 
     void loadTheme()
     {
-        std::ifstream f("PodcastTheme.json");
+        String filename(getConfigDir());
+        filename += "PodcastTheme.json";
+        std::ifstream f(filename);
         if (! f.good())
             return;
 
