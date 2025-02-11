@@ -189,10 +189,10 @@ struct InputMeterGroup : QuantumFrame
     {
         QuantumFrame::onNanoDisplay();
 
-        fillColor(meter.isEnabled() ? Color(255, 0, 0, 0.75f) : theme.windowBackgroundColor);
+        fillColor(meter.isEnabled() ? theme.inputLevelBracket1 : theme.windowBackgroundColor);
         displayBrackets(-0.5, -5.9);
 
-        fillColor(meter.isEnabled() ? Color(0, 255, 0, 0.75f) : theme.windowBackgroundColor);
+        fillColor(meter.isEnabled() ? theme.inputLevelBracket2 : theme.windowBackgroundColor);
         displayBrackets(-6.1, -16);
     }
 #endif

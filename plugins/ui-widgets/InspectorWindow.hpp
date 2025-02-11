@@ -87,6 +87,8 @@ protected:
                 j["widgetLineSize"] = d_roundToIntPositive(theme.widgetLineSize / scaleFactor);
                 j["sidelabelsFontSize"] = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
                 j["levelMeterColor"] = ColorToString(theme.levelMeterColor);
+                j["inputLevelBracket1"] = ColorToString(theme.inputLevelBracket1);
+                j["inputLevelBracket2"] = ColorToString(theme.inputLevelBracket2);
                 j["levelMeterAlternativeColor"] = ColorToString(theme.levelMeterAlternativeColor);
                 j["knobRingColor"] = ColorToString(theme.knobRingColor);
                 j["knobAlternativeRingColor"] = ColorToString(theme.knobAlternativeRingColor);
@@ -158,6 +160,8 @@ protected:
 
         changedColors |= ImGui::ColorEdit4("Knob Ring", theme.knobRingColor.rgba);
         changedColors |= ImGui::ColorEdit4("Knob Ring Alternative", theme.knobAlternativeRingColor.rgba);
+        changedColors |= ImGui::ColorEdit4("Input Level Bracket 1", theme.inputLevelBracket1.rgba);
+        changedColors |= ImGui::ColorEdit4("Input Level Bracket 2", theme.inputLevelBracket2.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter", theme.levelMeterColor.rgba);
         changedColors |= ImGui::ColorEdit4("Level Meter Alternative", theme.levelMeterAlternativeColor.rgba);
         changedColors |= ImGui::ColorEdit4("Widget Background", theme.widgetBackgroundColor.rgba);

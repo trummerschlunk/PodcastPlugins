@@ -15,6 +15,8 @@
 struct PodcastTheme : QuantumTheme
 {
     uint sidelabelsFontSize = 13;
+    Color inputLevelBracket1 = Color(255, 0, 0, 0.75f);
+    Color inputLevelBracket2 = Color(0, 255, 0, 0.75f);
 
     PodcastTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
     {
@@ -43,28 +45,37 @@ struct PodcastTheme : QuantumTheme
             return;
 
         nlohmann::json j;
+
         try {
             j = nlohmann::json::parse(f);
 
-            borderSize = j["borderSize"].get<uint>();
-            padding = j["padding"].get<uint>();
-            fontSize = j["fontSize"].get<uint>();
-            textHeight = j["textHeight"].get<uint>();
-            knobIndicatorSize = j["knobIndicatorSize"].get<uint>();
-            widgetLineSize = j["widgetLineSize"].get<uint>();
-            sidelabelsFontSize = j["sidelabelsFontSize"].get<uint>();
-            levelMeterColor = Color::fromHTML(j["levelMeterColor"].get<std::string>().c_str());
-            levelMeterAlternativeColor = Color::fromHTML(j["levelMeterAlternativeColor"].get<std::string>().c_str());
-            knobRingColor = Color::fromHTML(j["knobRingColor"].get<std::string>().c_str());
-            knobAlternativeRingColor = Color::fromHTML(j["knobAlternativeRingColor"].get<std::string>().c_str());
-            widgetBackgroundColor = Color::fromHTML(j["widgetBackgroundColor"].get<std::string>().c_str());
-            widgetActiveColor = Color::fromHTML(j["widgetActiveColor"].get<std::string>().c_str());
-            widgetAlternativeColor = Color::fromHTML(j["widgetAlternativeColor"].get<std::string>().c_str());
-            widgetForegroundColor = Color::fromHTML(j["widgetForegroundColor"].get<std::string>().c_str());
-            windowBackgroundColor = Color::fromHTML(j["windowBackgroundColor"].get<std::string>().c_str());
-            textLightColor = Color::fromHTML(j["textLightColor"].get<std::string>().c_str());
-            textMidColor = Color::fromHTML(j["textMidColor"].get<std::string>().c_str());
-            textDarkColor = Color::fromHTML(j["textDarkColor"].get<std::string>().c_str());
+            #define LOAD_UINT(var) if (j.contains(#var)) var = j[#var].get<uint>();
+            LOAD_UINT(borderSize)
+            LOAD_UINT(padding)
+            LOAD_UINT(fontSize)
+            LOAD_UINT(textHeight)
+            LOAD_UINT(knobIndicatorSize)
+            LOAD_UINT(widgetLineSize)
+            LOAD_UINT(sidelabelsFontSize)
+            #undef LOAD_UINT
+
+            #define LOAD_COLOR(var) if (j.contains(#var)) var = Color::fromHTML(j[#var].get<std::string>().c_str());
+            LOAD_COLOR(inputLevelBracket1)
+            LOAD_COLOR(inputLevelBracket2)
+            LOAD_COLOR(levelMeterColor)
+            LOAD_COLOR(levelMeterAlternativeColor)
+            LOAD_COLOR(knobRingColor)
+            LOAD_COLOR(knobAlternativeRingColor)
+            LOAD_COLOR(widgetBackgroundColor)
+            LOAD_COLOR(widgetActiveColor)
+            LOAD_COLOR(widgetAlternativeColor)
+            LOAD_COLOR(widgetForegroundColor)
+            LOAD_COLOR(windowBackgroundColor)
+            LOAD_COLOR(textLightColor)
+            LOAD_COLOR(textMidColor)
+            LOAD_COLOR(textDarkColor)
+            #undef LOAD_COLOR
+
         } catch (const std::exception& e) {
             d_stderr("failed to parse PodcastTheme: %s", e.what());
             return;
