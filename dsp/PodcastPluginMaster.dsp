@@ -40,7 +40,7 @@ Meters
 
 */
 
-init_leveler_target = -18;
+init_leveler_target = -16;
 init_leveler_maxboost = 20;
 init_leveler_maxcut = 20;
 init_leveler1_brake_threshold = -18;
@@ -63,7 +63,7 @@ bp = checkbox("v:Podcast Plugins/h:[1]Global/[4][symbol:bypass_leveler]bypass le
 Latency_limiter = 0.01 <: attach(_,hbargraph("v:Podcast Plugins/h:[1]Global/[symbol:latency_global]latency",0,1));
 
 
-target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler1/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-30,-6,1);
+target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler1/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-26,-6,1);
 leveler1_speed = init_leveler1_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
 leveler2_speed = init_leveler1_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
 leveler1_brake_thresh = target + init_leveler1_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;

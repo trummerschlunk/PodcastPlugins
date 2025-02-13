@@ -15,7 +15,7 @@ import("stdfaust.lib");
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
 init_spectrum1 = -22,-19,-18,-16,  -17,-18,-18,-18,  -18,-19,-20,-22,  -24,-27,-26,-28,  -29,-29,-29,-29;
 init_mb_outGain = 0;
-init_leveler_target = -18;
+init_leveler_target = -16;
 init_leveler_maxboost = 30;
 init_leveler_maxcut = 30;
 init_leveler_brake_threshold = -22;
@@ -88,7 +88,7 @@ meter_sb(i) = _; //_ <: attach(_, vbargraph("v:Podcast Plugins/v:[1]Spectral Bal
 meter_expander_sb = _; //vbargraph("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[3][integer]expander",0,1);
 //leveler_meter_gain = _; //vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[1][unit:dB]gain",-50,50);
 bp = checkbox("v:Podcast Plugins/h:[0]Modules/[3][symbol:bypass_leveler]bypass_leveler"):si.smoo;
-target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-30,-6,1);
+target = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[3]target[unit:dB][symbol:leveler_target]", init_leveler_target,-26,-6,1);
 leveler_speed = init_leveler_speed *0.01; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[4][unit:%][integer]speed", init_leveler_speed, 0, 100, 1) * 0.01;
 leveler_brake_thresh = target + init_leveler_brake_threshold +32; //target + vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[5][unit:dB]brake threshold", init_leveler_brake_threshold,-90,0,1)+32;
 meter_leveler_brake = _; //_*100 : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[6][unit:%][integer]brake",0,100);
