@@ -354,6 +354,8 @@ jobs:
           brew install faust
       - name: Build faustpp
         run: make faustpp -j $(sysctl -n hw.logicalcpu)
+      - name: Regen C++ files
+        run: make pregen
       - name: Build macOS universal
         env:
           CFLAGS: -O3 -arch x86_64 -arch arm64 -DMAC_OS_X_VERSION_MAX_ALLOWED=MAC_OS_X_VERSION_10_12 -DMAC_OS_X_VERSION_MIN_REQUIRED=MAC_OS_X_VERSION_10_12 -mmacosx-version-min=10.12 -mtune=generic -msse -msse2
