@@ -1,5 +1,7 @@
 # PodcastPlugins Tutorial Videos
 
+![Logo](./artwork/logo_podcast_plugins/track/logo_power_plugins_signet_black.png)
+
 ## Videos
 
 ### 1. Teaser:

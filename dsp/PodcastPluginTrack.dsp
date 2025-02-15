@@ -117,7 +117,7 @@ Lufs_measurement_window = 0.8;
 //----------------------- MAIN Section -----------------------
 
 process = _,_ 
-        : bp2(bypass_global, 
+        : bp2_del(bypass_global,(Latency_global * ma.SR),
                 (pregain(Nch)
                 : peakmeter_in
                 : prefilter_bp 
@@ -129,9 +129,13 @@ process = _,_
           : lufs_out_meter
           ;
 
-//----------------------- Utility Functions -----------------------
+//----------------------- Bypass Functions -----------------------
 // Stereo bypass with smooth fading
 bp2(sw,pr) = _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
+    sm = sw : si.smoo;
+};
+// Stereo bypass with smooth fading and delay on dry signal
+bp2_del(sw,del,pr) = _,_ <: par(i,2,(_:de.delay(48000,del))),pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
     sm = sw : si.smoo;
 };
 
@@ -281,7 +285,7 @@ lk2_var(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) w
   kfilter = ebu.ebur128;
 };
 lk2 = lk2_fixed(3);
-lk2_short = lk2_fixed(0.4);
+lk2_short = lk2_fixed(3);
 lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:lufs_out_meter][unit:dB]lufs",-120,0))) : _,_;
 
 lk2_time =
@@ -530,10 +534,7 @@ B_band_Compressor_N_chan(B,N) =
             prePost = 1;
         };
 
-// stereo bypass with si.smoo fading
-bp2(sw,pr) =  _,_ <: _,_,pr : (_*sm,_*sm),(_*(1-sm),_*(1-sm)) :> _,_ with {
-    sm = sw : si.smoo;
-};
+
 
 
 // LIMITER with LOOKAHEAD

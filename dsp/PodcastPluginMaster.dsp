@@ -573,7 +573,7 @@ lk2_var(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) w
 
 
 lk2 = lk2_var(3);
-lk2_short = lk2_var(0.4);
+lk2_short = lk2_var(3);
 
 lufs_meter_in(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:master_me/h:easy/[2][unit:dB][symbol:lufs_in]in lufs-s",-70,0))) : _,_;
 lufs_meter_out(l,r) = l,r <: l, attach(r, (lk2 : vbargraph("v:master_me/h:easy/[7][unit:dB][symbol:lufs_out]out lufs-s",-70,0))) : _,_;
