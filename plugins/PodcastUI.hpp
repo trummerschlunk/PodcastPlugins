@@ -154,7 +154,7 @@ struct InputMeterGroup : QuantumFrame
         const float ySize = usableMeterHeight * db2norm - usableMeterHeight * db1norm;
 
         save();
-        translate(getWidth() / 2 - meter.getWidth() / 2 - sectionWidth - theme.padding, yOffset);
+        translate(getWidth() * 0.5f - meter.getWidth() * 0.5f - sectionWidth - theme.padding, yOffset);
         beginPath();
         moveTo(0, 0);
         lineTo(sectionWidth, 0);
@@ -169,7 +169,7 @@ struct InputMeterGroup : QuantumFrame
         fill();
 
         save();
-        translate(getWidth() / 2 + meter.getWidth() / 2 + theme.padding, yOffset);
+        translate(getWidth() * 0.5f + meter.getWidth() * 0.5f + theme.padding, yOffset);
         beginPath();
         moveTo(0, 0);
         lineTo(sectionWidth, 0);
@@ -899,6 +899,14 @@ protected:
 
             resizeOnNextIdle = false;
         }
+    }
+
+    void uiFileBrowserSelected(const char* const filename) override
+    {
+        DISTRHO_SAFE_ASSERT_RETURN(inspectorWindow != nullptr,);
+        DISTRHO_SAFE_ASSERT_RETURN(filename != nullptr,);
+
+        inspectorWindow->uiFileBrowserSelected(filename);
     }
 
     /* ----------------------------------------------------------------------------------------------------------------

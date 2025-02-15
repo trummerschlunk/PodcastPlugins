@@ -23,23 +23,17 @@ struct PodcastTheme : QuantumTheme
         widgetLineSize = 1;
 
         if (loadThemeNow)
-            loadTheme();
+        {
+            String filename(getConfigDir());
+            filename += "PodcastTheme.json";
+            loadTheme(filename);
+        }
 
-        borderSize *= scaleFactor;
-        padding *= scaleFactor;
-        fontSize *= scaleFactor;
-        sidelabelsFontSize *= scaleFactor;
-        knobIndicatorSize *= scaleFactor;
-        textHeight *= scaleFactor;
-        widgetLineSize *= scaleFactor;
-        windowPadding *= scaleFactor;
-        textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+        scaleAll(scaleFactor);
     }
 
-    void loadTheme()
+    void loadTheme(const char* const filename)
     {
-        String filename(getConfigDir());
-        filename += "PodcastTheme.json";
         std::ifstream f(filename);
         if (! f.good())
             return;
@@ -83,5 +77,22 @@ struct PodcastTheme : QuantumTheme
             d_stderr("failed to parse PodcastTheme: unknown exception");
             return;
         }
+    }
+
+    void scaleAll(const double scaleFactor)
+    {
+        if (d_isNotEqual(scaleFactor, 1.0))
+        {
+            borderSize *= scaleFactor;
+            padding *= scaleFactor;
+            fontSize *= scaleFactor;
+            sidelabelsFontSize *= scaleFactor;
+            knobIndicatorSize *= scaleFactor;
+            textHeight *= scaleFactor;
+            widgetLineSize *= scaleFactor;
+            windowPadding *= scaleFactor;
+        }
+
+        textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
     }
 };

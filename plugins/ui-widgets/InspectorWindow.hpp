@@ -35,9 +35,11 @@ class InspectorWindow : public ImGuiTopLevelWidget
     PodcastTheme& theme;
     QuantumThemeCallback* const themeChangeCallback;
 
+    // for file export/import callbacks
+    bool isSaving = true;
+
 public:
     bool isOpen = true;
-    double userScaling = 1;
 
     explicit InspectorWindow(TopLevelWidget* const tlw, PodcastTheme& t, QuantumThemeCallback* const cb)
         : ImGuiTopLevelWidget(tlw->getWindow()),
@@ -45,13 +47,29 @@ public:
           theme(t),
           themeChangeCallback(cb) {}
 
+    void uiFileBrowserSelected(const char* const filename)
+    {
+        if (isSaving)
+        {
+            String sfilename(filename);
+            if (! sfilename.contains('.'))
+                sfilename += ".json";
+
+            saveTheme(sfilename);
+        }
+        else
+        {
+            loadTheme(filename);
+        }
+    }
+
 protected:
     void onImGuiDisplay() override
     {
         if (!isOpen)
             return;
 
-        double scaleFactor = getScaleFactor() * userScaling;
+        const double scaleFactor = getScaleFactor();
 
         ImGui::SetNextWindowPos(ImVec2(90 * scaleFactor, 5 * scaleFactor), ImGuiCond_Once);
         ImGui::SetNextWindowSize(ImVec2(600 * scaleFactor, 490 * scaleFactor), ImGuiCond_Once);
@@ -74,37 +92,28 @@ protected:
         {
             String filename(getConfigDir());
             filename += "PodcastTheme.json";
+            saveTheme(filename);
+        }
 
-            const SafeFileWriter file(filename);
-            if (file.ok())
-            {
-                nlohmann::json j;
-                j["borderSize"] = d_roundToIntPositive(theme.borderSize / scaleFactor);
-                j["padding"] = d_roundToIntPositive(theme.padding / scaleFactor);
-                j["fontSize"] = d_roundToIntPositive(theme.fontSize / scaleFactor);
-                j["textHeight"] = d_roundToIntPositive(theme.textHeight / scaleFactor);
-                j["knobIndicatorSize"] = d_roundToIntPositive(theme.knobIndicatorSize / scaleFactor);
-                j["widgetLineSize"] = d_roundToIntPositive(theme.widgetLineSize / scaleFactor);
-                j["sidelabelsFontSize"] = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
-                j["levelMeterColor"] = ColorToString(theme.levelMeterColor);
-                j["inputLevelBracket1"] = ColorToString(theme.inputLevelBracket1);
-                j["inputLevelBracket2"] = ColorToString(theme.inputLevelBracket2);
-                j["levelMeterAlternativeColor"] = ColorToString(theme.levelMeterAlternativeColor);
-                j["knobRingColor"] = ColorToString(theme.knobRingColor);
-                j["knobAlternativeRingColor"] = ColorToString(theme.knobAlternativeRingColor);
-                j["widgetBackgroundColor"] = ColorToString(theme.widgetBackgroundColor);
-                j["widgetActiveColor"] = ColorToString(theme.widgetActiveColor);
-                j["widgetAlternativeColor"] = ColorToString(theme.widgetAlternativeColor);
-                j["widgetForegroundColor"] = ColorToString(theme.widgetForegroundColor);
-                j["windowBackgroundColor"] = ColorToString(theme.windowBackgroundColor);
-                j["textLightColor"] = ColorToString(theme.textLightColor);
-                j["textMidColor"] = ColorToString(theme.textMidColor);
-                j["textDarkColor"] = ColorToString(theme.textDarkColor);
+        ImGui::SameLine();
 
-                const std::string jsonstr = j.dump(2, ' ', false, nlohmann::detail::error_handler_t::replace);
+        if (ImGui::Button("Export..."))
+        {
+            FileBrowserOptions opts;
+            opts.saving = isSaving = true;
+            opts.defaultName = "PodcastTheme.json";
+            opts.title = "Export PodcastPlugins Theme";
+            getWindow().openFileBrowser(opts);
+        }
 
-                file.write(jsonstr.c_str(), jsonstr.length());
-            }
+        ImGui::SameLine();
+
+        if (ImGui::Button("Import..."))
+        {
+            FileBrowserOptions opts;
+            opts.saving = isSaving = false;
+            opts.title = "Import PodcastPlugins Theme";
+            getWindow().openFileBrowser(opts);
         }
 
         val = d_roundToIntPositive(theme.borderSize / scaleFactor);
@@ -187,6 +196,49 @@ protected:
     }
 
 private:
+    void loadTheme(const char* const filename)
+    {
+        theme.loadTheme(filename);
+        theme.scaleAll(getScaleFactor());
+        themeChangeCallback->quantumThemeChanged(true, true);
+    }
+
+    void saveTheme(const char* const filename)
+    {
+        const double scaleFactor = getScaleFactor();
+
+        const SafeFileWriter file(filename);
+        if (file.ok())
+        {
+            nlohmann::json j;
+            j["borderSize"] = d_roundToIntPositive(theme.borderSize / scaleFactor);
+            j["padding"] = d_roundToIntPositive(theme.padding / scaleFactor);
+            j["fontSize"] = d_roundToIntPositive(theme.fontSize / scaleFactor);
+            j["textHeight"] = d_roundToIntPositive(theme.textHeight / scaleFactor);
+            j["knobIndicatorSize"] = d_roundToIntPositive(theme.knobIndicatorSize / scaleFactor);
+            j["widgetLineSize"] = d_roundToIntPositive(theme.widgetLineSize / scaleFactor);
+            j["sidelabelsFontSize"] = d_roundToIntPositive(theme.sidelabelsFontSize / scaleFactor);
+            j["levelMeterColor"] = ColorToString(theme.levelMeterColor);
+            j["inputLevelBracket1"] = ColorToString(theme.inputLevelBracket1);
+            j["inputLevelBracket2"] = ColorToString(theme.inputLevelBracket2);
+            j["levelMeterAlternativeColor"] = ColorToString(theme.levelMeterAlternativeColor);
+            j["knobRingColor"] = ColorToString(theme.knobRingColor);
+            j["knobAlternativeRingColor"] = ColorToString(theme.knobAlternativeRingColor);
+            j["widgetBackgroundColor"] = ColorToString(theme.widgetBackgroundColor);
+            j["widgetActiveColor"] = ColorToString(theme.widgetActiveColor);
+            j["widgetAlternativeColor"] = ColorToString(theme.widgetAlternativeColor);
+            j["widgetForegroundColor"] = ColorToString(theme.widgetForegroundColor);
+            j["windowBackgroundColor"] = ColorToString(theme.windowBackgroundColor);
+            j["textLightColor"] = ColorToString(theme.textLightColor);
+            j["textMidColor"] = ColorToString(theme.textMidColor);
+            j["textDarkColor"] = ColorToString(theme.textDarkColor);
+
+            const std::string jsonstr = j.dump(2, ' ', false, nlohmann::detail::error_handler_t::replace);
+
+            file.write(jsonstr.c_str(), jsonstr.length());
+        }
+    }
+
     static void displaySubWidget(const std::list<SubWidget*>& subwidgets)
     {
         for (SubWidget* w : subwidgets)

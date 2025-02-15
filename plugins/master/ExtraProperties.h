@@ -5,7 +5,7 @@
 
 #define DISTRHO_PLUGIN_HAS_UI          1
 #define DISTRHO_PLUGIN_WANT_LATENCY    1
-#define DISTRHO_UI_FILE_BROWSER        0
+#define DISTRHO_UI_FILE_BROWSER        1
 #define DISTRHO_UI_USE_NANOVG          1
 #define DISTRHO_UI_USER_RESIZABLE      0
 
