@@ -475,7 +475,7 @@ public:
         timbreStrengthSlider.setWidth(60 * getTopLevelWidget()->getScaleFactor());
 #endif
 
-        const uint knobSize = getHeight() / 3 - theme.borderSize * 2 - theme.padding * 2;
+        const uint knobSize = getHeight() * 0.3f - theme.borderSize * 2 - theme.padding * 2;
         timbreKnob.setSize(knobSize, knobSize);
         styleKnob.setSize(knobSize, knobSize);
     }
