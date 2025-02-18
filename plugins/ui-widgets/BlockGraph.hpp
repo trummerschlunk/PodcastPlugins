@@ -108,7 +108,8 @@ class BlockGraph : public ImGuiSubWidget
     std::array<float, 5> buffer2;
    #else
     std::array<float, 20> buffer1;
-    std::array<float, 20> buffer2;
+    std::array<float, 21> buffer2;
+    const float lineWeight;
    #endif
 
     std::array<LinearValueSmoother, 5> values1;
@@ -120,6 +121,9 @@ public:
         : ImGuiSubWidget(parent),
           context(ImPlot::CreateContext()),
           theme(t)
+       #ifndef PODCAST_MASTER
+        , lineWeight(parent->getScaleFactor() * 2)
+       #endif
     {
         setName("BlockGraph");
 
@@ -295,11 +299,13 @@ protected:
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 0.5);
            #endif
 
-            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor.withAlpha(0.666f) : theme.textDarkColor.withAlpha(0.5f)));
            #ifdef PODCAST_MASTER
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)));
             ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
            #else
-            ImPlot::PlotBars("Spectral Balancer Gain", buffer2.data(), 20, 1.0, 0.5);
+            buffer2[20] = buffer2[19];
+            ImPlot::SetNextLineStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), lineWeight);
+            ImPlot::PlotStairs("Spectral Balancer Gain", buffer2.data(), 21, 1, 0);
            #endif
 
             ImPlot::EndPlot();
