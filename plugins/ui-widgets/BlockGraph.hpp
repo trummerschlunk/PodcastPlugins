@@ -102,14 +102,16 @@ class BlockGraph : public ImGuiSubWidget
 {
     ImPlotContext* const context;
     const PodcastTheme& theme;
+    const float lineWeight;
 
    #ifdef PODCAST_MASTER
+    static constexpr float lineFillOpacity = 0.666f;
     std::array<float, 5> buffer1;
     std::array<float, 5> buffer2;
    #else
+    static constexpr float lineFillOpacity = 0.15f;
     std::array<float, 20> buffer1;
     std::array<float, 21> buffer2;
-    const float lineWeight;
    #endif
 
     std::array<LinearValueSmoother, 5> values1;
@@ -120,10 +122,8 @@ public:
     explicit BlockGraph(TopLevelWidget* const parent, const PodcastTheme& t)
         : ImGuiSubWidget(parent),
           context(ImPlot::CreateContext()),
-          theme(t)
-       #ifndef PODCAST_MASTER
-        , lineWeight(parent->getScaleFactor() * 2)
-       #endif
+          theme(t),
+          lineWeight(parent->getScaleFactor() * 2)
     {
         setName("BlockGraph");
 
@@ -289,23 +289,19 @@ protected:
            #ifdef PODCAST_MASTER
             for (int i = 0; i < 5; ++i)
                 buffer1[i] = values1[i].next();
-
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 5, 1.0, 0.5);
            #else
             for (int i = 0; i < 5; ++i)
                 buffer1[i * 4] = buffer1[i * 4 + 1] = buffer1[i * 4 + 2] = buffer1[i * 4 + 3] = values1[i].next();
-
-            // ImPlot::PlotShaded("Multiband Compressor Gain", buffer1.data(), 20, 0, 1.05, 0.525);
             ImPlot::PlotBars("Multiband Compressor Gain", buffer1.data(), 20, 1.0, 0.5);
            #endif
 
+            ImPlot::SetNextLineStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), lineWeight);
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), lineFillOpacity);
            #ifdef PODCAST_MASTER
-            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor.withAlpha(0.666f) : theme.textDarkColor.withAlpha(0.5f)));
-            ImPlot::PlotShaded("Tilt", buffer2.data(), 5, 0, 1.25);
+            ImPlot::PlotLine("Tilt", buffer2.data(), 5, 1.25, 0, ImPlotLineFlags_Shaded);
            #else
             buffer2[20] = buffer2[19];
-            ImPlot::SetNextLineStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), lineWeight);
-            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), 0.15f);
             ImPlot::PlotStairs("Spectral Balancer Gain", buffer2.data(), 21, 1, 0, ImPlotStairsFlags_Shaded);
            #endif
 
