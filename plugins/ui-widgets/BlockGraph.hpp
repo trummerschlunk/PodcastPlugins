@@ -305,7 +305,7 @@ protected:
            #else
             buffer2[20] = buffer2[19];
             ImPlot::SetNextLineStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), lineWeight);
-            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), 0.25f);
+            ImPlot::SetNextFillStyle(ImVec4Color(enabled[1] ? theme.knobRingColor : theme.textDarkColor.withAlpha(0.5f)), 0.15f);
             ImPlot::PlotStairs("Spectral Balancer Gain", buffer2.data(), 21, 1, 0, ImPlotStairsFlags_Shaded);
            #endif
 
