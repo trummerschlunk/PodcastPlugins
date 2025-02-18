@@ -90,9 +90,9 @@ struct PodcastTheme : QuantumTheme
             knobIndicatorSize *= scaleFactor;
             textHeight *= scaleFactor;
             widgetLineSize *= scaleFactor;
-            windowPadding *= scaleFactor;
         }
 
+        windowPadding = borderSize + padding * 3;
         textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
     }
 };
