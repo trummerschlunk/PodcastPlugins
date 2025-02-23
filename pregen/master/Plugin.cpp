@@ -773,7 +773,7 @@ class mydsp : public dsp {
 		m->declare("basics.lib/peakholder:copyright", "Copyright (C) 2022 Dario Sanfilippo <sanfilippo.dario@gmail.com>");
 		m->declare("basics.lib/peakholder:license", "MIT-style STK-4.3 license");
 		m->declare("basics.lib/version", "0.9");
-		m->declare("compile_options", "-a /tmp/tmp_5h4yuxs.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
+		m->declare("compile_options", "-a /tmp/tmpb0sttqwc.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
 		m->declare("compressors.lib/name", "Faust Compressor Effect Library");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:author", "Bart Brouns");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:license", "GPLv3");
@@ -2441,12 +2441,12 @@ class mydsp : public dsp {
 		ui_interface->declare(&fVslider3, "unit", "dB");
 		ui_interface->addVerticalSlider("PreGain", &fVslider3, FAUSTFLOAT(0.0f), FAUSTFLOAT(-2e+01f), FAUSTFLOAT(2e+01f), FAUSTFLOAT(0.1f));
 		ui_interface->declare(&fVbargraph0, "symbol", "input_peak_channel_0");
-		ui_interface->addVerticalBargraph("In 0", &fVbargraph0, FAUSTFLOAT(-7e+01f), FAUSTFLOAT(0.0f));
+		ui_interface->addVerticalBargraph("In 0", &fVbargraph0, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(12.0f));
 		ui_interface->declare(&fVbargraph2, "symbol", "input_peak_channel_1");
-		ui_interface->addVerticalBargraph("In 1", &fVbargraph2, FAUSTFLOAT(-7e+01f), FAUSTFLOAT(0.0f));
+		ui_interface->addVerticalBargraph("In 1", &fVbargraph2, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(12.0f));
 		ui_interface->declare(&fVbargraph3, "symbol", "lufs_in_meter");
 		ui_interface->declare(&fVbargraph3, "unit", "dB");
-		ui_interface->addVerticalBargraph("lufs IN", &fVbargraph3, FAUSTFLOAT(-1.2e+02f), FAUSTFLOAT(0.0f));
+		ui_interface->addVerticalBargraph("lufs IN", &fVbargraph3, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(12.0f));
 		ui_interface->closeBox();
 		ui_interface->declare(0, "2", "");
 		ui_interface->openHorizontalBox("Leveler1");
@@ -2509,11 +2509,11 @@ class mydsp : public dsp {
 		ui_interface->addVerticalBargraph("LimiterGR", &fVbargraph10, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->declare(&fVbargraph12, "symbol", "lufs_out_meter");
 		ui_interface->declare(&fVbargraph12, "unit", "dB");
-		ui_interface->addVerticalBargraph("lufs OUT", &fVbargraph12, FAUSTFLOAT(-1.2e+02f), FAUSTFLOAT(0.0f));
+		ui_interface->addVerticalBargraph("lufs OUT", &fVbargraph12, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->declare(&fVbargraph11, "symbol", "output_peak_channel_0");
-		ui_interface->addVerticalBargraph("Out 0", &fVbargraph11, FAUSTFLOAT(-7e+01f), FAUSTFLOAT(0.0f));
+		ui_interface->addVerticalBargraph("Out 0", &fVbargraph11, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->declare(&fVbargraph13, "symbol", "output_peak_channel_1");
-		ui_interface->addVerticalBargraph("Out 1", &fVbargraph13, FAUSTFLOAT(-7e+01f), FAUSTFLOAT(0.0f));
+		ui_interface->addVerticalBargraph("Out 1", &fVbargraph13, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->closeBox();
 		ui_interface->closeBox();
 		ui_interface->closeBox();
@@ -2676,7 +2676,7 @@ class mydsp : public dsp {
 			float fTemp2 = std::pow(1e+01f, 0.0f - fTemp0);
 			fRec10[0] = fSlow8 + fConst14 * fRec10[1];
 			float fTemp3 = float(input0[i0]) * fRec10[0];
-			fRec9[0] = std::max<float>(fRec9[1] - fConst1, std::min<float>(1e+01f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.00031622776f, std::fabs(fTemp3))))));
+			fRec9[0] = std::max<float>(fRec9[1] - fConst1, std::min<float>(12.0f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.001f, std::fabs(fTemp3))))));
 			fVbargraph0 = FAUSTFLOAT(fRec9[0]);
 			float fTemp4 = fTemp3;
 			fVec0[0] = fTemp4;
@@ -2778,7 +2778,7 @@ class mydsp : public dsp {
 			float fTemp44 = std::pow(1e+01f, 0.05f * fRec16[0]);
 			fRec14[0] = fTemp44 * fTemp7;
 			float fTemp45 = float(input1[i0]) * fRec10[0];
-			fRec40[0] = std::max<float>(fRec40[1] - fConst1, std::min<float>(1e+01f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.00031622776f, std::fabs(fTemp45))))));
+			fRec40[0] = std::max<float>(fRec40[1] - fConst1, std::min<float>(12.0f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.001f, std::fabs(fTemp45))))));
 			fVbargraph2 = FAUSTFLOAT(fRec40[0]);
 			float fTemp46 = fTemp45;
 			fVec33[0] = fTemp46;
@@ -3603,7 +3603,7 @@ class mydsp : public dsp {
 			float fTemp495 = (1.0f - fRec191[0]) * fTemp494;
 			float fTemp496 = fTemp4 * fRec191[0] + fTemp495 * fVec231[(IOTA0 - iConst177) & 2047];
 			fVec233[0] = fTemp496;
-			fRec0[0] = std::max<float>(fRec0[1] - fConst1, std::min<float>(1e+01f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.00031622776f, std::fabs(fTemp496))))));
+			fRec0[0] = std::max<float>(fRec0[1] - fConst1, std::min<float>(0.0f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.001f, std::fabs(fTemp496))))));
 			fVbargraph11 = FAUSTFLOAT(fRec0[0]);
 			output0[i0] = FAUSTFLOAT(fTemp496);
 			float fTemp497 = fRec191[0] * fTemp85 + fTemp495 * fVec232[(IOTA0 - iConst177) & 2047];
@@ -3700,7 +3700,7 @@ class mydsp : public dsp {
 			fVec278[IOTA0 & 1048575] = fTemp535 + fVec277[(IOTA0 - 262144) & 524287];
 			fVbargraph12 = FAUSTFLOAT(4.3429446f * std::log(std::max<float>(1e-12f, fConst116 * (((iConst114) ? 0.86000985f * fVec278[(IOTA0 - iConst115) & 1048575] : 0.0f) + ((iConst112) ? 0.86000985f * fVec277[(IOTA0 - iConst113) & 524287] : 0.0f) + ((iConst110) ? 0.86000985f * fVec276[(IOTA0 - iConst111) & 262143] : 0.0f) + ((iConst108) ? 0.86000985f * fVec275[(IOTA0 - iConst109) & 131071] : 0.0f) + ((iConst106) ? 0.86000985f * fVec274[(IOTA0 - iConst107) & 65535] : 0.0f) + ((iConst104) ? 0.86000985f * fVec273[(IOTA0 - iConst105) & 32767] : 0.0f) + ((iConst102) ? 0.86000985f * fVec272[(IOTA0 - iConst103) & 16383] : 0.0f) + ((iConst100) ? 0.86000985f * fVec271[(IOTA0 - iConst101) & 8191] : 0.0f) + ((iConst98) ? 0.86000985f * fVec270[(IOTA0 - iConst99) & 4095] : 0.0f) + ((iConst96) ? 0.86000985f * fVec269[(IOTA0 - iConst97) & 2047] : 0.0f) + ((iConst94) ? 0.86000985f * fVec268[(IOTA0 - iConst95) & 1023] : 0.0f) + ((iConst92) ? 0.86000985f * fVec267[(IOTA0 - iConst93) & 511] : 0.0f) + ((iConst90) ? 0.86000985f * fVec266[(IOTA0 - iConst91) & 255] : 0.0f) + ((iConst88) ? 0.86000985f * fVec265[(IOTA0 - iConst89) & 127] : 0.0f) + ((iConst86) ? 0.86000985f * fVec264[(IOTA0 - iConst87) & 63] : 0.0f) + ((iConst84) ? 0.86000985f * fVec263[(IOTA0 - iConst85) & 31] : 0.0f) + ((iConst82) ? 0.86000985f * fVec262[iConst83] : 0.0f) + ((iConst80) ? 0.86000985f * fVec261[iConst81] : 0.0f) + ((iConst79) ? 0.86000985f * fTemp517 : 0.0f) + ((iConst78) ? 0.86000985f * fVec260[iConst79] : 0.0f) + ((iConst114) ? 0.86000985f * fVec256[(IOTA0 - iConst115) & 1048575] : 0.0f) + ((iConst112) ? 0.86000985f * fVec255[(IOTA0 - iConst113) & 524287] : 0.0f) + ((iConst110) ? 0.86000985f * fVec254[(IOTA0 - iConst111) & 262143] : 0.0f) + ((iConst108) ? 0.86000985f * fVec253[(IOTA0 - iConst109) & 131071] : 0.0f) + ((iConst106) ? 0.86000985f * fVec252[(IOTA0 - iConst107) & 65535] : 0.0f) + ((iConst104) ? 0.86000985f * fVec251[(IOTA0 - iConst105) & 32767] : 0.0f) + ((iConst102) ? 0.86000985f * fVec250[(IOTA0 - iConst103) & 16383] : 0.0f) + ((iConst100) ? 0.86000985f * fVec249[(IOTA0 - iConst101) & 8191] : 0.0f) + ((iConst98) ? 0.86000985f * fVec248[(IOTA0 - iConst99) & 4095] : 0.0f) + ((iConst96) ? 0.86000985f * fVec247[(IOTA0 - iConst97) & 2047] : 0.0f) + ((iConst94) ? 0.86000985f * fVec246[(IOTA0 - iConst95) & 1023] : 0.0f) + ((iConst92) ? 0.86000985f * fVec245[(IOTA0 - iConst93) & 511] : 0.0f) + ((iConst90) ? 0.86000985f * fVec244[(IOTA0 - iConst91) & 255] : 0.0f) + ((iConst88) ? 0.86000985f * fVec243[(IOTA0 - iConst89) & 127] : 0.0f) + ((iConst86) ? 0.86000985f * fVec242[(IOTA0 - iConst87) & 63] : 0.0f) + ((iConst84) ? 0.86000985f * fVec241[(IOTA0 - iConst85) & 31] : 0.0f) + ((iConst82) ? 0.86000985f * fVec240[iConst83] : 0.0f) + ((iConst80) ? 0.86000985f * fVec239[iConst81] : 0.0f) + ((iConst79) ? 0.86000985f * fTemp498 : 0.0f) + ((iConst78) ? 0.86000985f * fVec238[iConst79] : 0.0f)))) + -0.691f);
 			float fTemp536 = fTemp497;
-			fRec192[0] = std::max<float>(fRec192[1] - fConst1, std::min<float>(1e+01f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.00031622776f, std::fabs(fTemp536))))));
+			fRec192[0] = std::max<float>(fRec192[1] - fConst1, std::min<float>(0.0f, 2e+01f * std::log10(std::max<float>(1.1754944e-38f, std::max<float>(0.001f, std::fabs(fTemp536))))));
 			fVbargraph13 = FAUSTFLOAT(fRec192[0]);
 			output1[i0] = FAUSTFLOAT(fTemp536);
 			fRec5[1] = fRec5[0];
