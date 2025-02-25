@@ -773,7 +773,7 @@ class mydsp : public dsp {
 		m->declare("basics.lib/peakholder:copyright", "Copyright (C) 2022 Dario Sanfilippo <sanfilippo.dario@gmail.com>");
 		m->declare("basics.lib/peakholder:license", "MIT-style STK-4.3 license");
 		m->declare("basics.lib/version", "0.9");
-		m->declare("compile_options", "-a /tmp/tmpb0sttqwc.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
+		m->declare("compile_options", "-a /tmp/tmphi1bl9j6.cpp -lang cpp -es 1 -mcd 16 -single -ftz 0");
 		m->declare("compressors.lib/name", "Faust Compressor Effect Library");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:author", "Bart Brouns");
 		m->declare("compressors.lib/peak_compression_gain_N_chan_db:license", "GPLv3");
@@ -2441,12 +2441,12 @@ class mydsp : public dsp {
 		ui_interface->declare(&fVslider3, "unit", "dB");
 		ui_interface->addVerticalSlider("PreGain", &fVslider3, FAUSTFLOAT(0.0f), FAUSTFLOAT(-2e+01f), FAUSTFLOAT(2e+01f), FAUSTFLOAT(0.1f));
 		ui_interface->declare(&fVbargraph0, "symbol", "input_peak_channel_0");
-		ui_interface->addVerticalBargraph("In 0", &fVbargraph0, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(12.0f));
+		ui_interface->addVerticalBargraph("In 0", &fVbargraph0, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->declare(&fVbargraph2, "symbol", "input_peak_channel_1");
-		ui_interface->addVerticalBargraph("In 1", &fVbargraph2, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(12.0f));
+		ui_interface->addVerticalBargraph("In 1", &fVbargraph2, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->declare(&fVbargraph3, "symbol", "lufs_in_meter");
 		ui_interface->declare(&fVbargraph3, "unit", "dB");
-		ui_interface->addVerticalBargraph("lufs IN", &fVbargraph3, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(12.0f));
+		ui_interface->addVerticalBargraph("lufs IN", &fVbargraph3, FAUSTFLOAT(-6e+01f), FAUSTFLOAT(0.0f));
 		ui_interface->closeBox();
 		ui_interface->declare(0, "2", "");
 		ui_interface->openHorizontalBox("Leveler1");

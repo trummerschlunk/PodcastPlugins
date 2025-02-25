@@ -640,7 +640,7 @@
         lv2:name "In 0" ;
         lv2:symbol "input_peak_channel_0" ;
         lv2:minimum -60.0 ;
-        lv2:maximum 12.0 ;
+        lv2:maximum 0.0 ;
         
         
         
@@ -656,7 +656,7 @@
         lv2:name "In 1" ;
         lv2:symbol "input_peak_channel_1" ;
         lv2:minimum -60.0 ;
-        lv2:maximum 12.0 ;
+        lv2:maximum 0.0 ;
         
         
         
