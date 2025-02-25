@@ -26,9 +26,9 @@ Sliders, Knobs, Switches
 
 
 Meters
-[symbol:input_peak_channel_0]                   left input peak meter -60/12
-[symbol:input_peak_channel_1]                   right input peak meter -60/12
-[symbol:lufs_out_meter]                         lufs out meter -60/12
+[symbol:input_peak_channel_0]                   left input peak meter -60/0
+[symbol:input_peak_channel_1]                   right input peak meter -60/0
+[symbol:lufs_out_meter]                         lufs out meter -60/0
 [symbol:leveler1_gain]                          leveler1 gain meter -50/+50
 [symbol:leveler2_gain]                          leveler1 gain meter -50/+50
 [symbol:multiband_compressor_gain_band_%b]      5 multiband compressor gain meters -12/+12
@@ -144,8 +144,8 @@ ms_dec = _,_ <: +, -;
 // peak meters
 peakmeter_in = in_meter_l,in_meter_r with {
     envelop = abs : max(ba.db2linear(-60)) : ba.linear2db : min(12)  : max ~ -(8.0/ma.SR);
-    in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -60, 12));
-    in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -60, 12));
+    in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -60, 0));
+    in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -60, 0));
 };
 peakmeter_out = out_meter_l,out_meter_r with {
     envelop = abs : max(ba.db2linear(-60)) : ba.linear2db : min(0)  : max ~ -(8.0/ma.SR);
@@ -153,7 +153,7 @@ peakmeter_out = out_meter_l,out_meter_r with {
     out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", -60, 0));
 };
 
-lufs_in_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:lufs_in_meter][unit:dB]lufs IN",-60,12))) : _,_;
+lufs_in_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:lufs_in_meter][unit:dB]lufs IN",-60,0))) : _,_;
 lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:lufs_out_meter][unit:dB]lufs OUT",-60,0))) : _,_;
 
 

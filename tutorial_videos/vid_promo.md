@@ -39,7 +39,7 @@ PodcastPlugins are super easy-to-use and no prior knowledge in audio-engineering
 alt: With PodcastPlugins, you can easily enhance your audio — no prior audio engineering knowledge needed! (rephrase to active verbs.)
 
 3. Julia
-PodcastPlugins are Free and Open Source Software so everyone can use them, improve them and learn from them.
+PodcastPlugins is free and open-source software, so you can use it, modify it, and learn from it.
 
 alt: PodcastPlugins IS free and open-source software, so YOU can use it, improve it, and learn from it.
 
