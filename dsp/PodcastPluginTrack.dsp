@@ -12,25 +12,32 @@ import("stdfaust.lib");
 
 
 //----------------------- Initial Values -----------------------
+meters_minimum = -70;
+
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
 init_spectrum1 = -22,-19,-18,-16,  -17,-18,-18,-18,  -18,-19,-20,-22,  -24,-27,-26,-28,  -29,-29,-29,-29;
-init_mb_outGain = 0;
+
+init_sb_strength = 100;
+init_timbre = 0;
+
 init_leveler_target = -16;
 init_leveler_maxboost = 30;
 init_leveler_maxcut = 30;
 init_leveler_brake_threshold = -22;
 init_leveler_speed = 80;
 
+init_mbcomp_style = 5;
+
 //------------------------ GUI Symbols for DPF ----------------
 // METERS:
-// [symbol:input_peak_channel_0]                   left input peak meter -60/0
-// [symbol:input_peak_channel_1]                   right input peak meter -60/0
+// [symbol:input_peak_channel_0]                   left input peak meter -70/0
+// [symbol:input_peak_channel_1]                   right input peak meter -70/0
 // [symbol:spectral_ballancer_gain_band_%2i]     20 spectral ballancer  gain meters -12/+12
 // [symbol:leveler_gain]                         1 leveler gain meter -50/+50
 // [symbol:multiband_compressor_gain_band_%b]    5 multiband compressor gain meters -12/+12
-// [symbol:output_peak_channel_0]                  left output peak meter -60/0
-// [symbol:output_peak_channel_1]                  right output peak meter -60/0
-// [symbol:lufs_out_meter]                       1 lufs out meter -60/0
+// [symbol:output_peak_channel_0]                  left output peak meter -70/0
+// [symbol:output_peak_channel_1]                  right output peak meter -70/0
+// [symbol:lufs_out_meter]                       1 lufs out meter -70/0
 // [symbol:limiter_gain]                         1 limiter gain meter -20/0
 // [symbol:latency_global]                       1 global latency in seconds
 
@@ -46,7 +53,7 @@ init_leveler_speed = 80;
 
  //----------------------- GUI Elements -----------------------
 //preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][unit:dB]PreGain", 0, -20, 20, 0.1);
-//spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]spectrum morph",0.5,0,1,0.01);
+//timbre = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]spectrum morph",0.5,0,1,0.01);
 //sb_strength = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1]strength", 1,0,1,0.1);
 //delay = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]delay", 100,0,1000,1) / 1000 * ma.SR;
 //ballancer_checkbox = checkbox("v:Podcast Plugins/h:[0]Modules/[2]ballancer");
@@ -67,7 +74,7 @@ leveler_meter_gain = vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/
 //limit_neg = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 //threshLim = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
 //rel = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
-//mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2]mb morph",0.5,0,1,0.01);
+//mbcomp_style = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2]mb morph",0.5,0,1,0.01);
 //limiter_thresh = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 meter_mb(b,c) = _<: attach(_, (max(-12):min(12): vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8][symbol:multiband_compressor_gain_band_%b]gr %b[unit:dB]", -12, 12)));
 envelop_mb = si.smooth(ba.tau2pole(0.1)); //fi.lowpass(1,3);
@@ -75,8 +82,8 @@ envelop_mb = si.smooth(ba.tau2pole(0.1)); //fi.lowpass(1,3);
 
 //----------------------- Almost no GUI Elements -----------------------
 preGainSlider = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[1][symbol:input_gain][unit:dB]PreGain", 0, -20, 20, 0.1);
-spectrum_morph = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2][symbol:timbre]timbre",0,-5,5,0.1) : _+5 : _/ 10;
-sb_strength = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1][symbol:timbre_strength][unit:%]strength", 80,0,100,1) /100;
+timbre = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2][symbol:timbre]timbre",init_timbre,-5,5,0.1) : _+5 : _/ 10;
+sb_strength = vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[1][symbol:timbre_strength][unit:%]strength", init_sb_strength,0,100,1) /100;
 delay = Latency_spectral_ballancer * ma.SR; //vslider("v:Podcast Plugins/v:[1]Spectral Ballancer/h:Target Spectrum/h:Parameters/[2]delay", 100,0,1000,1) / 1000 * ma.SR;
 ballancer_checkbox = checkbox("v:Podcast Plugins/h:[0]Modules/[2][symbol:bypass_timbre]bypass timbre");
 prefilter_checkbox = 0; //checkbox("v:Podcast Plugins/h:[0]Modules/[1]prefilter");
@@ -96,7 +103,7 @@ limit_pos = init_leveler_maxboost; //vslider("v:Podcast Plugins/h:[2]Leveler, MB
 limit_neg = init_leveler_maxcut : ma.neg; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[2]Leveler/[8][unit:dB]max cut", init_leveler_maxcut, 0, 60, 1) : ma.neg;
 threshLim = -1; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1);
 // rel = 20*0.001; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[4]release[unit:ms]",20,5,100,1) *0.001;
-mbcomp_morph = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]style",0,-5,5,0.1) : _+5 : _/ 10;
+mbcomp_style = vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:Parameters/[2][symbol:style]style",init_mbcomp_style,-5,5,0.1) : _+5 : _/ 10;
 limiter_thresh = -1 : ba.db2linear; //vslider("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[4]Brickwall/[3]brickwall ceiling[unit:dB]",-1,-20,-0,0.1) : ba.db2linear;
 //meter_mb(b,c) = _; //_<: attach(_, (max(-12):min(12):vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[3]Multiband Conpressor/h:bands/[8]gr %b[unit:dB]", -6, 6)));
 bypass_global = checkbox("v:Podcast Plugins/h:[0]Modules/[9][symbol:bypass_global]bypass global");
@@ -123,7 +130,8 @@ process = _,_
                 : prefilter_bp 
                 : ballancer_bp 
                 : leveler 
-                : mbcomp_bp 
+                : mbcomp_bp
+                : deesser_bp
                 : limiter_lookahead))        
           : peakmeter_out
           : lufs_out_meter
@@ -139,6 +147,9 @@ bp2_del(sw,del,pr) = _,_ <: par(i,2,(_:de.delay(48000,del))),pr : (_*sm,_*sm),(_
     sm = sw : si.smoo;
 };
 
+//----------------------- ratio2strength ---------------------------
+ratio2strength(ratio) = 1-(1/ratio);
+
 //------------------------ PRE-GAIN Section ------------------------
 
 pregain(n) = par(i,n,gain) with {
@@ -147,14 +158,14 @@ pregain(n) = par(i,n,gain) with {
 
 // ----------------------- peak meters -----------------------
 peakmeter_in = in_meter_l,in_meter_r with {
-envelop = abs : max(ba.db2linear(-60)) : ba.linear2db : min(12)  : max ~ -(8.0/ma.SR);
-in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", -60, 0));
-in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", -60, 0));
+envelop = abs : max(ba.db2linear(meters_minimum)) : ba.linear2db : min(12)  : max ~ -(20.0/ma.SR);
+in_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_0]In 0", meters_minimum, 0));
+in_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[1]PreStage/[symbol:input_peak_channel_1]In 1", meters_minimum, 0));
            };
 peakmeter_out = out_meter_l,out_meter_r with {
-  envelop = abs : max(ba.db2linear(-60)) : ba.linear2db : min(12)  : max ~ -(8.0/ma.SR);
-  out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_0]Out 0", -60, 0));
-  out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", -60, 0));
+  envelop = abs : max(ba.db2linear(meters_minimum)) : ba.linear2db : min(12)  : max ~ -(20.0/ma.SR);
+  out_meter_l(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_0]Out 0", meters_minimum, 0));
+  out_meter_r(x) = attach(x, envelop(x) : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:output_peak_channel_1]Out 1", meters_minimum, 0));
 };
 
 //----------------------- Pre-Filter Section -----------------------
@@ -162,8 +173,21 @@ prefilter_bp = bp2(prefilter_checkbox, (prefilter,prefilter));
 
 prefilter = lowcut : highcut with {
     lowcut = fi.highpass(2,60);
-    highcut = fi.lowpass(2,16000);
+    highcut = fi.lowpass(2,18000);
 };
+
+//----------------------- Deesser Section -------------------------
+
+deesser_bp = bp2(deesser_checkbox, (deesser_stereo));
+deesser_checkbox = 0; //checkbox("v:Podcast Plugins/h:[0]Modules/[6]deesser");
+deesser_stereo = si.bus(2) <: si.bus(4) : deesser_sc, si.bus(2) : ro.interleave(2,2) : par(i,2,deesser_filter) : si.bus(2);
+
+deesser_sc = par(i,2,deesser_filter_sc) : co.peak_compression_gain_N_chan_db((4:ratio2strength),(target-4),0.001,0.1,6,1,1,2) : par(i,2,(deesser_meter));
+
+deesser_filter_sc = fi.bandpass(1,4000,8000);
+deesser_filter(red) = fi.peak_eq_cq((red), 6000, 2);
+
+deesser_meter = _; //_ <: attach(_, vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][1]deesserGR",-9,0));
 
 //----------------------- Ballancer Section -----------------------
 // Target spectrum curves (in dB) for the spectral ballancer
@@ -171,7 +195,7 @@ prefilter = lowcut : highcut with {
 // Create interpolated spectrum array using si.interpolate
 spectrum = par(i,BANDS, (
     ((spectrum1(BANDS):ba.selector(i,BANDS)), (spectrum2(BANDS):ba.selector(i,BANDS))) :
-    si.interpolate(spectrum_morph)));// : spectrum_meter(BANDS);
+    si.interpolate(timbre)));// : spectrum_meter(BANDS);
 
 ballancer_bp = bp2(ballancer_checkbox, ballancer_st);
 ballancer_st = _,_ :> _ *0.5 : ballancer <: _,_;
@@ -286,7 +310,7 @@ lk2_var(Tg)= par(i,2,kfilter : zi) :> 4.342944819 * log(max(1e-12)) : -(0.691) w
 };
 lk2 = lk2_fixed(3);
 lk2_short = lk2_fixed(3);
-lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:lufs_out_meter][unit:dB]lufs",-60,0))) : _,_;
+lufs_out_meter(l,r) = l,r <: l, attach(r, (lk2_short : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:lufs_out_meter][unit:dB]lufs",meters_minimum,0))) : _,_;
 
 lk2_time =
   // 0.4;
@@ -375,7 +399,11 @@ B_band_Compressor_N_chan(B,N) =
                 maxHold = 2048;
             };
         
-            gain_calc = si.bus(Nba*2) <: gain_calc_comp, gain_calc_exp : ro.interleave(10,2) : par (i,Nba*2,min) : par(b, Nba, par(c, Nch, meter_mb(b+1, c+1)));
+            gain_calc = si.bus(Nba*2) <: gain_calc_comp, gain_calc_exp 
+                : ro.interleave(10,2) 
+                : par (i,Nba*2,min) 
+                : par(i, B, (   (_+(gain_array : ba.selector(i,B)))  , (_+(gain_array : ba.selector(i,B)))))  
+                : par(b, Nba, par(c, Nch, meter_mb(b+1, c+1)));
 
             
         
@@ -393,7 +421,7 @@ B_band_Compressor_N_chan(B,N) =
             gain_calc_comp = (strength_array, thresh_array, att_array, rel_array, knee_array, link_array, si.bus(N*B))
                     : ro.interleave(B,6+N)
                     : par(i, B, compressor(N,prePost))
-                    : par(i, B, (   (_+(gain_array : ba.selector(i,B)))  , (_+(gain_array : ba.selector(i,B)))))    
+                    //: par(i, B, (   (_+(gain_array : ba.selector(i,B)))  , (_+(gain_array : ba.selector(i,B)))))    
                 ;
 
 
@@ -425,99 +453,110 @@ B_band_Compressor_N_chan(B,N) =
             };
 
             /* Cross over frequency range */
-            fl = 100;
-            fh = 7000;
+            fl = 120;
+            fh = 6000;
 
 
             // parameter arrays for the multiband compressor
 
-            strength_array1 = 0.2,0.2,0.2,0.3,0.4;
-            strength_array2 = 0.4,0.5,0.6,0.7,0.8;
+            ratio_array1 = 1.1,1.1,1.1,1.1,1.1;
+            ratio_array2 = 2,2,2,2,2;
+            //ratio2strength(ratio) = 1-(1/ratio);
+
+            strength_array1 =  ratio_array1 : par(i,5,ratio2strength);
+            strength_array2 =  ratio_array2 : par(i,5,ratio2strength);
 
             strength_array = par(i,Nba, (
                 ((strength_array1:ba.selector(i,Nba)), (strength_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
-            thresh_array1 = 0,6,4,2,0 : par(i,Nba,(_+target)); 
-            thresh_array2 = -1,4,2,0,-2 : par(i,Nba,(_+target));
+            thresh_array1 = -13,-12,-12,-16,-18 : par(i,Nba,(_+target)); 
+            thresh_array2 = -23,-16,-18,-23,-22 : par(i,Nba,(_+target));
                 
             thresh_array = par(i,Nba, (
                 ((thresh_array1:ba.selector(i,Nba)), (thresh_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
-            att_array1 = 15,12,10,8,5       : par(i,Nba,_*0.001);
-            att_array2 = 10,8,6,4,2         : par(i,Nba,_*0.001);
+            //att_array1 = 15,12,10,8,5       : par(i,Nba,_*0.001);
+            //att_array2 = 12,10,8,7,6         : par(i,Nba,_*0.001);
+            att_array1 = 5,5,5,5,5         : par(i,Nba,_*0.001);
+            att_array2 = 2,2,2,2,2         : par(i,Nba,_*0.001);
                 
             att_array = par(i,Nba, (
                 ((att_array1:ba.selector(i,Nba)), (att_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
-            rel_array1 = 80,70,60,50,40     : par(i,Nba,_*0.001);
-            rel_array2 = 30,30,20,10,10     : par(i,Nba,_*0.001);
-                
+            rel_array1 = 200,160,120,80,40     : par(i,Nba,_*0.001);
+            //rel_array2 = 100,80,60,40,20     : par(i,Nba,_*0.001);
+            rel_array2 = 15,20,30,35,40     : par(i,Nba,_*0.001);
+ 
             rel_array = par(i,Nba, (
                 ((rel_array1:ba.selector(i,Nba)), (rel_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
-            knee_array1 = 6,6,7,8,9;
-            knee_array2 = 6,6,7,8,9;
+            knee_array1 = 6,6,6,6,6;
+            knee_array2 = 0,0,0,0,0;
                 
             knee_array = par(i,Nba, (
                 ((knee_array1:ba.selector(i,Nba)), (knee_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             gain_array1 = 0,0,0,0,0;
-            gain_array2 = 1,1,1,1,1;
+            gain_array2 = 6,6,6,6,6;
                 
             gain_array = par(i,Nba, (
                 ((gain_array1:ba.selector(i,Nba)), (gain_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             link_array = (1,1,1,1,1);
             crossoverFreqs = LogArray(B-1,fl,fh);
 
             // parameter arrays for the multiband expander
-            expander_thresh_array1 = -40,-40,-40,-40,-40 : par(i,Nba,(_+target));
-            expander_thresh_array2 = -40,-38,-35,-35,-35 : par(i,Nba,(_+target));
+
+            //expander_thresh_array1 = -40,-40,-40,-40,-40 : par(i,Nba,(_+target));
+            //expander_thresh_array2 = -25,-20,-25,-30,-35 : par(i,Nba,(_+target));
+            expander_thresh_array1 = thresh_array1;
+            expander_thresh_array2 = thresh_array2;
 
             expander_thresh_array = par(i,Nba, (
                 ((expander_thresh_array1:ba.selector(i,Nba)), (expander_thresh_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             expander_strength_array1 = 10,10,10,10,10;
             expander_strength_array2 = 20,20,30,35,40;
+            //expander_strength_array2 = 0,0,0,0,0;
 
             expander_strength_array = par(i,Nba, (
                 ((expander_strength_array1:ba.selector(i,Nba)), (expander_strength_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             expander_range_array1 = -3,-3,-3,-3,-3;
             expander_range_array2 = -30,-30,-30,-30,-30;
 
             expander_range_array = par(i,Nba, (
                 ((expander_range_array1:ba.selector(i,Nba)), (expander_range_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             expander_att_array1 = 0.005,0.005,0.002,0.002,0.001;
             expander_att_array2 = 0.01,0.01,0.005,0.002,0.001;
 
             expander_att_array = par(i,Nba, (
                 ((expander_att_array1:ba.selector(i,Nba)), (expander_att_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             expander_rel_array1 = 1,0.8,0.6,0.4,0.3;
-            expander_rel_array2 = 0.5,0.4,0.2,0.1,0.05;
+            expander_rel_array2 = 0.8,0.8,0.6,0.4,0.2;
 
             expander_rel_array = par(i,Nba, (
                 ((expander_rel_array1:ba.selector(i,Nba)), (expander_rel_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
             expander_knee_array1 = 12,12,12,12,12;
             expander_knee_array2 = 6,6,6,6,6;
 
             expander_knee_array = par(i,Nba, (
                 ((expander_knee_array1:ba.selector(i,Nba)), (expander_knee_array2:ba.selector(i,Nba))) :
-                si.interpolate(mbcomp_morph)));
+                si.interpolate(mbcomp_style)));
 
 
 
@@ -558,6 +597,6 @@ limiter_lad_N(N, LD, ceiling, attack, hold, release) =
            maxN(1) = _;
            maxN(2) = max;
            maxN(N) = max(maxN(N - 1));
-           limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR",-60,0));
+           limiter_meter = _ <: attach(_,abs : ba.linear2db : vbargraph("v:Podcast Plugins/h:[2]Leveler, MBcomp, Limiter/h:[6]PostStage/[symbol:limiter_gain][0]LimiterGR",meters_minimum,0));
       };
 
