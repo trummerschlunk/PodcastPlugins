@@ -116,6 +116,17 @@ protected:
             getWindow().openFileBrowser(opts);
         }
 
+#if 0
+        ImGui::SameLine();
+
+        if (ImGui::Button("Dump screenshot in Home dir"))
+        {
+            String filename(getHomeDir());
+            filename += "PodcastScreenshot.ppm";
+            getWindow().renderToPicture(filename);
+        }
+#endif
+
         val = d_roundToIntPositive(theme.borderSize / scaleFactor);
         if (ImGui::SliderInt("Border Size", &val, 1, 10))
         {
