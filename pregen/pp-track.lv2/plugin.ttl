@@ -196,7 +196,7 @@
     
         lv2:name "strength" ;
         lv2:symbol "timbre_strength" ;
-        lv2:default 80.0 ;
+        lv2:default 100.0 ;
         lv2:minimum 0.0 ;
         lv2:maximum 100.0 ;
         
@@ -282,7 +282,7 @@
     
         lv2:name "style" ;
         lv2:symbol "style" ;
-        lv2:default 0.0 ;
+        lv2:default 5.0 ;
         lv2:minimum -5.0 ;
         lv2:maximum 5.0 ;
         
@@ -639,7 +639,7 @@
         lv2:index 35 ;
         lv2:name "In 0" ;
         lv2:symbol "input_peak_channel_0" ;
-        lv2:minimum -60.0 ;
+        lv2:minimum -70.0 ;
         lv2:maximum 0.0 ;
         
         
@@ -655,7 +655,7 @@
         lv2:index 36 ;
         lv2:name "In 1" ;
         lv2:symbol "input_peak_channel_1" ;
-        lv2:minimum -60.0 ;
+        lv2:minimum -70.0 ;
         lv2:maximum 0.0 ;
         
         
@@ -779,7 +779,7 @@
         lv2:index 43 ;
         lv2:name "LimiterGR" ;
         lv2:symbol "limiter_gain" ;
-        lv2:minimum -60.0 ;
+        lv2:minimum -70.0 ;
         lv2:maximum 0.0 ;
         
         
@@ -795,7 +795,7 @@
         lv2:index 44 ;
         lv2:name "lufs" ;
         lv2:symbol "lufs_out_meter" ;
-        lv2:minimum -60.0 ;
+        lv2:minimum -70.0 ;
         lv2:maximum 0.0 ;
         
         
@@ -813,7 +813,7 @@
         lv2:index 45 ;
         lv2:name "Out 0" ;
         lv2:symbol "output_peak_channel_0" ;
-        lv2:minimum -60.0 ;
+        lv2:minimum -70.0 ;
         lv2:maximum 0.0 ;
         
         
@@ -829,7 +829,7 @@
         lv2:index 46 ;
         lv2:name "Out 1" ;
         lv2:symbol "output_peak_channel_1" ;
-        lv2:minimum -60.0 ;
+        lv2:minimum -70.0 ;
         lv2:maximum 0.0 ;
         
         
