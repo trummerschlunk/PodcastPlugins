@@ -17,7 +17,7 @@ meters_minimum = -70;
 init_spectrum2 = -24,-22,-20,-19,  -18,-18,-18,-18,  -20,-22,-24,-24,  -23,-24,-25,-25,  -24,-23,-20,-16;
 init_spectrum1 = -22,-19,-18,-16,  -17,-18,-18,-18,  -18,-19,-20,-22,  -24,-27,-26,-28,  -29,-29,-29,-29;
 
-init_sb_strength = 100;
+init_sb_strength = 80;
 init_timbre = 0;
 
 init_leveler_target = -16;
@@ -26,7 +26,7 @@ init_leveler_maxcut = 30;
 init_leveler_brake_threshold = -22;
 init_leveler_speed = 80;
 
-init_mbcomp_style = 5;
+init_mbcomp_style = 0;
 
 //------------------------ GUI Symbols for DPF ----------------
 // METERS:
@@ -197,7 +197,7 @@ spectrum = par(i,BANDS, (
     ((spectrum1(BANDS):ba.selector(i,BANDS)), (spectrum2(BANDS):ba.selector(i,BANDS))) :
     si.interpolate(timbre)));// : spectrum_meter(BANDS);
 
-ballancer_bp = bp2(ballancer_checkbox, ballancer_st);
+ballancer_bp = bp2_del(ballancer_checkbox, Latency_spectral_ballancer * ma.SR, ballancer_st);
 ballancer_st = _,_ :> _ *0.5 : ballancer <: _,_;
 
 ballancer(l) = l <: 
