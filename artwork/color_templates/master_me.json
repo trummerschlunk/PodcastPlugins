@@ -1,0 +1,23 @@
+{
+  "borderSize": 1,
+  "fontSize": 15,
+  "inputLevelBracket1": "#7f4500",
+  "inputLevelBracket2": "#336c33",
+  "knobAlternativeRingColor": "#b055bf",
+  "knobIndicatorSize": 4,
+  "knobRingColor": "#3cb4aa",
+  "levelMeterAlternativeColor": "#b055bf",
+  "levelMeterColor": "#3cb4aa",
+  "padding": 2,
+  "sidelabelsFontSize": 13,
+  "textDarkColor": "#787878",
+  "textHeight": 29,
+  "textLightColor": "#ffffff",
+  "textMidColor": "#a1a1a1",
+  "widgetActiveColor": "#3cb4aa",
+  "widgetAlternativeColor": "#6159ff",
+  "widgetBackgroundColor": "#141414",
+  "widgetForegroundColor": "#dcdcdc",
+  "widgetLineSize": 1,
+  "windowBackgroundColor": "#3d3d3d"
+}
