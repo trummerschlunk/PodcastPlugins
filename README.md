@@ -217,4 +217,17 @@ PodcastPlugins use [DPF](https://github.com/DISTRHO/DPF) as a plugin framework.
 
 ## GUI
 
-tba
+The GUI requires an OpenGL2 capable graphics card (or software rendering e.g. via MESA on Linux).
+
+It uses a lot of UI elements from [DPF-Widgets](https://github.com/DISTRHO/DPF-Widgets).
+
+A "theme editor" is available when clicking the plugin name, allowing to customise the UI colors and a few sizes.
+Clicking "Save" will store it locally on disk so next time the UI is open it will use this as the startup theme.
+
+Check [artwork/color_templates](./artwork/color_templates/) on this plugin source code for a few other themes.
+
+![Plugin GUI](./gui/PodcastPluginTrack_screenshot_alt.png)
+
+## License
+
+PodcastPlugins are licensed under GPLv3+, see [LICENSE](LICENSE) for more details.
