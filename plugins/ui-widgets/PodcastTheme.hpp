@@ -15,12 +15,20 @@
 struct PodcastTheme : QuantumTheme
 {
     uint sidelabelsFontSize = 13;
-    Color inputLevelBracket1 = Color(255, 0, 0, 0.75f);
-    Color inputLevelBracket2 = Color(0, 255, 0, 0.75f);
+    Color inputLevelBracket1 = Color::fromHTML("#7f4500");
+    Color inputLevelBracket2 = Color::fromHTML("#336c33");
 
     PodcastTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
     {
         widgetLineSize = 1;
+        knobIndicatorSize = 3;
+        knobAlternativeRingColor = Color::fromHTML("#b055bf");
+        knobRingColor = Color::fromHTML("#3cb4aa");
+        levelMeterAlternativeColor = Color::fromHTML("#b055bf");
+        levelMeterColor = Color::fromHTML("#3cb4aa");
+        textMidColor = Color::fromHTML("#a1a1a1");
+        widgetActiveColor = Color::fromHTML("#3cb4aa");
+        widgetAlternativeColor = Color::fromHTML("#6159ff");
 
         if (loadThemeNow)
         {
