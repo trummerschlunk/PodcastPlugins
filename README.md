@@ -59,7 +59,7 @@ Podcast Plugins are cross-platform and will work on the following operating syst
 
 Supported plugin formats are CLAP, VST, VST3, LV2 and AU.
 
-Download the installers for your operating system [here](https://github.com/trummerschlunk/PodcastPlugins/actions). (link tba)
+Download the installers for your operating system [here](https://github.com/trummerschlunk/PodcastPlugins/releases/latest).
 
 The installer will put the plugin files in the appropriate folders on your system. The next time you start your DAW, they will be available.
 
