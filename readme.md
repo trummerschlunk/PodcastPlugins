@@ -68,7 +68,7 @@ tba
 ## other OS
 tba
 
-# Getting Startet
+# Getting Started
 After installation, two plugins are available in your DAW:
 
 ## PocastPlugins **TRACK**
