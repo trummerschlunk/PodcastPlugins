@@ -31,6 +31,24 @@ Programming guidance and lovely bits of foss code have been provided by [Robin G
 
 PodcastPlugins are supported by the PrototypeFund.
 
+# Building
+Build requirements: gcc or clang as compiler, python and gnu make.
+
+On Linux the following extra development libraries are needed:
+ - OpenGL
+ - X11
+ - Xext
+ - Xrandr
+
+Runtime requirements: OpenGL2 capable graphics card (or software rendering via MESA on Linux).
+
+Once requirements are in place, simply run:
+
+```
+git submodule update --init --recursive
+make
+```
+
 # Installation
 Podcast Plugins are cross-platform and will work on the following operating systems:
 
@@ -39,7 +57,7 @@ Podcast Plugins are cross-platform and will work on the following operating syst
 - [linux](#install_linux)
 - [other](#install_other)
 
-Supported plugin formats are CLAP, VST, VST3, LV2 and AU. 
+Supported plugin formats are CLAP, VST, VST3, LV2 and AU.
 
 Download the installers for your operating system [here](https://github.com/trummerschlunk/PodcastPlugins/actions). (link tba)
 
@@ -140,7 +158,7 @@ With the two big knobs in the middle, you can tweak the overall sound of your po
 The middle position will work fine in most cases. It's more or less a question of taste. Extreme settings (+/-5) are not so much recommended.
 
 ### **STYLE**
-**STYLE** controls the estethics of the processing. It ranges from ***natural*** to ***radio-ish***. 
+**STYLE** controls the estethics of the processing. It ranges from ***natural*** to ***radio-ish***.
 
 The middle position will work fine in most cases. Extreme settings (+/-5) are not so much recommended.
 
