@@ -229,12 +229,13 @@ TAR_ARGS = \
 	--exclude=dpf-widgets/opengl/DearImGuiColorTextEditor* \
 	--exclude=dpf-widgets/tests \
 	--transform='s,^\.\.,-.-.,' \
-	--transform='s,^\.,podcast-plugins-$(VERSION),' \
+	--transform='s,^\.,podcast-plugins-$(VERSION)-src,' \
 	--transform='s,^-\.-\.,..,' \
 
 tarball:
-	rm -f ../podcast-plugins-$(VERSION).tar.xz
-	tar -c --lzma $(TAR_ARGS) -f ../podcast-plugins-$(VERSION).tar.xz .
+	rm -f ../podcast-plugins-$(VERSION)-src.tar.xz
+	tar -c --lzma $(TAR_ARGS) -f ../podcast-plugins-$(VERSION)-src.tar.xz .
+	mv ../podcast-plugins-$(VERSION)-src.tar.xz .
 
 # ---------------------------------------------------------------------------------------------------------------------
 # rules for custom faustpp build
