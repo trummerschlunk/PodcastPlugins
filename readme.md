@@ -27,7 +27,7 @@ The plugins are made by [ƒalkTX](https://github.com/falkTX) using [DPF](https:/
 
 The logo and signet are by [Peter Schlossnikel](https://petriografie.de).
 
-Programming guidance and lovely bits of foss code have been provided by [Robin Gareus](https://github.com/x42), [magnetophone](https://github.com/magnetophon), [Jakob Dübel](https://gist.github.com/jkbd), [Julius Smith](https://ccrma.stanford.edu/~jos/), [Dario](https://github.com/dariosanfilippo) and the Faust community. Thanks <3
+Programming guidance and lovely bits of foss code have been provided by [Robin Gareus(x42)](https://github.com/x42), [Bart Brouns(magnetophon)](https://github.com/magnetophon), [Jakob Dübel(jkdb)](https://gist.github.com/jkbd), [Julius Smith](https://ccrma.stanford.edu/~jos/), [Dario Sanfilippo](https://github.com/dariosanfilippo) and the Faust community. Thanks <3
 
 PodcastPlugins are supported by the PrototypeFund.
 
