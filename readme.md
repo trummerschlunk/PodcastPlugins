@@ -1,6 +1,6 @@
 ![Logo](./artwork/logo_podcast_plugins/track/logo_power_plugins_signet_black.png)
 
-
+[![PodcastPluginsYT](https://img.youtube.com/vi/4BhnwWX1spo/0.jpg)](https://www.youtube.com/watch?v=4BhnwWX1spo)
 # PodcastPlugins
 
 Podcast Plugins are easy-to-use plugins for speech enhancement, specifically designed for podcasters who can't or don't want to dig deeper into the craft of sound engineering.
