@@ -45,9 +45,8 @@ static_assert(kParameterRanges[kParameter_input_peak_channel_0].def ==
               kParameterRanges[kParameter_output_peak_channel_0].def, "channel data mismatch");
 static_assert(kParameterRanges[kParameter_input_peak_channel_0].min ==
               kParameterRanges[kParameter_output_peak_channel_0].min, "channel data mismatch");
-// TODO
-// static_assert(kParameterRanges[kParameter_input_peak_channel_0].max ==
-//               kParameterRanges[kParameter_output_peak_channel_0].max, "channel data mismatch");
+static_assert(kParameterRanges[kParameter_input_peak_channel_0].max ==
+              kParameterRanges[kParameter_output_peak_channel_0].max, "channel data mismatch");
 
 #ifdef PODCAST_MASTER
 static_assert(kParameterRanges[kParameter_leveler_gain1].min == -50.f, "leveler1 gain -50 dB min");
@@ -729,6 +728,7 @@ protected:
         case kParameter_bypass_leveler:
             enabled.leveler = value < 0.5f;
             inputLevelerGroup.enableSwitch.setChecked(enabled.leveler, false);
+            inputLevelerGroup.enableSwitch.setEnabled(enabled.leveler && enabled.global, false);
             inputLevelerGroup.leveler.setEnabled(enabled.leveler && enabled.global);
             inputLevelerGroup.targetKnob.setEnabled(enabled.leveler && enabled.global, false);
            #ifdef PODCAST_MASTER
@@ -738,6 +738,7 @@ protected:
         case kParameter_bypass_timbre:
             enabled.timbre = value < 0.5f;
             contentGroup.timbreSwitch.setChecked(enabled.timbre, false);
+            contentGroup.timbreSwitch.setEnabled(enabled.timbre && enabled.global, false);
             contentGroup.timbreKnob.setEnabled(enabled.timbre && enabled.global, false);
             contentGroup.graph.setEnabled2(enabled.timbre && enabled.global);
            #ifdef PODCAST_TRACK
@@ -747,6 +748,7 @@ protected:
         case kParameter_bypass_style:
             enabled.style = value < 0.5f;
             contentGroup.styleSwitch.setChecked(enabled.style, false);
+            contentGroup.styleSwitch.setEnabled(enabled.style && enabled.global, false);
             contentGroup.styleKnob.setEnabled(enabled.style && enabled.global, false);
             contentGroup.graph.setEnabled1(enabled.style && enabled.global);
             break;
@@ -946,6 +948,7 @@ protected:
         {
         case kParameter_bypass_leveler:
             enabled.leveler = enable;
+            inputLevelerGroup.enableSwitch.setEnabled(enable && enabled.global, false);
             inputLevelerGroup.leveler.setEnabled(enable && enabled.global);
             inputLevelerGroup.targetKnob.setEnabled(enable && enabled.global, false);
            #ifdef PODCAST_MASTER
@@ -954,6 +957,7 @@ protected:
             break;
         case kParameter_bypass_timbre:
             enabled.timbre = enable;
+            contentGroup.timbreSwitch.setEnabled(enable && enabled.global, false);
             contentGroup.timbreKnob.setEnabled(enable && enabled.global, false);
             contentGroup.graph.setEnabled2(enable && enabled.global);
            #ifdef PODCAST_TRACK
@@ -962,6 +966,7 @@ protected:
             break;
         case kParameter_bypass_style:
             enabled.style = enable;
+            contentGroup.styleSwitch.setEnabled(enable && enabled.global, false);
             contentGroup.styleKnob.setEnabled(enable && enabled.global, false);
             contentGroup.graph.setEnabled1(enable && enabled.global);
             break;
