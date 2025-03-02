@@ -1,4 +1,4 @@
-![Logo](./artwork/logo_podcast_plugins/track/logo_power_plugins_signet_black.png)
+![Logo](./artwork/logo_podcast_plugins/track/logo_power_plugins_signet_grey.png)
 
 https://github.com/user-attachments/assets/138ce3f5-1d01-4d06-97ae-392bbaa90547
 
