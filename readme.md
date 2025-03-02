@@ -2,7 +2,6 @@
 
 
 # PodcastPlugins
-Podcast Plugins are **under development**. The first release is scheduled for 1st of March 2025.
 
 Podcast Plugins are easy-to-use plugins for speech enhancement, specifically designed for podcasters who can't or don't want to dig deeper into the craft of sound engineering.
 
@@ -26,7 +25,7 @@ The plugins are made by [ƒalkTX](https://github.com/falkTX) using [DPF](https:/
 
 The logo and signet are by [Peter Schlossnikel](https://petriografie.de).
 
-Programming guidance and lovely bits of foss code have been provided by [Robin](https://github.com/x42), [magnetophone](https://github.com/magnetophon), [Jakob](https://gist.github.com/jkbd), [Dario](https://github.com/dariosanfilippo). Thanks <3
+Programming guidance and lovely bits of foss code have been provided by [Robin Gareus](https://github.com/x42), [magnetophone](https://github.com/magnetophon), [Jakob Dübel](https://gist.github.com/jkbd), [Julius Smith](https://ccrma.stanford.edu/~jos/), [Dario](https://github.com/dariosanfilippo) and the Faust community. Thanks <3
 
 PodcastPlugins are supported by the PrototypeFund.
 
