@@ -1,5 +1,7 @@
 ![Logo](./artwork/logo_podcast_plugins/track/logo_power_plugins_signet_grey.png)
 
+Download the installers for your operating system [here](https://github.com/trummerschlunk/PodcastPlugins/releases/latest).
+
 https://github.com/user-attachments/assets/138ce3f5-1d01-4d06-97ae-392bbaa90547
 
 Watch the [HD version on youtube](https://www.youtube.com/watch?v=mGiD6aPvcZA)
