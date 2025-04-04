@@ -81,7 +81,12 @@ tba
 <a id="install_linux"></a>
 
 ## linux
-tba
+
+An example with the LADSPA plugin illustrates how to install any of the other formats: copy to either the system library in $PREFIX/lib/ladspa with $PREFIX being /usr/local or /usr.
+For a user-only install copy into $HOME/.ladspa/ or if ~/.local is preferred, declare `export LADSPA_PATH=~/.local/lib/ladspa` in your ~/.profile and restart your user session.
+This scheme applies equally to clap, lv2, vst and vst3 too.
+
+Want to use a plugin within a particular software or tool? Ardour loads VST3. Audacity VST, LADSPA and LV2 plugins. ffmpeg and sox can use LADSPA.
 
 <a id="install_other"></a>
 
@@ -229,6 +234,14 @@ Clicking "Save" will store it locally on disk so next time the UI is open it wil
 Check [artwork/color_templates](./artwork/color_templates/) on this plugin source code for a few other themes.
 
 ![Plugin GUI](./gui/PodcastPluginTrack_screenshot_alt.png)
+
+## CLI
+
+If you prefer batch operations, ffmpeg and sox can use the LADSPA plugin. Two very simple usage examples are:
+```
+ffmpeg -i in.wav -filter_complex 'ladspa=pp-master-ladspa:plugin=pp_master' out.wav
+sox in.wav out.wav ladspa pp-master-ladspa pp_master 1 1
+```
 
 ## License
 
