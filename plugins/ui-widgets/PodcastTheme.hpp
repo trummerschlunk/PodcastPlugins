@@ -32,7 +32,7 @@ struct PodcastTheme : QuantumTheme
 
         if (loadThemeNow)
         {
-            String filename(getConfigDir());
+            String filename(getSpecialDir(kSpecialDirConfig));
             filename += "PodcastTheme.json";
             loadTheme(filename);
         }

@@ -90,7 +90,7 @@ protected:
 
         if (ImGui::Button("Save"))
         {
-            String filename(getConfigDir());
+            String filename(getSpecialDir(kSpecialDirConfig));
             filename += "PodcastTheme.json";
             saveTheme(filename);
         }
