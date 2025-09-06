@@ -19,6 +19,12 @@ export MODGUI_CLASS_NAME = pp_track
 export NVG_FONT_TEXTURE_FLAGS = NVG_IMAGE_NEAREST
 export SKIP_NATIVE_AUDIO_FALLBACK = true
 
+# pick UI type
+include $(DPF_PATH)/Makefile.base.mk
+ifeq ($(WASM),true)
+export UI_TYPE = gles2
+endif
+
 include $(DPF_PATH)/Makefile.plugins.mk
 
 BUILD_CXX_FLAGS += -DIMGUI_DISABLE_DEBUG_TOOLS

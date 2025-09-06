@@ -47,9 +47,15 @@ DPF_EXTRA_ARGS  = DGL_NAMESPACE=PodcastPluginsDGL
 DPF_EXTRA_ARGS += NVG_FONT_TEXTURE_FLAGS=NVG_IMAGE_NEAREST
 DPF_EXTRA_ARGS += SKIP_NATIVE_AUDIO_FALLBACK=true
 
+ifeq ($(WASM),true)
+UI_TYPE = gles2
+else
+UI_TYPE = opengl
+endif
+
 dgl:
 ifeq ($(HAVE_OPENGL),true)
-	$(MAKE) -C dpf/dgl opengl $(DPF_EXTRA_ARGS)
+	$(MAKE) -C dpf/dgl $(UI_TYPE) $(DPF_EXTRA_ARGS)
 endif
 
 # ---------------------------------------------------------------------------------------------------------------------

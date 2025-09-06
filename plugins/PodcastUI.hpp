@@ -2,6 +2,7 @@
 // SPDX-License-Identifier: GPL-3.0-or-later
 
 #include "DistrhoUI.hpp"
+#include "DistrhoStandaloneUtils.hpp"
 
 #include "NanoVG.hpp"
 #include "Quantum.hpp"
@@ -566,11 +567,15 @@ protected:
     QuantumRadioSwitch globalEnableSwitch;
    #endif
 
+    // standalone widgets
+    QuantumButton standaloneInput;
+
     // plugin name
     NanoImage imageName;
     Rectangle<double> imageNameArea;
 
-    // for when theme changes
+    // UI actions without GL context
+    bool openInspectorWindowOnNextDisplay = false;
     bool resizeOnNextIdle = false;
 
     // little helper for text input on double click
@@ -589,7 +594,7 @@ protected:
 
 public:
     PodcastUI()
-        : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
+        : UI(),
           theme(getScaleFactor()),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),
@@ -602,6 +607,7 @@ public:
           globalEnableLabel(this, theme),
           globalEnableSwitch(this, theme),
          #endif
+          standaloneInput(this, theme),
           doubleClickHelper(nullptr),
           inspectorWindow(nullptr)
     {
@@ -619,6 +625,17 @@ public:
         globalEnableSwitch.setId(kParameter_bypass_global);
         globalEnableSwitch.setName("Global Enable Button");
        #endif
+
+        if (isUsingNativeAudio() && supportsAudioInput() && !isAudioInputEnabled())
+        {
+            standaloneInput.setLabel("Enable Input");
+            standaloneInput.setName("Enable Input");
+            standaloneInput.setCallback(this);
+        }
+        else
+        {
+            standaloneInput.hide();
+        }
 
         if (scaleFactor >= 1.5)
             imageName = createImageFromMemory(Name::name_2xData, Name::name_2xDataSize, 0);
@@ -680,6 +697,9 @@ public:
                                           startY);
        #endif
         outputGroup.setAbsolutePos(width - outputGroup.getWidth() - theme.windowPadding - theme.padding, startY);
+
+        standaloneInput.setAbsolutePos(contentGroup.getAbsoluteX() + contentGroup.getWidth() * 0.5f - standaloneInput.getWidth() * 0.5f,
+                                       midY - standaloneInput.getHeight() * 0.5f);
     }
 
     void resizeWidgets(const uint width, const uint height)
@@ -693,6 +713,8 @@ public:
         globalEnableLabel.adjustSize();
         globalEnableSwitch.adjustSize();
        #endif
+
+        standaloneInput.adjustSize();
 
         inputGroup.adjustSize(metrics, contentHeight);
         inputLevelerGroup.adjustSize(metrics, contentHeight);
@@ -871,6 +893,16 @@ protected:
                                imageNameArea.getWidth(),
                                imgSize.getHeight() * imgScaleFactor, 0, imageName, 1.f));
         fill();
+
+        if (openInspectorWindowOnNextDisplay)
+        {
+            openInspectorWindowOnNextDisplay = false;
+
+            if (inspectorWindow == nullptr)
+                inspectorWindow = new InspectorWindow(this, this, theme);
+
+            inspectorWindow->isOpen = true;
+        }
     }
 
     bool onMouse(const MouseEvent& ev) override
@@ -879,12 +911,7 @@ protected:
             getWindow().focus();
 
         if (ev.button == 1 && ev.press && imageNameArea.contains(ev.pos))
-        {
-            if (inspectorWindow == nullptr)
-                inspectorWindow = new InspectorWindow(this, this, theme);
-
-            inspectorWindow->isOpen = true;
-        }
+            openInspectorWindowOnNextDisplay = true;
 
         return UI::onMouse(ev);
     }
@@ -920,6 +947,13 @@ protected:
 
     void buttonClicked(SubWidget* const widget, int) override
     {
+        if (widget == &standaloneInput)
+        {
+            if (requestAudioInput())
+                standaloneInput.hide();
+            return;
+        }
+
         const uint id = widget->getId();
 
         QuantumRadioSwitch* const qswitch = reinterpret_cast<QuantumRadioSwitch*>(widget);
