@@ -3,9 +3,11 @@
 
 #pragma once
 
+#include "DistrhoUI.hpp"
+#include "DistrhoPluginUtils.hpp"
+
 #include "DearImGui.hpp"
 #include "PodcastTheme.hpp"
-#include "DistrhoPluginUtils.hpp"
 #include "extra/Filesystem.hpp"
 
 #include "json.hpp"
@@ -30,10 +32,9 @@ static std::string ColorToString(const Color& color)
 
 class InspectorWindow : public ImGuiTopLevelWidget
 {
-    std::list<SubWidget*> subwidgets;
-
-    PodcastTheme& theme;
+    UI* const ui;
     QuantumThemeCallback* const themeChangeCallback;
+    PodcastTheme& theme;
 
     // for file export/import callbacks
     bool isSaving = true;
@@ -41,11 +42,11 @@ class InspectorWindow : public ImGuiTopLevelWidget
 public:
     bool isOpen = true;
 
-    explicit InspectorWindow(TopLevelWidget* const tlw, PodcastTheme& t, QuantumThemeCallback* const cb)
-        : ImGuiTopLevelWidget(tlw->getWindow()),
-          subwidgets(tlw->getChildren()),
-          theme(t),
-          themeChangeCallback(cb) {}
+    explicit InspectorWindow(UI* const ui, QuantumThemeCallback* const cb, PodcastTheme& t)
+        : ImGuiTopLevelWidget(ui->getWindow()),
+          ui(ui),
+          themeChangeCallback(cb),
+          theme(t) {}
 
     void uiFileBrowserSelected(const char* const filename)
     {
@@ -83,7 +84,7 @@ protected:
         if (ImGui::Button("Reset"))
         {
             changedColors = true;
-            theme = PodcastTheme(scaleFactor, false);
+            theme = PodcastTheme(ui->getBackgroundColor(), ui->getForegroundColor(), scaleFactor, false);
         }
 
         ImGui::SameLine();
@@ -195,7 +196,7 @@ protected:
 
         ImGui::Separator();
         ImGui::TextUnformatted("Widgets");
-        displaySubWidget(subwidgets);
+        displaySubWidget(ui->getChildren());
 
         ImGui::End();
 
@@ -222,6 +223,7 @@ private:
         if (file.ok())
         {
             nlohmann::json j;
+            j["useBackgroundGradient"] = theme.useBackgroundGradient;
             j["borderSize"] = d_roundToIntPositive(theme.borderSize / scaleFactor);
             j["padding"] = d_roundToIntPositive(theme.padding / scaleFactor);
             j["fontSize"] = d_roundToIntPositive(theme.fontSize / scaleFactor);

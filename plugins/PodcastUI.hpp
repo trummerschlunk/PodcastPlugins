@@ -590,7 +590,7 @@ protected:
 public:
     PodcastUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
-          theme(getScaleFactor()),
+          theme(getBackgroundColor(), getForegroundColor(), getScaleFactor()),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),
           contentGroup(this, this, this, theme),
@@ -839,23 +839,26 @@ protected:
         fillColor(theme.windowBackgroundColor);
         fill();
 
-        const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
-        const Color color1(color2.withAlpha(0.f));
+        if (theme.useBackgroundGradient)
+        {
+            const Color color2(Color(theme.widgetBackgroundColor, theme.windowBackgroundColor, 0.5f).withAlpha(0.5f));
+            const Color color1(color2.withAlpha(0.f));
 
-        beginPath();
-        rect(0, 0, widthBy3, height);
-        fillPaint(linearGradient(0, 0, widthBy3, 0, color2, color1));
-        fill();
+            beginPath();
+            rect(0, 0, widthBy3, height);
+            fillPaint(linearGradient(0, 0, widthBy3, 0, color2, color1));
+            fill();
 
-        beginPath();
-        rect(width - widthBy3, 0, widthBy3, height);
-        fillPaint(linearGradient(width - widthBy3, 0, width, 0, color1, color2));
-        fill();
+            beginPath();
+            rect(width - widthBy3, 0, widthBy3, height);
+            fillPaint(linearGradient(width - widthBy3, 0, width, 0, color1, color2));
+            fill();
 
-        beginPath();
-        rect(widthBy3 - 1, 0, widthBy3 + 2, height);
-        fillColor(color1);
-        fill();
+            beginPath();
+            rect(widthBy3 - 1, 0, widthBy3 + 2, height);
+            fillColor(color1);
+            fill();
+        }
 
         // image name
         const Size<uint> imgSize = imageName.getSize();
@@ -878,7 +881,7 @@ protected:
         if (ev.button == 1 && ev.press && imageNameArea.contains(ev.pos))
         {
             if (inspectorWindow == nullptr)
-                inspectorWindow = new InspectorWindow(this, theme, this);
+                inspectorWindow = new InspectorWindow(this, this, theme);
 
             inspectorWindow->isOpen = true;
         }

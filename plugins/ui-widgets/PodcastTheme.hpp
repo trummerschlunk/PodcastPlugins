@@ -14,11 +14,15 @@
 
 struct PodcastTheme : QuantumTheme
 {
+    bool useBackgroundGradient = true;
     uint sidelabelsFontSize = 13;
     Color inputLevelBracket1 = Color::fromHTML("#7f4500");
     Color inputLevelBracket2 = Color::fromHTML("#336c33");
 
-    PodcastTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
+    PodcastTheme(const uint32_t bgColor,
+                 const uint32_t fgColor,
+                 const double scaleFactor,
+                 const bool loadThemeNow = true) noexcept
     {
         widgetLineSize = 1;
         knobIndicatorSize = 3;
@@ -34,22 +38,33 @@ struct PodcastTheme : QuantumTheme
         {
             String filename(getSpecialDir(kSpecialDirConfig));
             filename += "PodcastTheme.json";
-            loadTheme(filename);
+
+            // try to use host colors if there is no custom theme
+            if (! loadTheme(filename) && bgColor != 0 && fgColor != 0xffffffff)
+            {
+                windowBackgroundColor = Color::fromRGB(bgColor);
+                textLightColor = Color::fromRGB(fgColor);
+                textDarkColor = Color(textLightColor, windowBackgroundColor.asGrayscale(), 0.5f);
+                textMidColor = Color(textLightColor, textDarkColor, 0.5f);
+            }
         }
 
         scaleAll(scaleFactor);
     }
 
-    void loadTheme(const char* const filename)
+    bool loadTheme(const char* const filename)
     {
         std::ifstream f(filename);
         if (! f.good())
-            return;
+            return false;
 
         nlohmann::json j;
 
         try {
             j = nlohmann::json::parse(f);
+
+            if (j.contains("useBackgroundGradient"))
+                useBackgroundGradient = j["useBackgroundGradient"].get<bool>();
 
             #define LOAD_UINT(var) if (j.contains(#var)) var = j[#var].get<uint>();
             LOAD_UINT(borderSize)
@@ -80,11 +95,13 @@ struct PodcastTheme : QuantumTheme
 
         } catch (const std::exception& e) {
             d_stderr("failed to parse PodcastTheme: %s", e.what());
-            return;
+            return false;
         } catch (...) {
             d_stderr("failed to parse PodcastTheme: unknown exception");
-            return;
+            return false;
         }
+
+        return true;
     }
 
     void scaleAll(const double scaleFactor)
