@@ -19,10 +19,7 @@ struct PodcastTheme : QuantumTheme
     Color inputLevelBracket1 = Color::fromHTML("#7f4500");
     Color inputLevelBracket2 = Color::fromHTML("#336c33");
 
-    PodcastTheme(const uint32_t bgColor,
-                 const uint32_t fgColor,
-                 const double scaleFactor,
-                 const bool loadThemeNow = true) noexcept
+    PodcastTheme(const double scaleFactor, const bool loadThemeNow = true) noexcept
     {
         widgetLineSize = 1;
         knobIndicatorSize = 3;
@@ -38,15 +35,7 @@ struct PodcastTheme : QuantumTheme
         {
             String filename(getSpecialDir(kSpecialDirConfig));
             filename += "PodcastTheme.json";
-
-            // try to use host colors if there is no custom theme
-            if (! loadTheme(filename) && bgColor != 0 && fgColor != 0xffffffff)
-            {
-                windowBackgroundColor = Color::fromRGB(bgColor);
-                textLightColor = Color::fromRGB(fgColor);
-                textDarkColor = Color(textLightColor, windowBackgroundColor.asGrayscale(), 0.5f);
-                textMidColor = Color(textLightColor, textDarkColor, 0.5f);
-            }
+            loadTheme(filename);
         }
 
         scaleAll(scaleFactor);
@@ -119,5 +108,14 @@ struct PodcastTheme : QuantumTheme
 
         windowPadding = borderSize + padding * 3;
         textPixelRatioWidthCompensation = static_cast<uint>(scaleFactor - 1.0 + 0.25);
+    }
+
+    void useHostColors(const uint32_t bgColor, const uint32_t fgColor)
+    {
+        windowBackgroundColor = Color::fromRGB(bgColor);
+        textLightColor = Color::fromRGB(fgColor);
+        textDarkColor = Color(textLightColor, windowBackgroundColor.asGrayscale(), 0.5f);
+        textMidColor = Color(textLightColor, textDarkColor, 0.5f);
+        useBackgroundGradient = false;
     }
 };

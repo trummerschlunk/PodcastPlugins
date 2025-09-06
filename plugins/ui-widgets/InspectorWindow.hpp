@@ -84,7 +84,7 @@ protected:
         if (ImGui::Button("Reset"))
         {
             changedColors = true;
-            theme = PodcastTheme(ui->getBackgroundColor(), ui->getForegroundColor(), scaleFactor, false);
+            theme = PodcastTheme(scaleFactor, false);
         }
 
         ImGui::SameLine();
@@ -115,6 +115,16 @@ protected:
             opts.saving = isSaving = false;
             opts.title = "Import PodcastPlugins Theme";
             getWindow().openFileBrowser(opts);
+        }
+
+        const uint bgColor = ui->getBackgroundColor();
+        const uint fgColor = ui->getForegroundColor();
+        if (bgColor != 0 && fgColor != 0xffffffff)
+        {
+            ImGui::SameLine();
+
+            if (ImGui::Button("Use host colors"))
+                theme.useHostColors(bgColor, fgColor);
         }
 
 #if 0

@@ -590,7 +590,7 @@ protected:
 public:
     PodcastUI()
         : UI(DISTRHO_UI_DEFAULT_WIDTH, DISTRHO_UI_DEFAULT_HEIGHT),
-          theme(getBackgroundColor(), getForegroundColor(), getScaleFactor()),
+          theme(getScaleFactor()),
           inputGroup(this, this, theme),
           inputLevelerGroup(this, this, this, theme),
           contentGroup(this, this, this, theme),
