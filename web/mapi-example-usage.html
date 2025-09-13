@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="">
+    <head>
+        <meta charset="utf-8">
+        <title></title>
+        <script>
+
+// module meta-data, manually extracted from faust files
+// { def, min, max }
+var TrackParameters = {
+    bypass_timbre: 0,
+    // { 0, 0, 1 },
+    bypass_leveler: 1,
+    // { 0, 0, 1 },
+    bypass_style: 2,
+    // { 0, 0, 1 },
+    bypass_global: 3,
+    // { 0, 0, 1 },
+    timbre_strength: 4,
+    // { 80.0, 0.0, 100.0 },
+    timbre: 5,
+    // { 0.0, -5.0, 5.0 },
+    input_gain: 6,
+    // { 0.0, -20.0, 20.0 },
+    leveler_target: 7,
+    // { -16.0, -26.0, -6.0 },
+    style: 8,
+    // { 0.0, -5.0, 5.0 },
+};
+var MasterParameters = {
+    bypass_timbre: 0,
+    // { 0, 0, 1 },
+    bypass_leveler: 1,
+    // { 0, 0, 1 },
+    bypass_style: 2,
+    // { 0, 0, 1 },
+    bypass_global: 3,
+    // { 0, 0, 1 },
+    input_gain: 4,
+    // { 0.0, -20.0, 20.0 },
+    leveler_target: 5,
+    // { -16.0, -26.0, -6.0 },
+    style: 6,
+    // { 0.0, -5.0, 5.0 },
+    timbre: 7,
+    // { 0.0, -5.0, 5.0 },
+};
+
+// global vars
+var audioContext = null;
+var handle_master = null;
+var handle_track = null;
+var module_master = null;
+var module_track = null;
+
+// load the wasm modules
+function init(callback) {
+    var err = [];
+
+    // check if audio is supported
+    if (typeof(AudioContext) !== 'undefined') {
+        audioContext = new AudioContext();
+    } else {
+        err.push('AudioContext unsupported');
+    }
+    if (navigator.mediaDevices === undefined || navigator.mediaDevices.getUserMedia === undefined) {
+        err.push('navigator.mediaDevices.getUserMedia unsupported');
+    }
+
+    // check if WebAssembly is properly supported
+    if (typeof(WebAssembly) === 'undefined') {
+        err.push('WebAssembly unsupported');
+    } else {
+        if (! WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,1,4,1,96,0,0,3,2,1,0,5,3,1,0,1,10,14,1,12,0,65,0,65,0,65,0,252,10,0,0,11])))
+            err.push('Bulk Memory Operations unsupported');
+        if (! WebAssembly.validate(new Uint8Array([0,97,115,109,1,0,0,0,2,8,1,1,97,1,98,3,127,1,6,6,1,127,1,65,0,11,7,5,1,1,97,3,1])))
+            err.push('Importable/Exportable mutable globals unsupported');
+    }
+
+    // bail-out early if any errors happened
+    if (err.length !== 0) {
+        callback(err);
+        return;
+    }
+
+    // load pp-master module
+    var script_master = document.createElement('script');
+    script_master.setAttribute('async',true);
+    script_master.setAttribute('src', 'pp-master-mapi.js');
+    script_master.setAttribute('type','text/javascript');
+    script_master.onload = function() {
+        // mapi_master is the global function to create the master module object
+        mapi_master({
+            postRun: function(module) {
+                handle_master = module._mapi_create(audioContext.sampleRate);
+                if (handle_master) {
+                    module_master = module;
+                    // start bypassed
+                    module_master._mapi_set_parameter(handle_master, MasterParameters.bypass_global, 1.0);
+                }
+                if (module_master && module_track) {
+                    callback()
+                }
+            },
+        });
+    };
+
+    // load pp-track module
+    var script_track = document.createElement('script');
+    script_track.setAttribute('async',true);
+    script_track.setAttribute('src', 'pp-track-mapi.js');
+    script_track.setAttribute('type','text/javascript');
+    script_track.onload = function() {
+        // mapi_track comes from 'pp-track-mapi.js', creates the track module object
+        mapi_track({
+            postRun: function(module) {
+                handle_track = module._mapi_create(audioContext.sampleRate);
+                if (handle_track) {
+                    module_track = module;
+                    // start bypassed
+                    module_track._mapi_set_parameter(handle_track, TrackParameters.bypass_global, 1.0);
+                }
+                if (module_master && module_track) {
+                    callback()
+                }
+            },
+        });
+    };
+
+    // trigger async loading
+    document.head.appendChild(script_master);
+    document.head.appendChild(script_track);
+};
+
+window.addEventListener('DOMContentLoaded', function() {
+    // call init function and do setup processing once we have loaded the wasm modules
+    init(function(err) {
+
+        if (err) {
+            document.getElementById('error').setHTMLUnsafe('<h2>Error</h2><p>' + err.join('<br>') + '</p>');
+            return;
+        }
+
+        document.getElementById('error').style.setProperty('display', 'none');
+        document.getElementById('content').style.removeProperty('display');
+
+        // audio input processing
+        document.getElementById('enable-input').addEventListener('click', function() {
+            var constraints = {
+                'audio': {
+                    'autoGainControl': { 'ideal': false },
+                    'echoCancellation': { 'ideal': false },
+                    'noiseSuppression': { 'ideal': false },
+                    'channelCount': { 'min': 0, 'ideal': 2 },
+                    'latency': { 'min': 0, 'ideal': 0 },
+                    'sampleSize': { 'min': 8, 'max': 32, 'ideal': 16 },
+                    // old properties for chrome
+                    'googAudioMirroring': { 'ideal': false },
+                    'googAutoGainControl': { 'ideal': false },
+                    'googAutoGainControl2': { 'ideal': false },
+                    'googDAEchoCancellation': { 'ideal': false },
+                    'googEchoCancellation': { 'ideal': false },
+                    'googEchoCancellation2': { 'ideal': false },
+                    'googHighpassFilter': { 'ideal': false },
+                    'googNoiseSuppression': { 'ideal': false },
+                    'googNoiseSuppression2': { 'ideal': false },
+                    'googTypingNoiseDetection': { 'ideal': false },
+                    'intelligibilityEnhancer': { 'ideal': false },
+                    'levelControl': { 'ideal': false },
+                    'levelControlInitialPeakLevelDBFS': { 'ideal': false },
+                },
+                'video': false,
+            };
+
+            var success = function(stream) {
+                document.getElementById('enable-input').style.setProperty('display', 'none');
+
+                // create processor
+                var bufferSize = 512;
+                var numInputs = 2;
+                var numOutputs = 2;
+                var audioProcessor = audioContext.createScriptProcessor(bufferSize, numInputs, numOutputs);
+
+                // setup wasm memory
+                // TODO simplify this setup?
+                var numBuffers = Math.max(numInputs, numOutputs);
+                var sizeof_float = 4;
+                var track = {
+                    data: module_track._malloc(sizeof_float * bufferSize * numBuffers),
+                    ptrs: module_track._malloc(sizeof_float * numBuffers),
+                }
+                var master = {
+                    data: module_master._malloc(sizeof_float * bufferSize * numBuffers),
+                    ptrs: module_master._malloc(sizeof_float * numBuffers),
+                }
+                for (var i = 0; i < numBuffers; ++i) {
+                    module_track.HEAPU32[track.ptrs + (i << 2) >> 2] = track.data + sizeof_float * bufferSize * i;
+                    module_master.HEAPU32[master.ptrs + (i << 2) >> 2] = master.data + sizeof_float * bufferSize * i;
+                }
+
+                audioProcessor.onaudioprocess = function (e) {
+                    if (e.inputBuffer.length != e.outputBuffer.length || e.inputBuffer.length != bufferSize) {
+                        console.log('invalid buffer size!', e.inputBuffer.length, e.inputBuffer.length, bufferSize);
+                    }
+                    if (e.inputBuffer.numberOfChannels != numInputs) {
+                        console.log('invalid number of input channels!', e.inputBuffer.numberOfChannels, numInputs);
+                    }
+                    if (e.outputBuffer.numberOfChannels != numOutputs) {
+                        console.log('invalid number of output channels!', e.outputBuffer.numberOfChannels, numOutputs);
+                    }
+
+                    // copy audio input into "track" buffers
+                    for (var i = 0; i < numInputs; ++i) {
+                        var buffer = e.inputBuffer.getChannelData(i);
+                        var offset = bufferSize * i;
+                        for (var j = 0; j < bufferSize; ++j)
+                            module_track.HEAPF32[track.data + ((offset + j) << 2) >> 2] = buffer[j];
+                    }
+
+                    // process "track"
+                    module_track._mapi_process(handle_track, track.ptrs, track.ptrs, bufferSize);
+
+                    // copy "track" audio into "master"
+                    for (var i = 0; i < numBuffers; ++i) {
+                        var offset = bufferSize * i;
+                        for (var j = 0; j < bufferSize; ++j) {
+                            module_master.HEAPF32[master.data + ((offset + j) << 2) >> 2]
+                                = module_track.HEAPF32[track.data + ((offset + j) << 2) >> 2];
+                        }
+                    }
+
+                    // process "master"
+                    module_master._mapi_process(handle_master, master.ptrs, master.ptrs, bufferSize);
+
+                    // copy "master" output to system output
+                    for (var i = 0; i < numOutputs; ++i) {
+                        var buffer = e.outputBuffer.getChannelData(i);
+                        var offset = bufferSize * i;
+                        for (var j = 0; j < bufferSize; ++j) {
+                            buffer[j] = module_master.HEAPF32[master.data + ((offset + j) << 2) >> 2];
+                        }
+                    }
+                };
+
+                audioContext.createMediaStreamSource(stream).connect(audioProcessor);
+                audioProcessor.connect(audioContext.destination);
+            };
+            var fail = function(err) {
+                document.getElementById('error').setHTMLUnsafe('<h2>Error</h2><p>' + err + '</p>');
+                document.getElementById('error').style.removeProperty('display');
+                console.error(err);
+            };
+
+            navigator.mediaDevices.getUserMedia(constraints).then(success).catch(fail);
+        });
+
+        // plugin parameters
+        // typically these would be pre-setup to a known good configuration
+        var track = {
+            bypass: document.getElementById('pp-track-bypass'),
+            pregain: document.getElementById('pp-track-pregain'),
+            pregainVal: document.getElementById('pp-track-pregain-value'),
+            target: document.getElementById('pp-track-target'),
+            targetVal: document.getElementById('pp-track-target-value'),
+            timbre: document.getElementById('pp-track-timbre'),
+            timbreVal: document.getElementById('pp-track-timbre-value'),
+            timbreStrength: document.getElementById('pp-track-timbre-strength'),
+            timbreStrengthVal: document.getElementById('pp-track-timbre-strength-value'),
+            style: document.getElementById('pp-track-style'),
+            styleVal: document.getElementById('pp-track-style-value'),
+        };
+        track.pregainVal.textContent = track.pregain.value;
+        track.targetVal.textContent = track.target.value;
+        track.timbreVal.textContent = track.timbre.value;
+        track.timbreStrengthVal.textContent = track.timbreStrength.value;
+        track.styleVal.textContent = track.style.value;
+
+        track.bypass.addEventListener('click', function() {
+            module_track._mapi_set_parameter(handle_track, TrackParameters.bypass_global, this.checked ? 1.0 : 0.0);
+        });
+        track.pregain.addEventListener('input', function(event) {
+            module_track._mapi_set_parameter(handle_track, TrackParameters.input_gain, event.target.value);
+            track.pregainVal.textContent = event.target.value;
+        });
+        track.target.addEventListener('input', function(event) {
+            module_track._mapi_set_parameter(handle_track, TrackParameters.leveler_target, event.target.value);
+            track.targetVal.textContent = event.target.value;
+        });
+        track.timbre.addEventListener('input', function(event) {
+            module_track._mapi_set_parameter(handle_track, TrackParameters.timbre, event.target.value);
+            track.timbreVal.textContent = event.target.value;
+        });
+        track.timbreStrength.addEventListener('input', function(event) {
+            module_track._mapi_set_parameter(handle_track, TrackParameters.timbre_strength, event.target.value);
+            track.timbreStrengthVal.textContent = event.target.value;
+        });
+        track.style.addEventListener('input', function(event) {
+            module_track._mapi_set_parameter(handle_track, TrackParameters.style, event.target.value);
+            track.styleVal.textContent = event.target.value;
+        });
+
+        var master = {
+            bypass: document.getElementById('pp-master-bypass'),
+            pregain: document.getElementById('pp-master-pregain'),
+            pregainVal: document.getElementById('pp-master-pregain-value'),
+            target: document.getElementById('pp-master-target'),
+            targetVal: document.getElementById('pp-master-target-value'),
+            style: document.getElementById('pp-master-style'),
+            styleVal: document.getElementById('pp-master-style-value'),
+            timbre: document.getElementById('pp-master-timbre'),
+            timbreVal: document.getElementById('pp-master-timbre-value'),
+        };
+        master.pregainVal.textContent = master.pregain.value;
+        master.targetVal.textContent = master.target.value;
+        master.styleVal.textContent = master.style.value;
+        master.timbreVal.textContent = master.timbre.value;
+
+        master.bypass.addEventListener('click', function() {
+            module_master._mapi_set_parameter(handle_master, MasterParameters.bypass_global, this.checked ? 1.0 : 0.0);
+        });
+        master.pregain.addEventListener('input', function(event) {
+            module_master._mapi_set_parameter(handle_master, MasterParameters.input_gain, event.target.value);
+            master.pregainVal.textContent = event.target.value;
+        });
+        master.target.addEventListener('input', function(event) {
+            module_master._mapi_set_parameter(handle_master, MasterParameters.leveler_target, event.target.value);
+            master.targetVal.textContent = event.target.value;
+        });
+        master.style.addEventListener('input', function(event) {
+            module_master._mapi_set_parameter(handle_master, MasterParameters.style, event.target.value);
+            master.styleVal.textContent = event.target.value;
+        });
+        master.timbre.addEventListener('input', function(event) {
+            module_master._mapi_set_parameter(handle_master, MasterParameters.timbre, event.target.value);
+            master.timbreVal.textContent = event.target.value;
+        });
+    });
+});
+
+        </script>
+        <style>
+            table {
+                text-align: center;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="error">Loading...</div>
+        <div id="content" style="display: none">
+            <div id="main">
+                <input type="button" id="enable-input" value="Enable Input" />
+            </div>
+            <div id="pp-track">
+                <h2>Podcast Track</h2>
+                <div>
+                    <input autocomplete="off" type="checkbox" id="pp-track-bypass" value="pp-track-bypass" checked></input>
+                    <label for="pp-track-bypass">Bypass</label>
+                </div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th>Controller</th>
+                    </tr>
+                    <tr>
+                        <td>PreGain</td>
+                        <td><output id="pp-track-pregain-value"></output></td>
+                        <td><input autocomplete="off" id="pp-track-pregain" type="range" value="0" min="-20" max="20" /></td>
+                    </tr>
+                    <tr>
+                        <td>Target</td>
+                        <td><output id="pp-track-target-value"></output></td>
+                        <td><input autocomplete="off" id="pp-track-target" type="range" value="-16" min="-26" max="-6"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Timbre</td>
+                        <td><output id="pp-track-timbre-value"></output></td>
+                        <td><input autocomplete="off" id="pp-track-timbre" type="range" value="0" min="-5" max="5" step="0.5"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Timbre Strength</td>
+                        <td><output id="pp-track-timbre-strength-value"></output></td>
+                        <td><input autocomplete="off" id="pp-track-timbre-strength" type="range" value="80" min="0" max="100"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Style</td>
+                        <td><output id="pp-track-style-value"></output></td>
+                        <td><input autocomplete="off" id="pp-track-style" type="range" value="0" min="-5" max="5" step="0.5"></input></td>
+                    </tr>
+                </table>
+            </div>
+            <div id="pp-master">
+                <h2>Podcast Master</h2>
+                <div>
+                    <input autocomplete="off" type="checkbox" id="pp-master-bypass" value="pp-master-bypass" checked></input>
+                    <label for="pp-master-bypass">Bypass</label>
+                </div>
+                <table>
+                    <tr>
+                        <th>Name</th>
+                        <th>Value</th>
+                        <th>Controller</th>
+                    </tr>
+                    <tr>
+                        <td>PreGain</td>
+                        <td><output id="pp-master-pregain-value"></output></td>
+                        <td><input autocomplete="off" id="pp-master-pregain" type="range" value="0" min="-20" max="20" /></td>
+                    </tr>
+                    <tr>
+                        <td>Target</td>
+                        <td><output id="pp-master-target-value"></output></td>
+                        <td><input autocomplete="off" id="pp-master-target" type="range" value="-16" min="-26" max="6"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Style</td>
+                        <td><output id="pp-master-style-value"></output></td>
+                        <td><input autocomplete="off" id="pp-master-style" type="range" value="0" min="-5" max="5" step="0.5"></input></td>
+                    </tr>
+                    <tr>
+                        <td>Timbre</td>
+                        <td><output id="pp-master-timbre-value"></output></td>
+                        <td><input autocomplete="off" id="pp-master-timbre" type="range" value="0" min="-5" max="5" step="0.5"></input></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </body>
+</html>

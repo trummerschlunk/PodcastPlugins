@@ -77,6 +77,13 @@ PLUGIN_GENERATED_FILES += build/track/Name.hpp
 gen: $(PLUGIN_GENERATED_FILES)
 
 # ---------------------------------------------------------------------------------------------------------------------
+# mapi target, to generate shared libraries
+
+mapi: $(PLUGIN_GENERATED_FILES)
+	$(MAKE) -C plugins/master mapi
+	$(MAKE) -C plugins/track mapi
+
+# ---------------------------------------------------------------------------------------------------------------------
 # podcast-plugins target, for actual building the plugin after its source code has been generated
 
 podcast-plugins: $(PLUGIN_GENERATED_FILES) dgl

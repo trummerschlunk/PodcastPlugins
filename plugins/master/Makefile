@@ -22,6 +22,7 @@ export SKIP_NATIVE_AUDIO_FALLBACK = true
 # pick UI type
 include $(DPF_PATH)/Makefile.base.mk
 ifeq ($(WASM),true)
+export MAPI_MODULE_NAME = mapi_master
 export UI_TYPE = gles2
 endif
 
